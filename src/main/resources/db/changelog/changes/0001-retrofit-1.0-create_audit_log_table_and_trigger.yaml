@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 0001-retrofit-1.0
       author: patryk.lenza
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: audit
+              tableName: logged_actions
       changes:
         - sqlFile:
             dbms: postgresql
