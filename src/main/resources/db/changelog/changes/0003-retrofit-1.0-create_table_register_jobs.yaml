@@ -17,7 +17,7 @@ databaseChangeLog:
                     primaryKeyName: register_job_id_pkey
               - column:
                   name: TRIGGER
-                  type: varchar(15)
+                  type: varchar(128)
                   constraints:
                     nullable: false
               - column:

@@ -47,10 +47,7 @@ public class DatabaseInitializer {
   }
 
   public void clear() {
-    jdbcTemplate.execute("TRUNCATE TABLE T_MD_TAXI_PHV CASCADE");
-    jdbcTemplate.update("DELETE FROM T_MD_LICENSING_AUTHORITY "
-        + "WHERE LICENCE_AUTHORITY_NAME in (?, ?, ?, ?)", "la-1", "la-2", "la-3", "la-4");
-    jdbcTemplate.execute("TRUNCATE TABLE T_MD_REGISTER_JOBS CASCADE");
+    jdbcTemplate.execute("TRUNCATE TABLE retrofit.T_MD_REGISTER_JOBS CASCADE");
     jdbcTemplate.execute("TRUNCATE TABLE audit.logged_actions CASCADE");
   }
 
