@@ -53,7 +53,7 @@ spring:
     enabled: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/caz-national-taxi-phv
+    url: jdbc:postgresql://localhost:5432/caz_vcc
     username: postgres
     password: postgres
 
