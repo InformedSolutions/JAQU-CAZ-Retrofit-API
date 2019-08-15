@@ -20,10 +20,12 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJob;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobName;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.AsyncBackgroundJobStarter;
+import uk.gov.caz.taxiregister.service.CsvFileOnS3MetadataExtractor;
+import uk.gov.caz.taxiregister.service.CsvFileOnS3MetadataExtractor.CsvMetadata;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
-import uk.gov.caz.taxiregister.service.UploaderIdS3MetadataExtractor;
 import uk.gov.caz.taxiregister.service.exception.ActiveJobsCountExceededException;
+import uk.gov.caz.taxiregister.service.exception.FatalErrorWithCsvFileMetadataException;
 
 @RestController
 @Slf4j
@@ -33,7 +35,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
   private final AsyncBackgroundJobStarter asyncBackgroundJobStarter;
   private final RegisterJobSupervisor registerJobSupervisor;
-  private final UploaderIdS3MetadataExtractor uploaderIdS3MetadataExtractor;
+  private final CsvFileOnS3MetadataExtractor uploaderIdS3MetadataExtractor;
 
   /**
    * Creates new instance of {@link RegisterCsvFromS3Controller} class.
@@ -41,26 +43,27 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
    * @param asyncBackgroundJobStarter Implementation of {@link AsyncBackgroundJobStarter}
    *     interface.
    * @param registerJobSupervisor {@link RegisterJobSupervisor} that supervises whole job run.
-   * @param uploaderIdS3MetadataExtractor {@link UploaderIdS3MetadataExtractor} that allows to
-   *     get 'uploader-id' metadata from CSV file.
+   * @param csvFileOnS3MetadataExtractor {@link CsvFileOnS3MetadataExtractor} that allows to get
+   *     'uploader-id' and 'csv-content-type' metadata from CSV file.
    */
   public RegisterCsvFromS3Controller(
       AsyncBackgroundJobStarter asyncBackgroundJobStarter,
       RegisterJobSupervisor registerJobSupervisor,
-      UploaderIdS3MetadataExtractor uploaderIdS3MetadataExtractor) {
+      CsvFileOnS3MetadataExtractor csvFileOnS3MetadataExtractor) {
     this.asyncBackgroundJobStarter = asyncBackgroundJobStarter;
     this.registerJobSupervisor = registerJobSupervisor;
-    this.uploaderIdS3MetadataExtractor = uploaderIdS3MetadataExtractor;
+    this.uploaderIdS3MetadataExtractor = csvFileOnS3MetadataExtractor;
   }
 
   @Override
   public ResponseEntity<RegisterCsvFromS3JobHandle> startRegisterJob(
       String correlationId, StartRegisterCsvFromS3JobCommand startCommand) {
-    UUID uploaderId = getUploaderIdOrThrowIfUnableTo(startCommand);
+    CsvMetadata csvMetadata = getCsvMetadata(startCommand);
 
-    checkPreconditions(uploaderId);
+    checkPreconditions(csvMetadata.getUploaderId());
 
-    StartParams startParams = prepareStartParams(correlationId, startCommand, uploaderId);
+    StartParams startParams = prepareStartParams(correlationId, startCommand,
+        csvMetadata.getUploaderId());
     RegisterJobName registerJobName = registerJobSupervisor.start(startParams);
 
     return ResponseEntity
@@ -69,18 +72,10 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
         .body(new RegisterCsvFromS3JobHandle(registerJobName.getValue()));
   }
 
-  private UUID getUploaderIdOrThrowIfUnableTo(
-      StartRegisterCsvFromS3JobCommand startCommand) {
-    Optional<UUID> uploaderId = uploaderIdS3MetadataExtractor
-        .getUploaderId(startCommand.getS3Bucket(), startCommand.getFilename());
-
-    return uploaderId.orElseThrow(
-        () -> new UnableToGetUploaderIdMetadataException(prepareErrorMessage(startCommand)));
-  }
-
-  private String prepareErrorMessage(StartRegisterCsvFromS3JobCommand startCommand) {
-    return "Unable to fetch \"uploader-id\" metadata from S3 Bucket: " + startCommand.getS3Bucket()
-        + "; File: " + startCommand.getFilename();
+  private CsvMetadata getCsvMetadata(StartRegisterCsvFromS3JobCommand startCommand)
+      throws FatalErrorWithCsvFileMetadataException {
+    return uploaderIdS3MetadataExtractor
+        .getRequiredMetadata(startCommand.getS3Bucket(), startCommand.getFilename());
   }
 
   @Override
@@ -101,6 +96,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
   private StartParams prepareStartParams(String correlationId,
       StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, UUID uploaderId) {
     return StartParams.builder()
+        // TODO: from CsvContentType and update tests
         .registerJobTrigger(RegisterJobTrigger.RETROFIT_CSV_FROM_S3)
         .registerJobNameSuffix(stripCsvExtension(startRegisterCsvFromS3JobCommand.getFilename()))
         .correlationId(correlationId)
@@ -147,8 +143,8 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
     }
   }
 
-  @ExceptionHandler(UnableToGetUploaderIdMetadataException.class)
-  ResponseEntity<String> handleUnableToGetUploaderIdMetadataException(Exception e) {
+  @ExceptionHandler(FatalErrorWithCsvFileMetadataException.class)
+  ResponseEntity<String> handleFatalErrorWithCsvFileMetadataException(Exception e) {
     log.error(e.getMessage());
     return ResponseEntity
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -170,12 +166,4 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
     log.error("Missing request header: ", e);
     return ResponseEntity.status(BAD_REQUEST).body(e.getMessage());
   }
-
-  private static class UnableToGetUploaderIdMetadataException extends RuntimeException {
-
-    public UnableToGetUploaderIdMetadataException(String message) {
-      super(message);
-    }
-  }
-
 }

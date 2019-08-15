@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import uk.gov.caz.taxiregister.model.CsvContentType;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJob;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobError;
@@ -18,7 +19,6 @@ public class TestObjects {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   public static final int S3_REGISTER_JOB_ID = 123;
-  public static final int API_CALL_REGISTER_JOB_ID = 456;
   public static final String S3_REGISTER_JOB_NAME = "20190809_154821_CSV_FROM_S3_FILENAME";
   public static final String NOT_EXISTING_REGISTER_JOB_NAME = "NOT_EXISTING_JOB";
   public static final List<RegisterJobError> TYPICAL_REGISTER_JOB_ERRORS = ImmutableList.of(
@@ -44,7 +44,7 @@ public class TestObjects {
   public static final UUID TYPICAL_REGISTER_JOB_UPLOADER_ID = UUID
       .fromString("11111111-2222-3333-4444-555555555555");
   public static final String TYPICAL_CORRELATION_ID = "CorrelationId";
-  public static String VALID_API_KEY = TYPICAL_REGISTER_JOB_UPLOADER_ID.toString();
+  public static final CsvContentType TYPICAL_REGISTER_JOB_CSV_CONTENT_TYPE = CsvContentType.RETROFIT_LIST;
 
   public static final RegisterJob S3_RUNNING_REGISTER_JOB = RegisterJob.builder()
       .id(S3_REGISTER_JOB_ID)

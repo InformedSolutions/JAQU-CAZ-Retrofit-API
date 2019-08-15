@@ -2,21 +2,16 @@ package uk.gov.caz.testutils;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.caz.testutils.TestObjects.API_CALL_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
-import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
 
-import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.AsyncBackgroundJobStarter;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
-import uk.gov.caz.taxiregister.service.SourceAwareRegisterService;
 
 public class RegisterJobSupervisorStartParamsAssert extends
     AbstractAssert<RegisterJobSupervisorStartParamsAssert, StartParams> {
@@ -59,19 +54,6 @@ public class RegisterJobSupervisorStartParamsAssert extends
         .fireAndForgetRegisterCsvFromS3Job(S3_REGISTER_JOB_ID, expectedS3Bucket,
             expectedFilename, TYPICAL_CORRELATION_ID);
     verifyNoMoreInteractions(mockedAsyncBackgroundJobStarter);
-    return this;
-  }
-
-  public RegisterJobSupervisorStartParamsAssert invokedJob(
-      SourceAwareRegisterService mockedSourceAwareRegisterService,
-      List<VehicleDto> expectedVehicles) {
-    RegisterJobSupervisor.RegisterJobInvoker invoker = actual.getRegisterJobInvoker();
-    Assertions.assertThat(invoker).isNotNull();
-    invoker.invoke(API_CALL_REGISTER_JOB_ID);
-    verify(mockedSourceAwareRegisterService)
-        .register(expectedVehicles, TYPICAL_REGISTER_JOB_UPLOADER_ID, API_CALL_REGISTER_JOB_ID,
-            TYPICAL_CORRELATION_ID);
-    verifyNoMoreInteractions(mockedSourceAwareRegisterService);
     return this;
   }
 }

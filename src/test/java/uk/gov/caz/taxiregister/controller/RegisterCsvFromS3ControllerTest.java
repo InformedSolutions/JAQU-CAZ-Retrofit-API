@@ -15,6 +15,7 @@ import static uk.gov.caz.testutils.TestObjects.NOT_EXISTING_REGISTER_JOB_NAME;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
 import static uk.gov.caz.testutils.TestObjects.S3_RUNNING_REGISTER_JOB;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_CSV_CONTENT_TYPE;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,9 +35,11 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJobName;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.AsyncBackgroundJobStarter;
+import uk.gov.caz.taxiregister.service.CsvFileOnS3MetadataExtractor;
+import uk.gov.caz.taxiregister.service.CsvFileOnS3MetadataExtractor.CsvMetadata;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
-import uk.gov.caz.taxiregister.service.UploaderIdS3MetadataExtractor;
+import uk.gov.caz.taxiregister.service.exception.FatalErrorWithCsvFileMetadataException;
 
 @WebMvcTest(RegisterCsvFromS3Controller.class)
 class RegisterCsvFromS3ControllerTest {
@@ -51,7 +54,7 @@ class RegisterCsvFromS3ControllerTest {
   private RegisterJobSupervisor mockedRegisterJobSupervisor;
 
   @MockBean
-  private UploaderIdS3MetadataExtractor mockedUploaderIdS3MetadataExtractor;
+  private CsvFileOnS3MetadataExtractor mockedCsvFileOnS3MetadataExtractor;
 
   @Autowired
   private MockMvc mockMvc;
@@ -68,10 +71,10 @@ class RegisterCsvFromS3ControllerTest {
   }
 
   @Test
-  public void testRegisterJobStartWhenSuccessfullyObtainedUploaderIdMetadata() throws Exception {
+  public void testRegisterJobStartWhenSuccessfullyObtainedMetadata() throws Exception {
     // given
     mockSupervisor();
-    mockUploaderIdS3MetadataExtractorForSuccess();
+    mockCsvFileOnS3MetadataExtractorForSuccess();
     mockSupervisorForNotFindingStartingOrRunningJob();
 
     // when
@@ -88,15 +91,15 @@ class RegisterCsvFromS3ControllerTest {
   }
 
   @Test
-  public void testRegisterJobStartWhenUnableToObtainUploaderIdMetadata() throws Exception {
+  public void testRegisterJobStartWhenUnableToObtainMetadata() throws Exception {
     // given
     mockSupervisor();
-    mockUploaderIdS3MetadataExtractorForError();
+    mockCsvFileOnS3MetadataExtractorForError();
     mockSupervisorForNotFindingStartingOrRunningJob();
 
     // when
     postToStartRegisterJobAndCheckIfItReturns500WithMessage(
-        "Unable to fetch \"uploader-id\" metadata from S3 Bucket: s3Bucket; File: fileName.csv");
+        "Fatal Error with Metadata");
   }
 
   @Test
@@ -131,11 +134,14 @@ class RegisterCsvFromS3ControllerTest {
 
   @Test
   public void testRegisterNotStartJobWhenJobIsAlreadyRunningOrStarting() throws Exception {
+    // given
     mockForSuccess();
 
+    // when
     StartRegisterCsvFromS3JobCommand cmd = new
         StartRegisterCsvFromS3JobCommand(S3_BUCKET, CSV_FILE);
 
+    // then
     mockMvc.perform(
         post(RegisterCsvFromS3Controller.PATH)
             .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -169,14 +175,15 @@ class RegisterCsvFromS3ControllerTest {
         .willReturn(new RegisterJobName(S3_REGISTER_JOB_NAME));
   }
 
-  private void mockUploaderIdS3MetadataExtractorForSuccess() {
-    given(mockedUploaderIdS3MetadataExtractor.getUploaderId(S3_BUCKET, CSV_FILE))
-        .willReturn(Optional.of(TYPICAL_REGISTER_JOB_UPLOADER_ID));
+  private void mockCsvFileOnS3MetadataExtractorForSuccess() {
+    given(mockedCsvFileOnS3MetadataExtractor.getRequiredMetadata(S3_BUCKET, CSV_FILE))
+        .willReturn(new CsvMetadata(TYPICAL_REGISTER_JOB_UPLOADER_ID,
+            TYPICAL_REGISTER_JOB_CSV_CONTENT_TYPE));
   }
 
-  private void mockUploaderIdS3MetadataExtractorForError() {
-    given(mockedUploaderIdS3MetadataExtractor.getUploaderId(S3_BUCKET, CSV_FILE))
-        .willReturn(Optional.empty());
+  private void mockCsvFileOnS3MetadataExtractorForError() {
+    given(mockedCsvFileOnS3MetadataExtractor.getRequiredMetadata(S3_BUCKET, CSV_FILE))
+        .willThrow(new FatalErrorWithCsvFileMetadataException("Fatal Error with Metadata"));
   }
 
   private void mockSupervisorForFindingRegisterJob() {
@@ -202,7 +209,7 @@ class RegisterCsvFromS3ControllerTest {
 
   private void mockForSuccess() {
     mockSupervisor();
-    mockUploaderIdS3MetadataExtractorForSuccess();
+    mockCsvFileOnS3MetadataExtractorForSuccess();
     mockSupervisorForFindingStartingOrRunningJob();
   }
 

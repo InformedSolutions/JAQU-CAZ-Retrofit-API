@@ -33,7 +33,8 @@ import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 public interface RegisterCsvFromS3ControllerApiSpec {
 
   /**
-   * Request to start a job that registers vehicles. Source will be CSV file located on AWS S3.
+   * Request to start a job that registers Retrofitted vehicles or exempt ones. Source will be CSV
+   * file located on AWS S3.
    *
    * @param correlationId CorrelationID to track the request from the API gateway through the
    *     Enquiries stack
