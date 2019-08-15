@@ -24,7 +24,6 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
 @Import({BeanValidatorPluginsConfiguration.class, SwaggerApiInfo.class})
 public class SwaggerConfiguration {
 
-  public static final String TAG_REGISTER_CONTROLLER = "RegisterController";
   public static final String TAG_REGISTER_CSV_FROM_S3_CONTROLLER = "RegisterCsvFromS3Controller";
 
   /**
@@ -48,7 +47,6 @@ public class SwaggerConfiguration {
             Collections.emptyList()
         ))
         .pathMapping("/")
-        .tags(new Tag(TAG_REGISTER_CONTROLLER, "Register Controller"))
         .tags(new Tag(TAG_REGISTER_CSV_FROM_S3_CONTROLLER, "Register CSV from S3 Controller"))
         .additionalModels(
             typeResolver.resolve(VehicleDto.class),

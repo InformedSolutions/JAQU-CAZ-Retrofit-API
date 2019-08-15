@@ -80,7 +80,7 @@ class RegisterCsvFromS3ControllerTest {
     // then
     StartParams startParams = verifyThatSupervisorStartedJobAndCaptureItsParams();
     assertThat(startParams)
-        .wasTriggeredBy(RegisterJobTrigger.CSV_FROM_S3)
+        .wasTriggeredBy(RegisterJobTrigger.RETROFIT_CSV_FROM_S3)
         .hasCorrelationId(TYPICAL_CORRELATION_ID)
         .hasJobNameSuffix("fileName")
         .wasUploadedBy(TYPICAL_REGISTER_JOB_UPLOADER_ID)

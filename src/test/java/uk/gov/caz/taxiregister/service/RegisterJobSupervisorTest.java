@@ -8,7 +8,7 @@ import static uk.gov.caz.testutils.TestObjects.MODIFIED_REGISTER_JOB_ERRORS;
 import static uk.gov.caz.testutils.TestObjects.MODIFIED_REGISTER_JOB_VALIDATION_ERRORS;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
-import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_TRIGGER;
+import static uk.gov.caz.testutils.TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
 
@@ -184,7 +184,7 @@ class RegisterJobSupervisorTest {
   private StartParams prepareStartParams(AtomicBoolean capturedJobStarted,
       AtomicInteger capturedRegisterJobId) {
     return StartParams.builder()
-        .registerJobTrigger(S3_REGISTER_JOB_TRIGGER)
+        .registerJobTrigger(S3_RETROFIT_REGISTER_JOB_TRIGGER)
         .registerJobNameSuffix(CSV_FILE)
         .correlationId(TYPICAL_CORRELATION_ID)
         .uploaderId(TYPICAL_REGISTER_JOB_UPLOADER_ID)
@@ -196,7 +196,7 @@ class RegisterJobSupervisorTest {
   }
 
   private void prepareMocksForNameGenerationAndRegisterJobInsertion() {
-    given(mockedRegisterJobNameGenerator.generate(CSV_FILE, S3_REGISTER_JOB_TRIGGER))
+    given(mockedRegisterJobNameGenerator.generate(CSV_FILE, S3_RETROFIT_REGISTER_JOB_TRIGGER))
         .willReturn(new RegisterJobName(S3_REGISTER_JOB_NAME));
     given(mockedRegisterJobRepository.insert(any(RegisterJob.class)))
         .willReturn(S3_REGISTER_JOB_ID);

@@ -15,10 +15,11 @@ class RegisterJobNameGeneratorTest {
 
     // when
     RegisterJobName registerJobName = new RegisterJobNameGenerator()
-        .generate(jobSuffix, RegisterJobTrigger.CSV_FROM_S3);
+        .generate(jobSuffix, RegisterJobTrigger.RETROFIT_CSV_FROM_S3);
 
     // then
-    assertThat(registerJobName.getValue().matches("\\w{8}_\\w{6}_CSV_FROM_S3_job")).isTrue();
+    assertThat(registerJobName.getValue().matches("\\w{8}_\\w{6}_RETROFIT_CSV_FROM_S3_job"))
+        .isTrue();
   }
 
   @Test
@@ -28,10 +29,10 @@ class RegisterJobNameGeneratorTest {
 
     // when
     RegisterJobName registerJobName = new RegisterJobNameGenerator()
-        .generate(jobSuffix, RegisterJobTrigger.API_CALL);
+        .generate(jobSuffix, RegisterJobTrigger.GREEN_MOD_CSV_FROM_S3);
 
     // then
-    assertThat(registerJobName.getValue().matches("\\w{8}_\\w{6}_API_CALL")).isTrue();
+    assertThat(registerJobName.getValue().matches("\\w{8}_\\w{6}_GREEN_MOD_CSV_FROM_S3")).isTrue();
   }
 
   @Test
@@ -41,9 +42,9 @@ class RegisterJobNameGeneratorTest {
 
     // when
     RegisterJobName registerJobName = new RegisterJobNameGenerator()
-        .generate(jobSuffix, RegisterJobTrigger.CSV_FROM_S3);
+        .generate(jobSuffix, RegisterJobTrigger.RETROFIT_CSV_FROM_S3);
 
     // then
-    assertThat(registerJobName.getValue().matches("\\w{8}_\\w{6}_CSV_FROM_S3")).isTrue();
+    assertThat(registerJobName.getValue().matches("\\w{8}_\\w{6}_RETROFIT_CSV_FROM_S3")).isTrue();
   }
 }

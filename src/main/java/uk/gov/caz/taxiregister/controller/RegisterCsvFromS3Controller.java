@@ -29,7 +29,7 @@ import uk.gov.caz.taxiregister.service.exception.ActiveJobsCountExceededExceptio
 @Slf4j
 public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerApiSpec {
 
-  public static final String PATH = "/v1/scheme-management/register-csv-from-s3/jobs";
+  public static final String PATH = "/v1/retrofit/register-csv-from-s3/jobs";
 
   private final AsyncBackgroundJobStarter asyncBackgroundJobStarter;
   private final RegisterJobSupervisor registerJobSupervisor;
@@ -101,7 +101,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
   private StartParams prepareStartParams(String correlationId,
       StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, UUID uploaderId) {
     return StartParams.builder()
-        .registerJobTrigger(RegisterJobTrigger.CSV_FROM_S3)
+        .registerJobTrigger(RegisterJobTrigger.RETROFIT_CSV_FROM_S3)
         .registerJobNameSuffix(stripCsvExtension(startRegisterCsvFromS3JobCommand.getFilename()))
         .correlationId(correlationId)
         .uploaderId(uploaderId)

@@ -2,7 +2,7 @@ package uk.gov.caz.testutils;
 
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
-import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_TRIGGER;
+import static uk.gov.caz.testutils.TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_ERRORS;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
@@ -67,7 +67,7 @@ public class RegisterJobAssert extends AbstractAssert<RegisterJobAssert, Registe
   public RegisterJobAssert matchesAttributesOfTypicalRunningRegisterJob() {
     hasId(S3_REGISTER_JOB_ID);
     hasName(S3_REGISTER_JOB_NAME);
-    wasTriggeredBy(S3_REGISTER_JOB_TRIGGER);
+    wasTriggeredBy(S3_RETROFIT_REGISTER_JOB_TRIGGER);
     wasUploadedBy(TYPICAL_REGISTER_JOB_UPLOADER_ID);
     isInStatus(TYPICAL_RUNNING_REGISTER_JOB_STATUS);
     hasErrors(TYPICAL_REGISTER_JOB_ERRORS);
@@ -78,7 +78,7 @@ public class RegisterJobAssert extends AbstractAssert<RegisterJobAssert, Registe
   public RegisterJobAssert matchesAttributesOfTypicalStartingRegisterJob() {
     hasId(S3_REGISTER_JOB_ID);
     hasName(S3_REGISTER_JOB_NAME);
-    wasTriggeredBy(S3_REGISTER_JOB_TRIGGER);
+    wasTriggeredBy(S3_RETROFIT_REGISTER_JOB_TRIGGER);
     wasUploadedBy(TYPICAL_REGISTER_JOB_UPLOADER_ID);
     isInStatus(TYPICAL_STARTING_REGISTER_JOB_STATUS);
     hasErrors(Collections.emptyList());

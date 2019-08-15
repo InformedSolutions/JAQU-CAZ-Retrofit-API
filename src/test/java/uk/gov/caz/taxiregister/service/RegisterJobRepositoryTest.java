@@ -19,7 +19,7 @@ import static uk.gov.caz.taxiregister.service.RegisterJobRepository.COL_TRIGGER;
 import static uk.gov.caz.testutils.NtrAssertions.assertThat;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
-import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_TRIGGER;
+import static uk.gov.caz.testutils.TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_ERRORS_JOINED;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
@@ -61,6 +61,7 @@ class RegisterJobRepositoryTest {
 
   @Nested
   class UpdateErrors {
+
     @Test
     public void shouldThrowNullPointerExceptionWhenPassedListIsNull() {
       // given
@@ -96,7 +97,8 @@ class RegisterJobRepositoryTest {
       List<RegisterJobError> errors = mockInvalidFormatExceptionWhenConvertingToJson();
 
       // when
-      Throwable throwable = catchThrowable(() -> registerJobRepository.updateErrors(registerJobId, errors));
+      Throwable throwable = catchThrowable(
+          () -> registerJobRepository.updateErrors(registerJobId, errors));
 
       // then
       assertThat(throwable)
@@ -212,7 +214,8 @@ class RegisterJobRepositoryTest {
       ObjectMapper om = mock(ObjectMapper.class);
       List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError("123",
           "Validation error", "some error"));
-      given(om.writeValueAsString(errors)).willThrow(new InvalidFormatException((JsonParser) null, null, null, null));
+      given(om.writeValueAsString(errors))
+          .willThrow(new InvalidFormatException((JsonParser) null, null, null, null));
       registerJobRepository = new RegisterJobRepository(jdbcTemplate, om, MAX_ERRORS_COUNT);
       return errors;
     }
@@ -238,7 +241,8 @@ class RegisterJobRepositoryTest {
     }
 
     @Test
-    public void shouldMapResultSetToRegisterJobWithErrorsSetToNullWhenThereAreNoErrors() throws SQLException {
+    public void shouldMapResultSetToRegisterJobWithErrorsSetToNullWhenThereAreNoErrors()
+        throws SQLException {
       // given
       ResultSet resultSet = mockResultSetWithErrorsEqualTo(null);
 
@@ -252,7 +256,8 @@ class RegisterJobRepositoryTest {
     }
 
     @Test
-    public void shouldThrowRuntimeExceptionWhenParsingErrorFails() throws SQLException, IOException {
+    public void shouldThrowRuntimeExceptionWhenParsingErrorFails()
+        throws SQLException, IOException {
       // given
       mockInputOutputExceptionWhenParsingJson();
       ResultSet resultSet = mockResultSetWithErrorsEqualTo("");
@@ -270,7 +275,7 @@ class RegisterJobRepositoryTest {
       return mockResultSetWithErrorsEqualTo(TYPICAL_REGISTER_JOB_ERRORS_JOINED);
     }
 
-      private ResultSet mockResultSetWithErrorsEqualTo(String errors) throws SQLException {
+    private ResultSet mockResultSetWithErrorsEqualTo(String errors) throws SQLException {
       ResultSet resultSet = mock(ResultSet.class);
 
       when(resultSet.getInt(anyString())).thenAnswer(answer -> {
@@ -289,7 +294,7 @@ class RegisterJobRepositoryTest {
         String argument = answer.getArgument(0);
         switch (argument) {
           case COL_TRIGGER:
-            return S3_REGISTER_JOB_TRIGGER.name();
+            return S3_RETROFIT_REGISTER_JOB_TRIGGER.name();
           case COL_JOB_NAME:
             return S3_REGISTER_JOB_NAME;
           case COL_STATUS:

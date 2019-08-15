@@ -25,7 +25,8 @@ import uk.gov.caz.taxiregister.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 
 /**
- * Rest Controller related to registering Taxis and PHVs from CSV file located on AWS S3.
+ * Rest Controller related to registering Retrofit and MOD exemptions from CSV file located on AWS
+ * S3.
  */
 @Api(tags = {SwaggerConfiguration.TAG_REGISTER_CSV_FROM_S3_CONTROLLER})
 @RequestMapping(value = RegisterCsvFromS3Controller.PATH)

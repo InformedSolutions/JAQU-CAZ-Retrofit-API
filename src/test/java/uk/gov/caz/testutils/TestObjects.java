@@ -20,7 +20,6 @@ public class TestObjects {
   public static final int S3_REGISTER_JOB_ID = 123;
   public static final int API_CALL_REGISTER_JOB_ID = 456;
   public static final String S3_REGISTER_JOB_NAME = "20190809_154821_CSV_FROM_S3_FILENAME";
-  public static final String API_REGISTER_JOB_NAME = "20190809_154821_API_CALL";
   public static final String NOT_EXISTING_REGISTER_JOB_NAME = "NOT_EXISTING_JOB";
   public static final List<RegisterJobError> TYPICAL_REGISTER_JOB_ERRORS = ImmutableList.of(
       RegisterJobError.withDetailOnly("error 1"),
@@ -39,7 +38,7 @@ public class TestObjects {
       .stream()
       .map(ValidationError::from)
       .collect(Collectors.toList());
-  public static final RegisterJobTrigger S3_REGISTER_JOB_TRIGGER = RegisterJobTrigger.CSV_FROM_S3;
+  public static final RegisterJobTrigger S3_RETROFIT_REGISTER_JOB_TRIGGER = RegisterJobTrigger.RETROFIT_CSV_FROM_S3;
   public static final RegisterJobStatus TYPICAL_RUNNING_REGISTER_JOB_STATUS = RegisterJobStatus.RUNNING;
   public static final RegisterJobStatus TYPICAL_STARTING_REGISTER_JOB_STATUS = RegisterJobStatus.STARTING;
   public static final UUID TYPICAL_REGISTER_JOB_UPLOADER_ID = UUID
@@ -52,7 +51,7 @@ public class TestObjects {
       .uploaderId(TYPICAL_REGISTER_JOB_UPLOADER_ID)
       .jobName(new RegisterJobName(S3_REGISTER_JOB_NAME))
       .status(TYPICAL_RUNNING_REGISTER_JOB_STATUS)
-      .trigger(S3_REGISTER_JOB_TRIGGER)
+      .trigger(S3_RETROFIT_REGISTER_JOB_TRIGGER)
       .errors(TYPICAL_REGISTER_JOB_ERRORS)
       .correlationId(TYPICAL_CORRELATION_ID)
       .build();
