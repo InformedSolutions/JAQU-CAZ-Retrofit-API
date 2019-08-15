@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Retrofit Register API Lambdas
+
+Globals:
+  Api:
+    # API Gateway regional endpoints
+    EndpointConfiguration: REGIONAL
+
+Resources:
+  JaquCazRetrofitMainFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: uk.gov.caz.taxiregister.amazonaws.StreamLambdaHandler::handleRequest
+      Runtime: java8
+      CodeUri: target/retrofit-register-api-1.0-SNAPSHOT-lambda-package.zip
+      MemorySize: 1512
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: "RetrofitRegisterCsvFromS3Function"
+      Timeout: 60
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: default
+  RetrofitRegisterCsvFromS3Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: RetrofitRegisterCsvFromS3Function
+      Handler: uk.gov.caz.taxiregister.amazonaws.RetrofitRegisterCsvFromS3Lambda::handleRequest
+      Runtime: java8
+      CodeUri: target/retrofit-register-api-1.0-SNAPSHOT-lambda-package.zip
+      MemorySize: 1512
+      Policies: AWSLambdaBasicExecutionRole
+      Timeout: 120
+
+Outputs:
+  JaquCazRetrofitMainFunctionApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/'
+    Export:
+      Name: JaquCazRetrofitMainFunctionApi

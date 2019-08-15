@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001-1.0
+      author: patryk.lenza
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0001-1.0-create_audit_log_table_and_trigger.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

@@ -1,0 +1,9 @@
+### Integration tests configuration
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/caz-national-taxi-phv
+
+aws:
+  s3:
+    endpoint: http://${aws.s3.url:localhost:4572}

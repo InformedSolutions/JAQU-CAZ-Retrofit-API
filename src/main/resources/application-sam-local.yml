@@ -1,0 +1,9 @@
+# This profile is used when running AWS SAM Local tool - simulated, local/docker AWS Lambda environment.
+# Postgres is expected to be running in Docker and postgres.docker host comes from
+# docker/docker-compose.yml container name.
+# Running 'make sam-local-run' sets Spring profile to 'sam-local' and runs SAM Local tool using sam.yaml template.
+# AWS_SAM_LOCAL=true environment variable is set in this profile so you can customize setting up AWS services.
+---
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres.docker:5432/caz-national-taxi-phv

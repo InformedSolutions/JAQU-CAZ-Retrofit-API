@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:11-alpine
+    container_name: postgres.docker
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caz-national-taxi-phv
+
+  sonarqube:
+    image: sonarqube
+    container_name: sonarqube.docker
+    ports:
+      - 9000:9000

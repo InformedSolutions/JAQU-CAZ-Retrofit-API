@@ -1,0 +1,12 @@
+{
+  "name": "taxi-phv-data-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "minimist": "^1.2.0"
+  },
+  "scripts": {
+    "generate": "node index.js"
+  }
+}

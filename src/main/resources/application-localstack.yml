@@ -1,0 +1,15 @@
+# This profile is used when running Localstack - simulated, Docker mocked AWS environment.
+# Postgres is expected to be running on localhost and can come from Docker or local installation.
+# Running 'make localstack-run' sets Spring profile to 'localstack' and runs Spring-Boot app normally.
+# Application can be tested as normal Spring-Boot with REST endpoints.
+---
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/caz-national-taxi-phv
+aws:
+  s3:
+    endpoint: http://localhost:4572
+  sqs:
+    endpoint: http://localhost:4576
+  sns:
+    endpoint: http://localhost:4575
