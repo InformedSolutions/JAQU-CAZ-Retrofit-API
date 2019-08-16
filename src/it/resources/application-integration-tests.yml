@@ -3,6 +3,7 @@
 spring:
   datasource:
     url: jdbc:postgresql://${postgres.url:localhost:9999}/caz_vcc
+#    url: jdbc:postgresql://${postgres.url:localhost:5432}/caz_vcc
 
 aws:
   s3:
