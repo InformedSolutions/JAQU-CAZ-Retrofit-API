@@ -62,8 +62,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
     checkPreconditions(csvMetadata.getUploaderId());
 
-    StartParams startParams = prepareStartParams(correlationId, startCommand,
-        csvMetadata.getUploaderId());
+    StartParams startParams = prepareStartParams(correlationId, startCommand, csvMetadata);
     RegisterJobName registerJobName = registerJobSupervisor.start(startParams);
 
     return ResponseEntity
@@ -89,13 +88,12 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
   }
 
   private StartParams prepareStartParams(String correlationId,
-      StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, UUID uploaderId) {
+      StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, CsvMetadata csvMetadata) {
     return StartParams.builder()
-        // TODO: from CsvContentType and update tests
-        .registerJobTrigger(RegisterJobTrigger.RETROFIT_CSV_FROM_S3)
+        .registerJobTrigger(RegisterJobTrigger.from(csvMetadata.getCsvContentType()))
         .registerJobNameSuffix(stripCsvExtension(startRegisterCsvFromS3JobCommand.getFilename()))
         .correlationId(correlationId)
-        .uploaderId(uploaderId)
+        .uploaderId(csvMetadata.getUploaderId())
         .registerJobInvoker(
             asyncRegisterJobInvoker(correlationId, startRegisterCsvFromS3JobCommand))
         .build();
