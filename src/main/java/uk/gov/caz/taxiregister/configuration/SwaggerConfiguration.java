@@ -13,10 +13,9 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.gov.caz.taxiregister.configuration.properties.SwaggerApiInfo;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
-import uk.gov.caz.taxiregister.dto.Vehicles;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
 
 @EnableSwagger2
@@ -49,8 +48,7 @@ public class SwaggerConfiguration {
         .pathMapping("/")
         .tags(new Tag(TAG_REGISTER_CSV_FROM_S3_CONTROLLER, "Register CSV from S3 Controller"))
         .additionalModels(
-            typeResolver.resolve(VehicleDto.class),
-            typeResolver.resolve(Vehicles.class),
+            typeResolver.resolve(RetrofittedVehicleDto.class),
             typeResolver.resolve(
                 StartRegisterCsvFromS3JobCommand.class),
             typeResolver.resolve(RegisterJobStatus.class),

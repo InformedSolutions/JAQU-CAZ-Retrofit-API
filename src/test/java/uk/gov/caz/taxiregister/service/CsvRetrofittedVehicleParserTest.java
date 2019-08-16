@@ -20,46 +20,45 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 import uk.gov.caz.taxiregister.service.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.taxiregister.service.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.taxiregister.service.exception.CsvMaxLineLengthExceededException;
 
 @ExtendWith(MockitoExtension.class)
-class CsvLicenceParserTest {
+class CsvRetrofittedVehicleParserTest {
 
   @Mock
   private ICSVParser delegate;
 
   @InjectMocks
-  private CsvLicenceParser parser;
-  private static final String[] ANY_VALID_OUTPUT = new String[]{"1", "2", "3", "4", "5", "6"};
+  private CsvRetrofittedVehicleParser parser;
+  private static final String[] ANY_VALID_OUTPUT = new String[]{"1", "2", "3", "4"};
 
   @ParameterizedTest
   @ValueSource(strings = {
-      "comma OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "underscore OI64E_FO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "space O I 6 4EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "ampersand OI64EFO&,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "apostrophe 'O'I64EFO&,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "left parenthesis (OI64EFO&,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true(",
-      "right parenthesis )OI64EFO&,2019-04-30),2019-05-22,taxi,la-3,dJfRR,true(",
-      "asterisk *OI64*(-EFO&,2019-04-30),2019-05-22,taxi,la-3,dJfRR,true(",
-      "dot .OI64EFO&,2019-04-30),2019-05-2.2,taxi,la-3,dJfRR,true",
-      "slash /OI64EFO&,2019-04-30,2/019-05-2.2,taxi,la-3,dJfRR,true",
-      "percent sign %OI64EFO&,2019-04-30,2/019-05-2.2,taxi,la-3,dJfRR,true%",
-      "exclamation mark !OI64E!FO,2019-04-30,2/019-05-2.2,taxi,la-3,dJfRR,t!rue",
-      "plus sign +OI64EFO,201+9-04-30,2/019-05-2.2,taxi,la-3,dJfRR,t!rue",
-      "colon :OI64EF:O,201+9-04-30,2/019-05-2.2,taxi,la-3,dJfRR:,true",
-      "equals sign O=I64EFO,2019;-04-30,2/019-05-2=2,taxi,la-3,dJfRR:,true",
-      "question mark O?I64EFO,201904-30,2/019-05-2=2,tax?i,la-3,dJfRR:,true",
-      "at sign O@I64EFO,201904-30,@2019-05-2=2,taxi,la-3,dJfRR,true",
-      "left square bracket [OI64EFO,201904-30,2019-05-22,taxi,la-3,dJfRR,[true",
-      "right square bracket ]OI64EFO,201904-30,2019-05-22,taxi,la-3,dJfRR,true]",
-      "circumflex accent ^OI64EFO,^2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "left curly bracket {OI64EFO,2019-04-30,2019-05-22,taxi,{la-3,dJfRR,true",
-      "right curly bracket }OI64EFO,2019-04-30,2019-05-22,taxi,}la-3,dJfRR,true",
-      "tilde ~OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,tr~ue",
+      "comma ND84VSX,category-3,model-3,2019-04-14",
+      "underscore ND84VSX,category-3,model_3,2019-04-14",
+      "space ND84VSX,category-3,model 3,2019-04-14",
+      "ampersand ND84VSX&,category-3,model-3,2019-04-14",
+      "apostrophe ND84V'SX',category-3,model-3,2019-04-14",
+      "left parenthesis (ND84VSX,category-3,model-3,2019-04-14(",
+      "right parenthesis )OND84VSX,category-3,model-3,2019-04-14(",
+      "asterisk N*D84VSX,category-3,model-3,2019-04-14",
+      "dot ND84VSX,categor.y-3,mod.el-3,2019-04-14",
+      "slash ND84VSX,category-3,model-3,20/19-04-14",
+      "percent sign ND84VSX,category-3,model-%3,2019-04-14",
+      "exclamation mark !ND84VSX,category-3,model-3,2019-04-14!",
+      "plus sign ND84VSX+,category-3,model-3,2019-04-1+4",
+      "colon ND84VSX,cat:egory-3,:model-3,2019-04-14",
+      "equals sign ND84VSX,category-3,model-3,2019-04=14",
+      "question mark ND84VSX,cate?gory-3,mode?l-3,2019-04-14",
+      "at sign ND84VSX,cate@gory-3,model-3,2@019-04-14",
+      "left square bracket [ND84VSX,category-3,model-3,2019-[04-14",
+      "right square bracket ]ND84VSX,category-3,model-3,2019-04]-14",
+      "circumflex accent ^ND84VSX,category-3,model-3,^2019-04-14",
+      "left curly bracket {ND84VSX,category-3,model-3,2019-04-{14",
+      "right curly bracket }ND84VSX,category-3,model-3,2019-04-14}",
+      "tilde ~ND84VSX,category-3,model-3,2019-~04-14",
   })
   public void shouldAcceptLinesWithAcceptedCharacters(String line) throws IOException {
     // given
@@ -74,9 +73,9 @@ class CsvLicenceParserTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-      "pound £OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true",
-      "dollar $OI64EFO,2019-04-30,2019-05-22,taxi,l$a-3,dJfRR,true",
-      "hash #OI64EFO,2019-04-30,2019-05-22,taxi,la-3,#dJfRR,true",
+      "pound ND8£4VSX,cat£egory-3,model-3,2019-04-14",
+      "dollar N$D84VSX,category-3,model-3,2019-04-14",
+      "hash N#D84VSX,category-3,model-3,2019-04#-14",
   })
   public void shouldRejectLinesWithUnacceptedCharacters(String line) {
     // given
@@ -103,7 +102,7 @@ class CsvLicenceParserTest {
   @Test
   public void shouldRejectTooLongLine() {
     // given
-    String line = Strings.repeat("a", CsvLicenceParser.MAX_LINE_LENGTH + 1);
+    String line = Strings.repeat("a", CsvRetrofittedVehicleParser.MAX_LINE_LENGTH + 1);
 
     // when
     Throwable throwable = catchThrowable(() -> parser.parseLineMulti(line));
@@ -114,8 +113,8 @@ class CsvLicenceParserTest {
 
   @ParameterizedTest
   @ValueSource(strings = {
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true,",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true,    ",
+      "ND84VSX,category-3,model-3,2019-04-14,",
+      "ND84VSX,category-3,model-3,2019-04-14,    ",
       "                ,                   ,    ",
       ",    ",
   })
@@ -132,7 +131,7 @@ class CsvLicenceParserTest {
   @Test
   public void shouldCallDelegateWhenCallingParseLineMulti() throws IOException {
     // given
-    String line = "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,true";
+    String line = "ND84VSX,category-3,model-3,2019-04-14";
     given(delegate.parseLineMulti(line)).willReturn(ANY_VALID_OUTPUT);
 
     // when
@@ -270,29 +269,5 @@ class CsvLicenceParserTest {
 
     // then
     then(throwable).isInstanceOf(CsvInvalidFieldsCountException.class);
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,t",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,f",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,0",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,1",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,True",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,False",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,TrUe",
-      "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,FaLsE",
-  })
-  public void shouldRejectLinesWithInvalidBooleanValuesForWheelchairAccessibleFlag(String line)
-      throws IOException {
-    // given
-    String[] result = line.split(",");
-    given(delegate.parseLineMulti(line)).willReturn(result);
-
-    // when
-    Throwable throwable = catchThrowable(() -> parser.parseLineMulti(line));
-
-    // then
-    then(throwable).isInstanceOf(CsvInvalidBooleanValueException.class);
   }
 }

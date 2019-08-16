@@ -9,6 +9,6 @@ public class RegisterServicesContext {
   RegisterService registerService;
   RegisterFromCsvExceptionResolver exceptionResolver;
   RegisterJobSupervisor registerJobSupervisor;
-  VehicleToLicenceConverter licenceConverter;
+  RetrofittedVehicleDtoToModelConverter licenceConverter;
   TaxiPhvLicenceCsvRepository csvRepository;
 }

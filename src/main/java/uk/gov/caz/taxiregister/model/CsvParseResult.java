@@ -2,10 +2,10 @@ package uk.gov.caz.taxiregister.model;
 
 import java.util.List;
 import lombok.Value;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 
 @Value
 public class CsvParseResult {
-  List<VehicleDto> licences;
+  List<RetrofittedVehicleDto> licences;
   List<ValidationError> validationErrors;
 }

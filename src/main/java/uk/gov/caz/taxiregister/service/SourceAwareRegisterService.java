@@ -1,9 +1,6 @@
 package uk.gov.caz.taxiregister.service;
 
-import java.util.List;
-import java.util.UUID;
 import org.springframework.stereotype.Service;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
 
 @Service
 public class SourceAwareRegisterService {
@@ -28,21 +25,6 @@ public class SourceAwareRegisterService {
       String correlationId) {
     RegisterFromCsvCommand command = registerCommandFactory
         .createRegisterFromCsvCommand(bucket, filename, registerJobId, correlationId);
-    return command.execute();
-  }
-
-  /**
-   * Registers vehicles with data from direct API call.
-   *
-   * @param licences List of vehicles/licences taken from the API caller
-   * @param uploaderId Uploader ID
-   * @param registerJobId Uniquely identifies Register Job
-   * @param correlationId Identifier of one particular request flow
-   */
-  public RegisterResult register(List<VehicleDto> licences, UUID uploaderId, int registerJobId,
-      String correlationId) {
-    RegisterFromRestApiCommand command = registerCommandFactory
-        .createRegisterFromRestApiCommand(licences, registerJobId, correlationId, uploaderId);
     return command.execute();
   }
 }

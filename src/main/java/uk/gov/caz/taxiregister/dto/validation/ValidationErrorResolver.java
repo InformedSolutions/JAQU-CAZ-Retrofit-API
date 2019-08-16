@@ -1,6 +1,6 @@
 package uk.gov.caz.taxiregister.dto.validation;
 
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.service.validation.CsvAwareValidationMessageModifier;
 
@@ -11,9 +11,9 @@ abstract class ValidationErrorResolver {
   private final boolean lineNumberAware;
   private final int lineNumber;
 
-  ValidationErrorResolver(VehicleDto vehicleDto) {
-    this.lineNumberAware = vehicleDto.getLineNumber() > 0;
-    this.lineNumber = lineNumberAware ? vehicleDto.getLineNumber() : -1;
+  ValidationErrorResolver(RetrofittedVehicleDto retrofittedVehicleDto) {
+    this.lineNumberAware = retrofittedVehicleDto.getLineNumber() > 0;
+    this.lineNumber = lineNumberAware ? retrofittedVehicleDto.getLineNumber() : -1;
   }
 
   private String addCsvHeaderPresentInfoIfApplicable(String message) {

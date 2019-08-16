@@ -3,7 +3,7 @@ package uk.gov.caz.taxiregister.service;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.UUID;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
@@ -44,7 +44,7 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
   }
 
   @Override
-  public List<VehicleDto> getLicencesToRegister() {
+  public List<RetrofittedVehicleDto> getLicencesToRegister() {
     checkCsvParseResultsPresentPrecondition();
     return csvFindResult.getLicences();
   }

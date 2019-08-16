@@ -10,7 +10,7 @@ import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvParseResult;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.service.validation.CsvAwareValidationMessageModifier;
@@ -23,21 +23,18 @@ class CsvObjectMapperTest {
   @Test
   public void shouldReadValidCsvData() throws IOException {
     // given
-    String csvLine = "ZC62OMB,2019-04-15,2019-05-17,PHV,InmxgozMZS,beBCC,true";
+    String csvLine = "ZC62OMB,category-2,model-2,2019-05-17";
 
     // when
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
     then(result.getLicences()).containsOnly(
-        VehicleDto.builder()
-            .vrm("ZC62OMB")
-            .start("2019-04-15")
-            .end("2019-05-17")
-            .taxiOrPhv("PHV")
-            .licensingAuthorityName("InmxgozMZS")
-            .licensePlateNumber("beBCC")
-            .wheelchairAccessibleVehicle(true)
+        RetrofittedVehicleDto.builder()
+            .vrn("ZC62OMB")
+            .vehicleCategory("category-2")
+            .model("model-2")
+            .dateOfRetrofitInstallation("2019-05-17")
             .lineNumber(1)
             .build()
     );
@@ -46,7 +43,7 @@ class CsvObjectMapperTest {
   @Test
   public void shouldIgnoreLinesWithExtraValues() throws IOException {
     // given
-    String csvLine = "ZC62OMB,2019-04-15,2019-05-17,PHV,InmxgozMZS,beBCC,false,extraValue1,extraValue2";
+    String csvLine = "ZC62OMB,category-2,model-2,2019-05-17,extraValue1";
 
     // when
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
@@ -58,7 +55,7 @@ class CsvObjectMapperTest {
   @Test
   public void shouldIgnoreTooLongLines() throws IOException {
     // given
-    String csvLine = "ZC62OMB,2019-04-15,2019-05-17,PHV,InmxgozMZS" + Strings.repeat("ab", 100);
+    String csvLine = "ZC62OMB,category-2,model-2,2019-05-17" + Strings.repeat("ab", 100);
 
     // when
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
@@ -82,22 +79,19 @@ class CsvObjectMapperTest {
   public void shouldIgnoreLinesWithUnacceptedCharacters() throws IOException {
     // given
     // contains '$' and '#'
-    String csvLine = "$ZC62OMB,#2019-04-15,2019-05-17,PHV,InmxgozMZS,beBCC,false\n"
-        + "ND84VSX,2019-04-14,2019-06-13,taxi,FBVoeKJGZF,Oretr,true";
+    String csvLine = "Z$C62OMB,c#ategory-2,model-2,2019-05-17\n"
+        + "ND84VSX,category-3,model-3,2019-04-14";
 
     // when
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
     then(result.getLicences()).containsExactly(
-        VehicleDto.builder()
-            .vrm("ND84VSX")
-            .start("2019-04-14")
-            .end("2019-06-13")
-            .taxiOrPhv("taxi")
-            .licensingAuthorityName("FBVoeKJGZF")
-            .licensePlateNumber("Oretr")
-            .wheelchairAccessibleVehicle(true)
+        RetrofittedVehicleDto.builder()
+            .vrn("ND84VSX")
+            .vehicleCategory("category-3")
+            .model("model-3")
+            .dateOfRetrofitInstallation("2019-04-14")
             .lineNumber(2)
             .build()
     );
@@ -108,26 +102,9 @@ class CsvObjectMapperTest {
   }
 
   @Test
-  public void shouldIgnoreLineWithWrongBooleanFlag() throws IOException {
-    // given
-    String csvLine = "ZC62OMB,2019-04-15,2019-05-17,PHV,InmxgozMZS,beBCC,1";
-
-    // when
-    CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
-
-    // then
-    then(result.getLicences()).isEmpty();
-    then(result.getValidationErrors()).containsExactly(
-        ValidationError.valueError("Line contains invalid boolean value. "
-            + "Please make sure you have not included a header row. "
-            + "Please make sure you have not included a trailing row.", 1)
-    );
-  }
-
-  @Test
   public void shouldIncludeInformationAboutHeaderAndTrailingRow() throws IOException {
     // given
-    String csvLine = "VRM,start,end,type,plateNo,sth,wheelchairAccessible\n"
+    String csvLine = "VRN,category,model,dateWithNotAllowedCharacter$\n"
         + ",,,,,,";
 
     // when
@@ -137,7 +114,7 @@ class CsvObjectMapperTest {
     then(result.getLicences()).isEmpty();
     then(result.getValidationErrors()).containsExactly(
         ValidationError.valueError(
-            "Line contains invalid boolean value. Please make sure you have not included a header row.",
+            "Line contains invalid character(s), is empty or has trailing comma character. Please make sure you have not included a header row.",
             1),
         ValidationError.valueError(
             "Line contains invalid character(s), is empty or has trailing comma character. Please make sure you have not included a trailing row.",
@@ -146,58 +123,29 @@ class CsvObjectMapperTest {
   }
 
   @Test
-  public void shouldAcceptOptionalWheelchairValue() throws IOException {
-    // given
-    String csvLine = "ZC62OMB,2019-04-15,2019-05-17,PHV,InmxgozMZS,beBCC";
-
-    // when
-    CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
-
-    // then
-    then(result.getLicences()).containsOnly(
-        VehicleDto.builder()
-            .vrm("ZC62OMB")
-            .start("2019-04-15")
-            .end("2019-05-17")
-            .taxiOrPhv("PHV")
-            .licensingAuthorityName("InmxgozMZS")
-            .licensePlateNumber("beBCC")
-            .wheelchairAccessibleVehicle(null)
-            .lineNumber(1)
-            .build()
-    );
-  }
-
-  @Test
   public void shouldIgnoreLinesWithTooFewAttributes() throws IOException {
     // given
-    String csvLine = "ZC62OMB,2019-04-15,2019-05-17,PHV,InmxgozMZS,beBCC,false\n"
+    String csvLine = "ZC62OMB,category-2,model-2,2019-05-17\n"
         + "DL76MWX,2019-04-11\n"
-        + "ND84VSX,2019-04-14,2019-06-13,taxi,FBVoeKJGZF,Oretr,true";
+        + "ND84VSX,category-3,model-3,2019-04-14";
 
     // when
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    VehicleDto[] expected = Arrays.array(
-        VehicleDto.builder()
-            .vrm("ZC62OMB")
-            .start("2019-04-15")
-            .end("2019-05-17")
-            .taxiOrPhv("PHV")
-            .licensingAuthorityName("InmxgozMZS")
-            .licensePlateNumber("beBCC")
-            .wheelchairAccessibleVehicle(false)
+    RetrofittedVehicleDto[] expected = Arrays.array(
+        RetrofittedVehicleDto.builder()
+            .vrn("ZC62OMB")
+            .vehicleCategory("category-2")
+            .model("model-2")
+            .dateOfRetrofitInstallation("2019-05-17")
             .lineNumber(1)
             .build(),
-        VehicleDto.builder()
-            .vrm("ND84VSX")
-            .start("2019-04-14")
-            .end("2019-06-13")
-            .taxiOrPhv("taxi")
-            .licensingAuthorityName("FBVoeKJGZF")
-            .licensePlateNumber("Oretr")
-            .wheelchairAccessibleVehicle(true)
+        RetrofittedVehicleDto.builder()
+            .vrn("ND84VSX")
+            .vehicleCategory("category-3")
+            .model("model-3")
+            .dateOfRetrofitInstallation("2019-04-14")
             .lineNumber(3)
             .build()
     );

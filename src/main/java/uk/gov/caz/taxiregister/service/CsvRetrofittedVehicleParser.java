@@ -1,39 +1,30 @@
 package uk.gov.caz.taxiregister.service;
 
-import com.google.common.collect.ImmutableSet;
 import com.opencsv.ICSVParser;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Set;
 import java.util.regex.Pattern;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 import uk.gov.caz.taxiregister.service.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.taxiregister.service.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.taxiregister.service.exception.CsvMaxLineLengthExceededException;
 
-public class CsvLicenceParser implements ICSVParser {
+public class CsvRetrofittedVehicleParser implements ICSVParser {
 
   static final int MAX_LINE_LENGTH = 110;
-  static final int MIN_FIELDS_CNT = 6;
-  static final int MAX_FIELDS_CNT = 7;
+  static final int EXPECTED_FIELDS_CNT = 4;
 
-  private static final Set<String> ALLOWABLE_BOOLEAN_VALUES = ImmutableSet.of("true", "false");
-
-  private static final String INVALID_BOOLEAN_VALUE_MESSAGE_TEMPLATE = "Invalid value of "
-      + "a boolean flag. Expected: '" + ALLOWABLE_BOOLEAN_VALUES + "', actual: %s";
   private static final String MAX_LENGTH_MESSAGE_TEMPLATE =
-      "Line is too long (max :" + CsvLicenceParser.MAX_LINE_LENGTH + ", current: %d)";
+      "Line is too long (max :" + CsvRetrofittedVehicleParser.MAX_LINE_LENGTH + ", current: %d).";
   private static final String LINE_INVALID_FIELDS_CNT_MESSAGE_TEMPLATE =
-      "Line contains %d fields whereas it should either " + MIN_FIELDS_CNT + " or "
-          + MAX_FIELDS_CNT;
+      "Line contains %d fields whereas it should " + + EXPECTED_FIELDS_CNT + ".";
 
   private static final String REGEX = "^[\\w &,'\"\\-().*/%!+:;=?@\\[\\]^{}~]+$";
   private static final Pattern ALLOWABLE_CHARACTERS = Pattern.compile(REGEX);
 
   private final ICSVParser delegate;
 
-  public CsvLicenceParser(ICSVParser delegate) {
+  public CsvRetrofittedVehicleParser(ICSVParser delegate) {
     this.delegate = delegate;
   }
 
@@ -61,7 +52,6 @@ public class CsvLicenceParser implements ICSVParser {
     String[] result = delegate.parseLineMulti(nextLine);
 
     checkFieldsCountPostcondition(result);
-    checkBooleanFlagFormat(result);
     return result;
   }
 
@@ -90,21 +80,8 @@ public class CsvLicenceParser implements ICSVParser {
     delegate.setErrorLocale(locale);
   }
 
-  private void checkBooleanFlagFormat(String[] result) {
-    if (result.length == MAX_FIELDS_CNT
-        && !ALLOWABLE_BOOLEAN_VALUES.contains(lastValueOf(result))) {
-      throw new CsvInvalidBooleanValueException(
-          String.format(INVALID_BOOLEAN_VALUE_MESSAGE_TEMPLATE, lastValueOf(result))
-      );
-    }
-  }
-
-  private String lastValueOf(String[] result) {
-    return result[result.length - 1];
-  }
-
   private void checkFieldsCountPostcondition(String[] result) {
-    if (result.length < MIN_FIELDS_CNT || result.length > MAX_FIELDS_CNT) {
+    if (result.length != EXPECTED_FIELDS_CNT) {
       throw new CsvInvalidFieldsCountException(
           result.length,
           String.format(LINE_INVALID_FIELDS_CNT_MESSAGE_TEMPLATE, result.length)

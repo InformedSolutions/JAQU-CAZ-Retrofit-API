@@ -13,11 +13,10 @@ import java.util.LinkedList;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvParseResult;
-import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
+import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 import uk.gov.caz.taxiregister.model.ValidationError;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 import uk.gov.caz.taxiregister.service.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.taxiregister.service.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.taxiregister.service.exception.CsvMaxLineLengthExceededException;
@@ -25,20 +24,18 @@ import uk.gov.caz.taxiregister.service.validation.CsvAwareValidationMessageModif
 
 /**
  * A class that provides methods to map an {@link InputStream} of a CSV data to a {@link Set} of
- * {@link TaxiPhvVehicleLicence}.
+ * {@link RetrofittedVehicle}.
  */
 @Component
 @Slf4j
 public class CsvObjectMapper {
 
-  private static final String INVALID_BOOLEAN_VALUE_MESSAGE = "Line contains invalid "
-      + "boolean value.";
   private static final String LINE_TOO_LONG_MESSAGE_TEMPLATE = "Line is too long (actual value: "
       + "%d, allowed value: %d).";
   private static final String LINE_INVALID_FORMAT_MESSAGE = "Line contains invalid "
       + "character(s), is empty or has trailing comma character.";
   private static final String LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE = "Line contains "
-      + "invalid number of fields (actual value: %d, allowable values: %d or %d).";
+      + "invalid number of fields (actual value: %d, allowable value: %d).";
 
   private final CsvAwareValidationMessageModifier messageModifier;
 
@@ -55,7 +52,7 @@ public class CsvObjectMapper {
    * @return {@link CsvParseResult}
    */
   CsvParseResult read(InputStream inputStream) throws IOException {
-    ImmutableList.Builder<VehicleDto> licencesBuilder = ImmutableList.builder();
+    ImmutableList.Builder<RetrofittedVehicleDto> vehiclesBuilder = ImmutableList.builder();
     LinkedList<ValidationError> errors = Lists.newLinkedList();
     CSVReader csvReader = createReader(inputStream);
 
@@ -65,14 +62,14 @@ public class CsvObjectMapper {
       if (fields.length == 0) {
         log.trace("Validation error on line {}, skipping it", lineNo);
       } else {
-        VehicleDto vehicleDto = createLicence(fields, lineNo);
-        licencesBuilder.add(vehicleDto);
-        log.debug("Licence read: {}", vehicleDto);
+        RetrofittedVehicleDto retrofittedVehicleDto = createRetrofittedVehicle(fields, lineNo);
+        vehiclesBuilder.add(retrofittedVehicleDto);
+        log.debug("Licence read: {}", retrofittedVehicleDto);
       }
     }
     addTrailingRowErrorInfoIfApplicable(errors, lineNo - 1);
 
-    return new CsvParseResult(licencesBuilder.build(), Collections.unmodifiableList(errors));
+    return new CsvParseResult(vehiclesBuilder.build(), Collections.unmodifiableList(errors));
   }
 
   private void addTrailingRowErrorInfoIfApplicable(LinkedList<ValidationError> errors,
@@ -101,50 +98,45 @@ public class CsvObjectMapper {
 
   private CSVReader createReader(InputStream inputStream) {
     CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new InputStreamReader(inputStream));
-    csvReaderBuilder.withCSVParser(new CsvLicenceParser(new CSVParser()));
+    csvReaderBuilder.withCSVParser(new CsvRetrofittedVehicleParser(new CSVParser()));
     return csvReaderBuilder.build();
   }
 
-  private VehicleDto createLicence(String[] fields, int lineNo) {
-    return VehicleDto.builder()
-        .vrm(fields[0])
-        .start(fields[1])
-        .end(fields[2])
-        .taxiOrPhv(fields[3])
-        .licensingAuthorityName(fields[4])
-        .licensePlateNumber(fields[5])
-        .wheelchairAccessibleVehicle(fields.length == 7 ? Boolean.valueOf(fields[6]) : null)
+  private RetrofittedVehicleDto createRetrofittedVehicle(String[] fields, int lineNo) {
+    return RetrofittedVehicleDto.builder()
+        .vrn(fields[0])
+        .vehicleCategory(fields[1])
+        .model(fields[2])
+        .dateOfRetrofitInstallation(fields[3])
         .lineNumber(lineNo)
         .build();
   }
 
   private ValidationError createInvalidFieldsCountError(int lineNo,
       CsvInvalidFieldsCountException e) {
-    return ValidationError
-        .valueError(errorDetail(lineNo, invalidFieldsCountErrorDetail(e)), lineNo);
+    return ValidationError.valueError(
+        modifyErrorMessage(lineNo, invalidFieldsCountErrorDetail(e)), lineNo);
   }
 
   private ValidationError createMaximumLineLengthExceededError(int lineNo,
       CsvMaxLineLengthExceededException e) {
-    return ValidationError.valueError(errorDetail(lineNo, maximumLineLengthErrorDetail(e)), lineNo);
+    return ValidationError.valueError(
+        modifyErrorMessage(lineNo, maximumLineLengthErrorDetail(e)), lineNo);
   }
 
   private ValidationError createParseValidationError(int lineNo) {
-    return ValidationError.valueError(errorDetail(lineNo, LINE_INVALID_FORMAT_MESSAGE), lineNo);
-  }
-
-  private ValidationError createInvalidBooleanFlagValueError(int lineNo) {
-    return ValidationError.valueError(errorDetail(lineNo, INVALID_BOOLEAN_VALUE_MESSAGE), lineNo);
+    return ValidationError.valueError(
+        modifyErrorMessage(lineNo, LINE_INVALID_FORMAT_MESSAGE), lineNo);
   }
 
   private String invalidFieldsCountErrorDetail(CsvInvalidFieldsCountException e) {
     return String.format(LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE, e.getFieldsCount(),
-        CsvLicenceParser.MIN_FIELDS_CNT, CsvLicenceParser.MAX_FIELDS_CNT);
+        CsvRetrofittedVehicleParser.EXPECTED_FIELDS_CNT);
   }
 
   private String maximumLineLengthErrorDetail(CsvMaxLineLengthExceededException e) {
     return String.format(LINE_TOO_LONG_MESSAGE_TEMPLATE, e.getLineLength(),
-        CsvLicenceParser.MAX_LINE_LENGTH);
+        CsvRetrofittedVehicleParser.MAX_LINE_LENGTH);
   }
 
   /**
@@ -155,9 +147,6 @@ public class CsvObjectMapper {
       throws IOException {
     try {
       return reader.readNext();
-    } catch (CsvInvalidBooleanValueException e) {
-      log.debug("Invalid value of a boolean flag detected: {}", e.getMessage());
-      errors.add(createInvalidBooleanFlagValueError(lineNo));
     } catch (CsvInvalidFieldsCountException e) {
       log.debug("Invalid number of fields detected: {}", e.getMessage());
       errors.add(createInvalidFieldsCountError(lineNo, e));
@@ -171,7 +160,7 @@ public class CsvObjectMapper {
     return new String[0];
   }
 
-  private String errorDetail(int lineNumber, String message) {
+  private String modifyErrorMessage(int lineNumber, String message) {
     return messageModifier.addHeaderRowInfoSuffix(message, lineNumber);
   }
 }

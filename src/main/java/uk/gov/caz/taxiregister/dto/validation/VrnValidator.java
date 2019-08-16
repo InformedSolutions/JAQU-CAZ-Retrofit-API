@@ -4,24 +4,24 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.regex.Pattern;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
-public class VrmValidator implements LicenceValidator {
+public class VrnValidator implements RetrofittedVehicleValidator {
 
   @VisibleForTesting
   static final int MAX_LENGTH = 7;
 
   @VisibleForTesting
-  static final String MISSING_VRM_MESSAGE = "Vehicle does not include the 'vrm' field which "
+  static final String MISSING_VRN_MESSAGE = "Data does not include the 'vrn' field which "
       + "is mandatory.";
 
   @VisibleForTesting
-  static final String INVALID_LENGTH_MESSAGE_TEMPLATE = "Vrm should have from 1 to %d characters "
+  static final String INVALID_LENGTH_MESSAGE_TEMPLATE = "VRN should have from 1 to %d characters "
       + "instead of %d.";
 
   @VisibleForTesting
-  static final String INVALID_VRM_FORMAT_MESSAGE = "Invalid format of VRM (regex validation).";
+  static final String INVALID_VRN_FORMAT_MESSAGE = "Invalid format of VRN (regex validation).";
 
   public static final String REGEX = "^"
       + "([A-Za-z]{3}[0-9]{1,4})"
@@ -33,40 +33,40 @@ public class VrmValidator implements LicenceValidator {
       + "|([A-Za-z]{1,2}[0-9]{1,4})"
       + "$";
 
-  private static final Pattern vrmPattern = Pattern.compile(REGEX);
+  private static final Pattern vrnPattern = Pattern.compile(REGEX);
 
   @Override
-  public List<ValidationError> validate(VehicleDto vehicleDto) {
+  public List<ValidationError> validate(RetrofittedVehicleDto retrofittedVehicleDto) {
     ImmutableList.Builder<ValidationError> validationErrorsBuilder = ImmutableList.builder();
-    VrmErrorMessageResolver errorResolver = new VrmErrorMessageResolver(
-        vehicleDto);
+    VrnErrorMessageResolver errorResolver = new VrnErrorMessageResolver(
+        retrofittedVehicleDto);
 
-    String vrm = vehicleDto.getVrm();
+    String vrn = retrofittedVehicleDto.getVrn();
 
-    if (vrm == null) {
+    if (vrn == null) {
       validationErrorsBuilder.add(errorResolver.missing());
     }
 
-    if (vrm != null && (vrm.isEmpty() || vrm.length() > MAX_LENGTH)) {
-      validationErrorsBuilder.add(errorResolver.invalidLength(vrm));
+    if (vrn != null && (vrn.isEmpty() || vrn.length() > MAX_LENGTH)) {
+      validationErrorsBuilder.add(errorResolver.invalidLength(vrn));
     }
 
-    if (vrm != null && !vrm.isEmpty() && vrm.length() <= MAX_LENGTH
-        && !vrmPattern.matcher(vrm).matches()) {
-      validationErrorsBuilder.add(errorResolver.invalidFormat(vrm));
+    if (vrn != null && !vrn.isEmpty() && vrn.length() <= MAX_LENGTH
+        && !vrnPattern.matcher(vrn).matches()) {
+      validationErrorsBuilder.add(errorResolver.invalidFormat(vrn));
     }
 
     return validationErrorsBuilder.build();
   }
 
-  private static class VrmErrorMessageResolver extends ValidationErrorResolver {
+  private static class VrnErrorMessageResolver extends ValidationErrorResolver {
 
-    private VrmErrorMessageResolver(VehicleDto vehicleDto) {
-      super(vehicleDto);
+    private VrnErrorMessageResolver(RetrofittedVehicleDto retrofittedVehicleDto) {
+      super(retrofittedVehicleDto);
     }
 
     private ValidationError missing() {
-      return missingFieldError(null, MISSING_VRM_MESSAGE);
+      return missingFieldError(null, MISSING_VRN_MESSAGE);
     }
 
     private ValidationError invalidLength(String vrm) {
@@ -74,7 +74,7 @@ public class VrmValidator implements LicenceValidator {
     }
 
     private ValidationError invalidFormat(String vrm) {
-      return valueError(vrm, INVALID_VRM_FORMAT_MESSAGE);
+      return valueError(vrm, INVALID_VRN_FORMAT_MESSAGE);
     }
 
     private String invalidLengthMessage(String vrm) {

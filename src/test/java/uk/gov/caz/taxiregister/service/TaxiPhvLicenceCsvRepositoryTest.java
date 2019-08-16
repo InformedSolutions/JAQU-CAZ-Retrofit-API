@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvParseResult;
 import uk.gov.caz.taxiregister.service.exception.S3InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
@@ -163,22 +163,19 @@ class TaxiPhvLicenceCsvRepositoryTest {
 
   @Test
   public void shouldParseDataFromFileAtS3() throws IOException {
-    String content = "OI64EFO,2019-04-30,2019-05-22,taxi,eInkINoNko,dJfRR,1";
-    VehicleDto licence = VehicleDto.builder()
-        .vrm("OI64EFO")
-        .start("2019-04-30")
-        .end("2019-05-22")
-        .taxiOrPhv("taxi")
-        .licensingAuthorityName("eInkINoNko")
-        .licensePlateNumber("dJfRR")
-        .wheelchairAccessibleVehicle(true)
+    String content = "OI64EFO,category-1,model-1,2019-04-30";
+    RetrofittedVehicleDto retrofittedVehicleDto = RetrofittedVehicleDto.builder()
+        .vrn("OI64EFO")
+        .vehicleCategory("category-1")
+        .model("model-1")
+        .dateOfRetrofitInstallation("2019-04-30")
         .build();
-    List<VehicleDto> licences = Collections.singletonList(licence);
+    List<RetrofittedVehicleDto> vehicles = Collections.singletonList(retrofittedVehicleDto);
     mockValidS3HeadObjectResponse();
-    mockValidFileReading(content, licences);
+    mockValidFileReading(content, vehicles);
 
     assertThat(csvRepository.findAll(ANY_BUCKET, ANY_FILE).getLicences())
-        .containsExactlyElementsOf(licences);
+        .containsExactlyElementsOf(vehicles);
   }
 
   private void mockS3HeadObjectResponseWithContentSize(Long fileSize) {
@@ -188,7 +185,7 @@ class TaxiPhvLicenceCsvRepositoryTest {
     );
   }
 
-  private void mockValidFileReading(String content, List<VehicleDto> licences) throws IOException {
+  private void mockValidFileReading(String content, List<RetrofittedVehicleDto> licences) throws IOException {
     mockS3ObjectResponse(content);
     when(csvObjectMapper.read(any(InputStream.class)))
         .thenReturn(new CsvParseResult(licences, Collections.emptyList()));

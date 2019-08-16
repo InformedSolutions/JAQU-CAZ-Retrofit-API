@@ -13,7 +13,7 @@ public class ConversionResults {
 
   List<ValidationError> validationErrors;
 
-  Set<TaxiPhvVehicleLicence> licences;
+  Set<RetrofittedVehicle> retrofittedVehicles;
 
   public boolean hasValidationErrors() {
     return !validationErrors.isEmpty();
@@ -31,11 +31,11 @@ public class ConversionResults {
         .flatMap(List::stream)
         .collect(Collectors.toList());
 
-    Set<TaxiPhvVehicleLicence> licences = conversionResults.stream()
+    Set<RetrofittedVehicle> vehicles = conversionResults.stream()
         .filter(ConversionResult::isSuccess)
-        .map(ConversionResult::getLicence)
+        .map(ConversionResult::getRetrofittedVehicle)
         .collect(Collectors.toSet());
 
-    return new ConversionResults(validationErrors, licences);
+    return new ConversionResults(validationErrors, vehicles);
   }
 }

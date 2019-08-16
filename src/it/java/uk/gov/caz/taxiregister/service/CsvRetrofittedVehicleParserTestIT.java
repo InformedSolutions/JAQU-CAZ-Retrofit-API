@@ -6,9 +6,9 @@ import com.opencsv.CSVParser;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
-class CsvLicenceParserTestIT {
+class CsvRetrofittedVehicleParserTestIT {
 
-  private CsvLicenceParser csvLicenceParser = new CsvLicenceParser(new CSVParser());
+  private CsvRetrofittedVehicleParser csvRetrofittedVehicleParser = new CsvRetrofittedVehicleParser(new CSVParser());
 
   @Test
   public void shouldParseLineWithComma() throws IOException {
@@ -16,7 +16,7 @@ class CsvLicenceParserTestIT {
     String line = "ZC62OMB,2019-04-15,2019-05-17,PHV,\"Field with a comma, comma\",beBCC,true";
 
     // when
-    String[] result = csvLicenceParser.parseLineMulti(line);
+    String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
     then(result).isEqualTo(new String[]{"ZC62OMB", "2019-04-15", "2019-05-17", "PHV",
@@ -29,7 +29,7 @@ class CsvLicenceParserTestIT {
     String line = "ZC62OMB,2019-04-15,2019-05-17,PHV,\"\"Hooyah!\"\",beBCC,true";
 
     // when
-    String[] result = csvLicenceParser.parseLineMulti(line);
+    String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
     then(result).isEqualTo(new String[]{"ZC62OMB", "2019-04-15", "2019-05-17", "PHV",
@@ -47,7 +47,7 @@ class CsvLicenceParserTestIT {
         + "\"\"\",,\"\"\""; // quote, comma, comma, quote
 
     // when
-    String[] result = csvLicenceParser.parseLineMulti(line);
+    String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
     then(result).isEqualTo(new String[]{
@@ -66,7 +66,7 @@ class CsvLicenceParserTestIT {
     String line = "ZC62OMB,2019-04-15,2019-05-17,PHV,a & b'c & d,beBCC";
 
     // when
-    String[] result = csvLicenceParser.parseLineMulti(line);
+    String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
     then(result).isEqualTo(new String[]{"ZC62OMB", "2019-04-15", "2019-05-17", "PHV",

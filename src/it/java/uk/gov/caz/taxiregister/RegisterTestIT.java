@@ -111,7 +111,7 @@ public class RegisterTestIT {
 //  private String buildPayloadWith(String vrm) throws JsonProcessingException {
 //    Vehicles vehicles = new Vehicles(
 //        Collections.singletonList(
-//            VehicleDto.builder()
+//            RetrofittedVehicleDto.builder()
 //                .vrm(vrm)
 //                .start(DateHelper.today().toString())
 //                .end(DateHelper.tomorrow().toString())
@@ -128,7 +128,7 @@ public class RegisterTestIT {
 //  private String buildPayloadWithWrongLicenceDatesOrdering() throws JsonProcessingException {
 //    Vehicles vehicles = new Vehicles(
 //        Collections.singletonList(
-//            VehicleDto.builder()
+//            RetrofittedVehicleDto.builder()
 //                .vrm(VALID_VRM)
 //                .start(DateHelper.today().toString())
 //                .end(DateHelper.yesterday().toString())
@@ -145,7 +145,7 @@ public class RegisterTestIT {
 //  private String buildPayloadWithInvalidLicenceDateFormat() throws JsonProcessingException {
 //    Vehicles vehicles = new Vehicles(
 //        Collections.singletonList(
-//            VehicleDto.builder()
+//            RetrofittedVehicleDto.builder()
 //                .vrm("1289J")
 //                .start(DateTimeFormatter.BASIC_ISO_DATE.format(DateHelper.today()))
 //                .end(DateTimeFormatter.BASIC_ISO_DATE.format(DateHelper.tomorrow()))

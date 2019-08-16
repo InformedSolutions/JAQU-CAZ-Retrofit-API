@@ -18,27 +18,6 @@ swagger:
     description: This interface enables integration, via a RESTful API, between LA business processes and systems and the CAZ Service for the purposes of allowing LA’s to maintain details of licensed taxis and Private Hire Vehicles (PHVs) held within the National Taxi/PHV Register – a centralised and authoritative register that details all taxis and PHVs operating in the United Kingdom
     version: 0.1
 
-  operations:
-    lookup:
-      description: Looks up vehicle's information about its active licences and wheelchair accessibility by VRM
-    register:
-      description: Register details of licensed taxis and Private Hire Vehicles (PHVs)
-
-  model.descriptions:
-    licence-info:
-      active: Boolean to indicate whether a given vehicle has any active operating licence
-      wheelchair-accessible: Boolean to indicate whether a given vehicle is wheelchair accessible by any active operating licence
-    vehicles:
-      vehicle-details: Array containing vehicle detail objects
-    vehicle:
-      vrm: String containing Vehicle registration mark without whitespace
-      start: ISO 8601 formatted date string indicating the date from which a license is valid
-      end: ISO 8601 formatted date string indicating the date until which a license is valid
-      taxi-or-phv: String to indicate if the vehicle is a taxi or PHV
-      licensing-authority-name: String containing the name if the submitting licensing authority
-      license-plate-number: String containing the unique reference number granted (by the licensing authority) to a vehicle
-      wheelchair-accessible-vehicle: Boolean to indicate if the vehicle is wheelchair accessible or not
-
 api:
   max-licences-count: 20000
 

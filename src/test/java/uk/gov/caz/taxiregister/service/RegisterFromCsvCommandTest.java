@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
@@ -39,7 +39,7 @@ class RegisterFromCsvCommandTest {
   public void shouldFetchCsvResultAndReturnResults() {
     //given
     UUID uploaderId = UUID.randomUUID();
-    List<VehicleDto> licences = Lists.list(VehicleDto.builder().vrm("abc").build());
+    List<RetrofittedVehicleDto> licences = Lists.list(RetrofittedVehicleDto.builder().vrn("abc").build());
     List<ValidationError> validationErrors = MODIFIED_REGISTER_JOB_VALIDATION_ERRORS;
     CsvFindResult csvFindResult = new CsvFindResult(uploaderId, licences, validationErrors);
 

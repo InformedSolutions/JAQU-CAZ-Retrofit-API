@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
-class VrmValidatorTest {
-  private VrmValidator validator = new VrmValidator();
+class VrnValidatorTest {
+  private VrnValidator validator = new VrnValidator();
 
   @Nested
   class MandatoryField {
@@ -19,20 +19,20 @@ class VrmValidatorTest {
     @Nested
     class WithLineNumber {
       @Test
-      public void shouldReturnMissingFieldErrorWhenVrmIsNull() {
+      public void shouldReturnMissingFieldErrorWhenVrnIsNull() {
         // given
         int lineNumber = 91;
-        String vrm = null;
-        VehicleDto licence = createLicenceWithLineNumber(vrm, lineNumber);
+        String vrn = null;
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(vrn, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
             ValidationError.missingFieldError(
-                vrm,
-                VrmValidator.MISSING_VRM_MESSAGE,
+                vrn,
+                VrnValidator.MISSING_VRN_MESSAGE,
                 lineNumber
             )
         );
@@ -42,19 +42,19 @@ class VrmValidatorTest {
     @Nested
     class WithoutLineNumber {
       @Test
-      public void shouldReturnMissingFieldErrorWhenVrmIsNull() {
+      public void shouldReturnMissingFieldErrorWhenVrnIsNull() {
         // given
-        String vrm = null;
-        VehicleDto licence = createLicence(vrm);
+        String vrn = null;
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(vrn);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
             ValidationError.missingFieldError(
-                vrm,
-                VrmValidator.MISSING_VRM_MESSAGE
+                vrn,
+                VrnValidator.MISSING_VRN_MESSAGE
             )
         );
       }
@@ -67,11 +67,11 @@ class VrmValidatorTest {
     @Nested
     class WithLineNumber {
       @ParameterizedTest
-      @ValueSource(strings = {"", "tooLongVrm"})
-      public void shouldReturnValueErrorWhenVrmIsBlankOrTooLong(String vrm) {
+      @ValueSource(strings = {"", "tooLongVrn"})
+      public void shouldReturnValueErrorWhenVrnIsBlankOrTooLong(String vrn) {
         // given
         int lineNumber = 87;
-        VehicleDto licence = createLicenceWithLineNumber(vrm, lineNumber);
+        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(vrn, lineNumber);
 
         // when
         List<ValidationError> validationErrors = validator.validate(licence);
@@ -79,11 +79,11 @@ class VrmValidatorTest {
         // then
         then(validationErrors).contains(
             ValidationError.valueError(
-                vrm,
+                vrn,
                 String.format(
-                    VrmValidator.INVALID_LENGTH_MESSAGE_TEMPLATE,
-                    VrmValidator.MAX_LENGTH,
-                    vrm.length()
+                    VrnValidator.INVALID_LENGTH_MESSAGE_TEMPLATE,
+                    VrnValidator.MAX_LENGTH,
+                    vrn.length()
                 ),
                 lineNumber
             )
@@ -92,17 +92,18 @@ class VrmValidatorTest {
 
       @ParameterizedTest
       @ValueSource(strings = {"9A99A99", "9A9A99", "9AAAA9"})
-      public void shouldRejectVrmsWithInvalidFormat(String invalidVrm) {
+      public void shouldRejectVrnsWithInvalidFormat(String invalidVrn) {
         // given
         int lineNumber = 67;
-        VehicleDto licence = createLicenceWithLineNumber(invalidVrm, lineNumber);
+        RetrofittedVehicleDto retrofittedVehicle =
+            createRetrofittedVehicleWithLineNumber(invalidVrn, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.valueError(invalidVrm, VrmValidator.INVALID_VRM_FORMAT_MESSAGE, lineNumber)
+            ValidationError.valueError(invalidVrn, VrnValidator.INVALID_VRN_FORMAT_MESSAGE, lineNumber)
         );
       }
     }
@@ -110,22 +111,22 @@ class VrmValidatorTest {
     @Nested
     class WithoutLineNumber {
       @ParameterizedTest
-      @ValueSource(strings = {"", "tooLongVrm"})
-      public void shouldReturnValueErrorWhenVrmIsBlankOrTooLong(String vrm) {
+      @ValueSource(strings = {"", "tooLongVrn"})
+      public void shouldReturnValueErrorWhenVrnIsBlankOrTooLong(String vrn) {
         // given
-        VehicleDto licence = createLicence(vrm);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(vrn);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).contains(
             ValidationError.valueError(
-                vrm,
+                vrn,
                 String.format(
-                    VrmValidator.INVALID_LENGTH_MESSAGE_TEMPLATE,
-                    VrmValidator.MAX_LENGTH,
-                    vrm.length()
+                    VrnValidator.INVALID_LENGTH_MESSAGE_TEMPLATE,
+                    VrnValidator.MAX_LENGTH,
+                    vrn.length()
                 )
             )
         );
@@ -165,16 +166,16 @@ class VrmValidatorTest {
           "9A999", "ab53ab%", "C111999", "AB", "45", "ABG", "452", "TABG", "4521", "TAFBG",
           "45921", "AHTDSE", "A123B5", "4111929", "C1119C9"
       })
-      public void shouldRejectVrmsWithInvalidFormat(String invalidVrm) {
+      public void shouldRejectVrnsWithInvalidFormat(String invalidVrn) {
         // given
-        VehicleDto licence = createLicence(invalidVrm);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(invalidVrn);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.valueError(invalidVrm, VrmValidator.INVALID_VRM_FORMAT_MESSAGE)
+            ValidationError.valueError(invalidVrn, VrnValidator.INVALID_VRN_FORMAT_MESSAGE)
         );
       }
     }
@@ -189,27 +190,27 @@ class VrmValidatorTest {
         "VAR7A", "FES23", "PG227", "30JFA", "868BO", "1289J", "B8659", "K97LUK", "MAN07U", "546BAR",
         "JU0043", "8839GF"
     })
-    public void shouldAcceptValidVrm(String validVrm) {
+    public void shouldAcceptValidVrm(String validVrn) {
       // given
-      VehicleDto licence = createLicence(validVrm);
+      RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(validVrn);
 
       // when
-      List<ValidationError> validationErrors = validator.validate(licence);
+      List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
       // then
       then(validationErrors).isEmpty();
     }
   }
 
-  private VehicleDto createLicence(String vrm) {
-    return VehicleDto.builder()
-        .vrm(vrm)
+  private RetrofittedVehicleDto createRetrofittedVehicle(String vrn) {
+    return RetrofittedVehicleDto.builder()
+        .vrn(vrn)
         .build();
   }
 
-  private VehicleDto createLicenceWithLineNumber(String vrm, int lineNumber) {
-    return VehicleDto.builder()
-        .vrm(vrm)
+  private RetrofittedVehicleDto createRetrofittedVehicleWithLineNumber(String vrn, int lineNumber) {
+    return RetrofittedVehicleDto.builder()
+        .vrn(vrn)
         .lineNumber(lineNumber)
         .build();
   }

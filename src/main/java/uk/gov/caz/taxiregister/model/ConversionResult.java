@@ -11,18 +11,18 @@ import lombok.Value;
 public class ConversionResult {
   List<ValidationError> validationErrors;
 
-  TaxiPhvVehicleLicence licence;
+  RetrofittedVehicle retrofittedVehicle;
 
   public boolean isSuccess() {
-    return licence != null;
+    return retrofittedVehicle != null;
   }
 
   public boolean isFailure() {
     return !isSuccess();
   }
 
-  public static ConversionResult success(TaxiPhvVehicleLicence licence) {
-    return new ConversionResult(Collections.emptyList(), licence);
+  public static ConversionResult success(RetrofittedVehicle retrofittedVehicle) {
+    return new ConversionResult(Collections.emptyList(), retrofittedVehicle);
   }
 
   public static ConversionResult failure(List<ValidationError> validationErrors) {

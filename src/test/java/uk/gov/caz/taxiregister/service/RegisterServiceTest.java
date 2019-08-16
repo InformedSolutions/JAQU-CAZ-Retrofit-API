@@ -88,7 +88,7 @@ class RegisterServiceTest {
   @Test
   public void shouldThrowNullPointerExceptionWhenVehiclesIsNull() {
     assertThatExceptionOfType(NullPointerException.class)
-        .isThrownBy(() -> registerService.register(null, ANY_UPLOADER_ID))
+        .isThrownBy(() -> registerService.register((Set<TaxiPhvVehicleLicence>)null, ANY_UPLOADER_ID))
         .withMessage("licences cannot be null");
   }
 

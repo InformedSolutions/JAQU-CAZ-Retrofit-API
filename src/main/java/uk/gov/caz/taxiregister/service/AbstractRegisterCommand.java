@@ -1,12 +1,13 @@
 package uk.gov.caz.taxiregister.service;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.ConversionResults;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
@@ -24,7 +25,7 @@ public abstract class AbstractRegisterCommand {
   private final RegisterService registerService;
   private final RegisterFromCsvExceptionResolver exceptionResolver;
   private final RegisterJobSupervisor registerJobSupervisor;
-  private final VehicleToLicenceConverter licenceConverter;
+  private final RetrofittedVehicleDtoToModelConverter licenceConverter;
 
   /**
    * Creates an instance of {@link AbstractRegisterCommand}.
@@ -43,7 +44,7 @@ public abstract class AbstractRegisterCommand {
 
   abstract UUID getUploaderId();
 
-  abstract List<VehicleDto> getLicencesToRegister();
+  abstract List<RetrofittedVehicleDto> getLicencesToRegister();
 
   abstract List<ValidationError> getLicencesParseValidationErrors();
 
@@ -70,7 +71,8 @@ public abstract class AbstractRegisterCommand {
       }
 
       RegisterResult result = registerService.register(
-          conversionResults.getLicences(),
+          // TODO leave set as it was
+          Lists.newArrayList(conversionResults.getRetrofittedVehicles()),
           getUploaderId()
       );
 

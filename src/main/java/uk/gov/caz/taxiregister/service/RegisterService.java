@@ -16,6 +16,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.caz.taxiregister.model.LicensingAuthority;
+import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.VehicleType;
@@ -55,6 +56,12 @@ public class RegisterService {
     this.taxiPhvTypeRepository = taxiPhvTypeRepository;
   }
 
+  // TODO implement in VCCS-494
+  // TODO change List to Set, because now the signature clashes
+  public RegisterResult register(List<RetrofittedVehicle> retrofittedVehicles, UUID uploaderId) {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Registers {@code licences} in the database for a given {@code uploaderId}.
    *
@@ -69,6 +76,7 @@ public class RegisterService {
    *     registered
    * @param uploaderId An identifier the entity which registers {@code licences}
    */
+  // TODO remove this method
   RegisterResult register(Set<TaxiPhvVehicleLicence> licences, UUID uploaderId) {
     Preconditions.checkNotNull(licences, "licences cannot be null");
     Preconditions.checkNotNull(uploaderId, "uploaderId cannot be null");

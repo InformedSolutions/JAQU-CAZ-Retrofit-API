@@ -7,23 +7,23 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.caz.taxiregister.dto.VehicleDto;
+import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
-class LicensingAuthorityNameValidatorTest {
-  private static final String ANY_VRM = "ZC62OMB";
+class VehicleCategoryValidatorTest {
+  private static final String ANY_VRN = "ZC62OMB";
 
-  private LicensingAuthorityNameValidator validator = new LicensingAuthorityNameValidator();
+  private VehicleCategoryValidator validator = new VehicleCategoryValidator();
 
   @Nested
   class MandatoryField {
     @Nested
     class WithoutLineNumber {
       @Test
-      public void shouldReturnMissingFieldErrorWhenNameIsNull() {
+      public void shouldReturnMissingFieldErrorWhenCategoryIsNull() {
         // given
-        String licensingAuthorityName = null;
-        VehicleDto licence = createLicence(licensingAuthorityName);
+        String vehicleCategory = null;
+        RetrofittedVehicleDto licence = createRetrofittedVehicle(vehicleCategory);
 
         // when
         List<ValidationError> validationErrors = validator.validate(licence);
@@ -31,8 +31,8 @@ class LicensingAuthorityNameValidatorTest {
         // then
         then(validationErrors).containsExactly(
             ValidationError.missingFieldError(
-                ANY_VRM,
-                LicensingAuthorityNameValidator.MISSING_LICENCING_AUTHORITY_NAME_MESSAGE
+                ANY_VRN,
+                VehicleCategoryValidator.MISSING_VEHICLE_CATEGORY_MESSAGE
             )
         );
       }
@@ -41,18 +41,18 @@ class LicensingAuthorityNameValidatorTest {
     @Nested
     class WithLineNumber {
       @Test
-      public void shouldReturnMissingFieldErrorWhenNameIsNull() {
+      public void shouldReturnMissingFieldErrorWhenCategoryIsNull() {
         // given
         int lineNumber = 63;
-        String licensingAuthorityName = null;
-        VehicleDto licence = createLicenceWithLineNumber(licensingAuthorityName, lineNumber);
+        String vehicleCategory = null;
+        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(vehicleCategory, lineNumber);
 
         // when
         List<ValidationError> validationErrors = validator.validate(licence);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.missingFieldError(ANY_VRM, LicensingAuthorityNameValidator.MISSING_LICENCING_AUTHORITY_NAME_MESSAGE, lineNumber)
+            ValidationError.missingFieldError(ANY_VRN, VehicleCategoryValidator.MISSING_VEHICLE_CATEGORY_MESSAGE, lineNumber)
         );
       }
     }
@@ -64,9 +64,9 @@ class LicensingAuthorityNameValidatorTest {
     class WithoutLineNumber {
       @ParameterizedTest
       @ValueSource(strings = {"", "tooooooooooooLooooooooooooongLicensingAuthorityName"})
-      public void shouldReturnValueErrorWhenNameIsInvalid(String invalidLicensingAuthorityName) {
+      public void shouldReturnValueErrorWhenCategoryIsInvalid(String invalidVehicleCategory) {
         // given
-        VehicleDto licence = createLicence(invalidLicensingAuthorityName);
+        RetrofittedVehicleDto licence = createRetrofittedVehicle(invalidVehicleCategory);
 
         // when
         List<ValidationError> validationErrors = validator.validate(licence);
@@ -74,8 +74,8 @@ class LicensingAuthorityNameValidatorTest {
         // then
         then(validationErrors).containsExactly(
             ValidationError.valueError(
-                ANY_VRM,
-                invalidFormatError(invalidLicensingAuthorityName)
+                ANY_VRN,
+                invalidFormatError(invalidVehicleCategory)
             )
         );
       }
@@ -85,10 +85,10 @@ class LicensingAuthorityNameValidatorTest {
     class WithLineNumber {
       @ParameterizedTest
       @ValueSource(strings = {"", "tooooooooooooLooooooooooooongLicensingAuthorityName"})
-      public void shouldReturnValueErrorWhenNameIsInvalid(String invalidLicensingAuthorityName) {
+      public void shouldReturnValueErrorWhenCategoryIsInvalid(String invalidVehicleCategory) {
         // given
         int lineNumber = 90;
-        VehicleDto licence = createLicenceWithLineNumber(invalidLicensingAuthorityName, lineNumber);
+        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(invalidVehicleCategory, lineNumber);
 
         // when
         List<ValidationError> validationErrors = validator.validate(licence);
@@ -96,8 +96,8 @@ class LicensingAuthorityNameValidatorTest {
         // then
         then(validationErrors).containsExactly(
             ValidationError.valueError(
-                ANY_VRM,
-                invalidFormatError(invalidLicensingAuthorityName),
+                ANY_VRN,
+                invalidFormatError(invalidVehicleCategory),
                 lineNumber
             )
         );
@@ -107,23 +107,23 @@ class LicensingAuthorityNameValidatorTest {
 
   private String invalidFormatError(String invalidLicensingAuthorityName) {
     return String.format(
-        LicensingAuthorityNameValidator.INVALID_LICENCING_AUTHORITY_NAME_MESSAGE_TEMPLATE,
-        LicensingAuthorityNameValidator.MAX_LENGTH,
+        VehicleCategoryValidator.INVALID_VEHICLE_CATEGORY_MESSAGE_TEMPLATE,
+        VehicleCategoryValidator.MAX_LENGTH,
         invalidLicensingAuthorityName.length()
     );
   }
 
-  private VehicleDto createLicence(String licensingAuthorityNameValidator) {
-    return VehicleDto.builder()
-        .vrm(ANY_VRM)
-        .licensingAuthorityName(licensingAuthorityNameValidator)
+  private RetrofittedVehicleDto createRetrofittedVehicle(String vehicleCategory) {
+    return RetrofittedVehicleDto.builder()
+        .vrn(ANY_VRN)
+        .vehicleCategory(vehicleCategory)
         .build();
   }
 
-  private VehicleDto createLicenceWithLineNumber(String licensingAuthorityNameValidator, int lineNumber) {
-    return VehicleDto.builder()
-        .vrm(ANY_VRM)
-        .licensingAuthorityName(licensingAuthorityNameValidator)
+  private RetrofittedVehicleDto createRetrofittedVehicleWithLineNumber(String vehicleCategory, int lineNumber) {
+    return RetrofittedVehicleDto.builder()
+        .vrn(ANY_VRN)
+        .vehicleCategory(vehicleCategory)
         .lineNumber(lineNumber)
         .build();
   }
