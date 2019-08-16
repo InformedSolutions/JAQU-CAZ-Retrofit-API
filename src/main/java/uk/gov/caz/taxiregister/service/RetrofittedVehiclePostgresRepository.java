@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,10 @@ public class RetrofittedVehiclePostgresRepository {
   public void deleteAll() {
     log.info("Deleting all retrofitted vehicles.");
     jdbcTemplate.update(DELETE_ALL_SQL);
+  }
+
+  public List<RetrofittedVehicle> findAll() {
+    return new LinkedList<>();
   }
 
   @VisibleForTesting

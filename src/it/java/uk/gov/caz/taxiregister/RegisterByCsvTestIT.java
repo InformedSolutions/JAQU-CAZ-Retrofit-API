@@ -1,10 +1,13 @@
 package uk.gov.caz.taxiregister;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 
 import com.google.common.collect.ImmutableMap;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +26,10 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketCannedACL;
 import uk.gov.caz.taxiregister.annotation.IntegrationTest;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
+import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 import uk.gov.caz.taxiregister.service.RetrofittedVehicleDtoCsvRepository;
+import uk.gov.caz.taxiregister.service.RetrofittedVehiclePostgresRepository;
+import uk.gov.caz.taxiregister.service.SourceAwareRegisterService;
 import uk.gov.caz.taxiregister.util.DatabaseInitializer;
 
 /**
@@ -36,11 +42,46 @@ import uk.gov.caz.taxiregister.util.DatabaseInitializer;
 @Slf4j
 public class RegisterByCsvTestIT {
 
+  private static final RetrofittedVehicle VEHICLE_1 = RetrofittedVehicle.builder()
+      .vrn("OI64EFO")
+      .vehicleCategory("category-1")
+      .model("\"model\"\",b\"")
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-04-30"))
+      .build();
+
+  private static final RetrofittedVehicle VEHICLE_2 = RetrofittedVehicle.builder()
+      .vrn("ZC62OMB")
+      .vehicleCategory("category-1")
+      .model("model-1")
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-04-27"))
+      .build();
+
+  private static final RetrofittedVehicle VEHICLE_3 = RetrofittedVehicle.builder()
+      .vrn("NO03KNT")
+      .vehicleCategory("category-1")
+      .model("model-1")
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-03-12"))
+      .build();
+
+  private static final RetrofittedVehicle VEHICLE_4 = RetrofittedVehicle.builder()
+      .vrn("DS98UDG")
+      .vehicleCategory("a & b'c & d")
+      .model("model-1")
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-03-11"))
+      .build();
+
+  private static final RetrofittedVehicle VEHICLE_5 = RetrofittedVehicle.builder()
+      .vrn("ND84VSX")
+      .vehicleCategory("category-1")
+      .model("model-1")
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-04-13"))
+      .build();
+
   private static final UUID FIRST_UPLOADER_ID = UUID.randomUUID();
 
+  private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
   private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 5;
-//  private static final int SECOND_UPLOADER_TOTAL_VEHICLES_COUNT = 12;
-//
+
   private static final String BUCKET_NAME = String.format(
       "retrofitted-vehicles-data-%d",
       System.currentTimeMillis()
@@ -49,24 +90,22 @@ public class RegisterByCsvTestIT {
   private static final Map<String, String[]> UPLOADER_TO_FILES = ImmutableMap.of(
       FIRST_UPLOADER_ID.toString(), new String[]{
           "first-uploader-records-all.csv"}
-          // TODO please uncomment, possibly modify and use the files below
-//          "first-uploader-records-all-but-five.csv",
-//          "first-uploader-records-all-but-five-and-five-modified.csv"},
-//      SECOND_UPLOADER_ID.toString(), new String[]{
-//          "second-uploader-records-all.csv",
-//          "second-uploader-records-all-and-five-modified.csv"}
   );
-//
-  private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
 
-//  @Autowired
-//  private DatabaseInitializer databaseInitializer;
+  @Autowired
+  private DatabaseInitializer databaseInitializer;
 
   @Autowired
   private S3Client s3Client;
 
   @Autowired
   private RetrofittedVehicleDtoCsvRepository csvRepository;
+
+  @Autowired
+  private SourceAwareRegisterService registerService;
+
+  @Autowired
+  private RetrofittedVehiclePostgresRepository retrofittedVehiclePostgresRepository;
 
   @BeforeEach
   private void setUp() {
@@ -80,12 +119,8 @@ public class RegisterByCsvTestIT {
     cleanDatabase();
   }
 
-  //
-  // TODO: change to full registration test once logic is present
-  //
-
   @Test
-  public void registerTest() {
+  public void shouldParseCsvFromS3() {
     // given
     String inputFilename = "first-uploader-records-all.csv";
 
@@ -97,6 +132,21 @@ public class RegisterByCsvTestIT {
     then(csvFindResult.getLicences()).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
     then(csvFindResult.getUploaderId()).isEqualTo(FIRST_UPLOADER_ID);
     then(csvFindResult.getValidationErrors()).isEmpty();
+  }
+
+  @Test
+  void shouldRegisterVehiclesFromCsv() {
+    //given
+    String inputFilename = "first-uploader-records-all.csv";
+
+    //when
+    registerService
+        .register(BUCKET_NAME, inputFilename, S3_REGISTER_JOB_ID, TYPICAL_CORRELATION_ID);
+
+    //then
+    then(retrofittedVehiclePostgresRepository.findAll()).containsExactlyInAnyOrder(
+        VEHICLE_1, VEHICLE_2, VEHICLE_3, VEHICLE_4, VEHICLE_5
+    );
   }
 
 
@@ -112,17 +162,16 @@ public class RegisterByCsvTestIT {
 
   @SneakyThrows
   private void initializeDatabase() {
-    // TODO uncomment and adapt methods in DatabaseInitializer to insert necessary data
-//    log.info("Initialing database : start");
-//    databaseInitializer.initWithoutLicenceData();
-//    databaseInitializer.initRegisterJobData();
-//    log.info("Initialing database : finish");
+    log.info("Initialing database : start");
+    databaseInitializer.initWithoutLicenceData();
+    databaseInitializer.initRegisterJobData();
+    log.info("Initialing database : finish");
   }
 
   private void cleanDatabase() {
-//    log.info("Clearing database : start");
-//    databaseInitializer.clear();
-//    log.info("Clearing database : finish");
+    log.info("Clearing database : start");
+    databaseInitializer.clear();
+    log.info("Clearing database : finish");
   }
 
   private void uploadFilesToS3(Map<String, String[]> uploaderToFilesMap) {

@@ -49,6 +49,7 @@ public class DatabaseInitializer {
   public void clear() {
     jdbcTemplate.execute("TRUNCATE TABLE retrofit.T_MD_REGISTER_JOBS CASCADE");
     jdbcTemplate.execute("TRUNCATE TABLE audit.logged_actions CASCADE");
+    jdbcTemplate.execute("TRUNCATE TABLE T_MD_RETROFFITED_VEHICLES CASCADE");
   }
 
   private void executeScripts(List<Path> scripts) throws Exception {
