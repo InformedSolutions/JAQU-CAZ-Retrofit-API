@@ -44,7 +44,9 @@ public class TestObjects {
   public static final UUID TYPICAL_REGISTER_JOB_UPLOADER_ID = UUID
       .fromString("11111111-2222-3333-4444-555555555555");
   public static final String TYPICAL_CORRELATION_ID = "CorrelationId";
-  public static final CsvContentType TYPICAL_REGISTER_JOB_CSV_CONTENT_TYPE = CsvContentType.RETROFIT_LIST;
+  public static final CsvContentType TYPICAL_REGISTER_JOB_RETROFIT_LIST = CsvContentType.RETROFIT_LIST;
+  public static final CsvContentType TYPICAL_REGISTER_JOB_MOD_GREEN_LIST = CsvContentType.MOD_GREEN_LIST;
+  public static final CsvContentType TYPICAL_REGISTER_JOB_MOD_WHITE_LIST = CsvContentType.MOD_WHITE_LIST;
 
   public static final RegisterJob S3_RUNNING_REGISTER_JOB = RegisterJob.builder()
       .id(S3_REGISTER_JOB_ID)
