@@ -21,6 +21,9 @@ public class RetrofitRegisterCsvFromS3Lambda implements
   @Override
   public String handleRequest(RegisterCsvFromS3LambdaInput registerCsvFromS3LambdaInput,
       Context context) {
+    if (isWarmerPing(registerCsvFromS3LambdaInput)) {
+      return "OK";
+    }
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getS3Bucket()),
         "Invalid input, 's3Bucket' is blank or null");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getFileName()),
@@ -36,6 +39,14 @@ public class RetrofitRegisterCsvFromS3Lambda implements
             registerCsvFromS3LambdaInput.getRegisterJobId(),
             registerCsvFromS3LambdaInput.getCorrelationId())
             .isSuccess());
+  }
+
+  private boolean isWarmerPing(RegisterCsvFromS3LambdaInput registerCsvFromS3LambdaInput) {
+    String action = registerCsvFromS3LambdaInput.getAction();
+    if (Strings.isNullOrEmpty(action)) {
+      return false;
+    }
+    return action.equalsIgnoreCase("keep-warm");
   }
 
   private void initializeHandlerAndService() {

@@ -15,4 +15,5 @@ public class RegisterCsvFromS3LambdaInput {
   String s3Bucket;
   String fileName;
   String correlationId;
+  String action;
 }
