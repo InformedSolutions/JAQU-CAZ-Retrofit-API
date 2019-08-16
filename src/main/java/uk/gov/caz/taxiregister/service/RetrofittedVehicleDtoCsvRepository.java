@@ -24,7 +24,7 @@ import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
  */
 @Repository
 @Slf4j
-public class TaxiPhvLicenceCsvRepository {
+public class RetrofittedVehicleDtoCsvRepository {
 
   public static final String UPLOADER_ID_METADATA_KEY = "uploader-id";
   static final long MAX_FILE_SIZE_IN_BYTES = 100L * 1024 * 1024; // 100 MB
@@ -33,12 +33,12 @@ public class TaxiPhvLicenceCsvRepository {
   private final CsvObjectMapper csvObjectMapper;
 
   /**
-   * Creates an instance of {@link TaxiPhvLicenceCsvRepository}.
+   * Creates an instance of {@link RetrofittedVehicleDtoCsvRepository}.
    *
    * @param s3Client A client for AWS S3
    * @param csvObjectMapper An instance of {@link CsvObjectMapper}
    */
-  public TaxiPhvLicenceCsvRepository(S3Client s3Client,
+  public RetrofittedVehicleDtoCsvRepository(S3Client s3Client,
       CsvObjectMapper csvObjectMapper) {
     this.s3Client = s3Client;
     this.csvObjectMapper = csvObjectMapper;
@@ -72,7 +72,8 @@ public class TaxiPhvLicenceCsvRepository {
     UUID uploaderId = getUploaderId(fileMetadata);
     try (InputStream inputStream = getS3FileInputStream(bucket, filename)) {
       CsvParseResult result = csvObjectMapper.read(inputStream);
-      return new CsvFindResult(uploaderId, result.getLicences(), result.getValidationErrors());
+      return new CsvFindResult(uploaderId, result.getRetrofittedVehicles(),
+          result.getValidationErrors());
     } catch (IOException e) {
       log.error("IOException while reading file {}/{}", bucket, filename);
       throw new RuntimeException(e);

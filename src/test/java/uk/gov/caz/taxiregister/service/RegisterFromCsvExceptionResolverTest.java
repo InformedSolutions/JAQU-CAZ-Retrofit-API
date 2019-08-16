@@ -90,7 +90,7 @@ class RegisterFromCsvExceptionResolverTest {
       assertThat(validationError.getTitle()).isEqualTo("S3 error");
       assertThat(validationError.getDetail())
           .isEqualTo("Uploaded file is too large. Maximum allowed: "
-              + TaxiPhvLicenceCsvRepository.MAX_FILE_SIZE_IN_BYTES + " bytes");
+              + RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES + " bytes");
     });
     assertThat(status).isEqualByComparingTo(RegisterJobStatus.STARTUP_FAILURE_TOO_LARGE_FILE);
   }

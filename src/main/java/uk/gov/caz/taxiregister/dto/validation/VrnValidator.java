@@ -69,16 +69,16 @@ public class VrnValidator implements RetrofittedVehicleValidator {
       return missingFieldError(null, MISSING_VRN_MESSAGE);
     }
 
-    private ValidationError invalidLength(String vrm) {
-      return valueError(vrm, invalidLengthMessage(vrm));
+    private ValidationError invalidLength(String vrn) {
+      return valueError(vrn, invalidLengthMessage(vrn));
     }
 
-    private ValidationError invalidFormat(String vrm) {
-      return valueError(vrm, INVALID_VRN_FORMAT_MESSAGE);
+    private ValidationError invalidFormat(String vrn) {
+      return valueError(vrn, INVALID_VRN_FORMAT_MESSAGE);
     }
 
-    private String invalidLengthMessage(String vrm) {
-      return String.format(INVALID_LENGTH_MESSAGE_TEMPLATE, MAX_LENGTH, vrm.length());
+    private String invalidLengthMessage(String vrn) {
+      return String.format(INVALID_LENGTH_MESSAGE_TEMPLATE, MAX_LENGTH, vrn.length());
     }
   }
 }

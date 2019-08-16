@@ -33,16 +33,16 @@ public class DateOfRetrofitInstallationValidator implements RetrofittedVehicleVa
     return validationErrorsBuilder.build();
   }
 
-  private void tryParsingDate(String stringifiedDate, String vrm,
+  private void tryParsingDate(String stringifiedDate, String vrn,
       DateOfRetrofitInstallationErrorResolver errorResolver,
       Builder<ValidationError> validationErrorsBuilder) {
     if (stringifiedDate == null) {
-      validationErrorsBuilder.add(errorResolver.missing(vrm));
+      validationErrorsBuilder.add(errorResolver.missing(vrn));
     } else {
       try {
         LocalDate.parse(stringifiedDate);
       } catch (DateTimeParseException e) {
-        validationErrorsBuilder.add(errorResolver.invalidFormat(vrm));
+        validationErrorsBuilder.add(errorResolver.invalidFormat(vrn));
       }
     }
   }
@@ -53,12 +53,12 @@ public class DateOfRetrofitInstallationValidator implements RetrofittedVehicleVa
       super(retrofittedVehicleDto);
     }
 
-    private ValidationError missing(String vrm) {
-      return missingFieldError(vrm, MISSING_DATE_MESSAGE);
+    private ValidationError missing(String vrn) {
+      return missingFieldError(vrn, MISSING_DATE_MESSAGE);
     }
 
-    private ValidationError invalidFormat(String vrm) {
-      return valueError(vrm, INVALID_DATE_FORMAT_MESSAGE);
+    private ValidationError invalidFormat(String vrn) {
+      return valueError(vrn, INVALID_DATE_FORMAT_MESSAGE);
     }
   }
 }

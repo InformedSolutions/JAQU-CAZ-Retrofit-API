@@ -6,6 +6,6 @@ import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 
 @Value
 public class CsvParseResult {
-  List<RetrofittedVehicleDto> licences;
+  List<RetrofittedVehicleDto> retrofittedVehicles;
   List<ValidationError> validationErrors;
 }

@@ -31,15 +31,15 @@ import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
 import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
 
 @ExtendWith(MockitoExtension.class)
-class TaxiPhvLicenceCsvRepositoryTest {
+class RetrofittedVehicleDtoCsvRepositoryTest {
 
   private static final GetObjectResponse ANY_RESPONSE = GetObjectResponse.builder().build();
   private static final HeadObjectResponse VALID_HEAD_OBJECT_RESPONSE = HeadObjectResponse
       .builder()
-      .contentLength(TaxiPhvLicenceCsvRepository.MAX_FILE_SIZE_IN_BYTES - 1)
+      .contentLength(RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES - 1)
       .metadata(
           Collections.singletonMap(
-              TaxiPhvLicenceCsvRepository.UPLOADER_ID_METADATA_KEY, UUID.randomUUID().toString()
+              RetrofittedVehicleDtoCsvRepository.UPLOADER_ID_METADATA_KEY, UUID.randomUUID().toString()
           )
       )
       .build();
@@ -53,7 +53,7 @@ class TaxiPhvLicenceCsvRepositoryTest {
   private CsvObjectMapper csvObjectMapper;
 
   @InjectMocks
-  private TaxiPhvLicenceCsvRepository csvRepository;
+  private RetrofittedVehicleDtoCsvRepository csvRepository;
 
   @Test
   public void shouldThrowIllegalArgumentExceptionWhenFilenameOrBucketIsNullOrEmpty() {
@@ -80,7 +80,7 @@ class TaxiPhvLicenceCsvRepositoryTest {
   public void shouldThrowS3MetadataExceptionWhenThereIsNoUploaderIdInMetadata() {
     mockS3HeadObjectResponse(HeadObjectResponse
         .builder()
-        .contentLength(TaxiPhvLicenceCsvRepository.MAX_FILE_SIZE_IN_BYTES + 1)
+        .contentLength(RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES + 1)
         .build());
 
     assertThatExceptionOfType(S3MetadataException.class)
@@ -110,7 +110,8 @@ class TaxiPhvLicenceCsvRepositoryTest {
   @Test
   public void shouldThrowS3MaxFileSizeExceededExceptionWhenFileIsTooBig() {
     // given
-    mockS3HeadObjectResponseWithContentSize(TaxiPhvLicenceCsvRepository.MAX_FILE_SIZE_IN_BYTES + 1);
+    mockS3HeadObjectResponseWithContentSize(
+        RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES + 1);
 
     // when
     Throwable throwable = catchThrowable(() -> csvRepository.findAll(ANY_BUCKET, ANY_FILE));
@@ -146,7 +147,7 @@ class TaxiPhvLicenceCsvRepositoryTest {
   private void mockS3HeadObjectResponseWithUploaderId(String notUUID) {
     HeadObjectResponse headObjectResponse = VALID_HEAD_OBJECT_RESPONSE.toBuilder()
         .metadata(
-            Collections.singletonMap(TaxiPhvLicenceCsvRepository.UPLOADER_ID_METADATA_KEY, notUUID)
+            Collections.singletonMap(RetrofittedVehicleDtoCsvRepository.UPLOADER_ID_METADATA_KEY, notUUID)
         )
         .build();
     mockS3HeadObjectResponse(headObjectResponse);

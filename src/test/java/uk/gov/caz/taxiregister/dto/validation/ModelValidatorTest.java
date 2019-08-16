@@ -24,11 +24,11 @@ class ModelValidatorTest {
       public void shouldReturnMissingFieldErrorWhenModelIsNull() {
         // given
         int lineNumber = 14;
-        String licencePlateNumber = null;
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(licencePlateNumber, lineNumber);
+        String model = null;
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(model, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
@@ -42,11 +42,11 @@ class ModelValidatorTest {
       @Test
       public void shouldReturnMissingFieldErrorWhenModelIsNull() {
         // given
-        String licencePlateNumber = null;
-        RetrofittedVehicleDto licence = createRetrofittedVehicle(licencePlateNumber);
+        String model = null;
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(model);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
@@ -65,10 +65,10 @@ class ModelValidatorTest {
       public void shouldReturnMissingFieldErrorWhenModelIsInvalid(String invalidModel) {
         // given
         int lineNumber = 59;
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(invalidModel, lineNumber);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(invalidModel, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
@@ -87,10 +87,10 @@ class ModelValidatorTest {
       @ValueSource(strings = {"", "tooLooooooooooooooooooooongModel"})
       public void shouldReturnMissingFieldErrorWhenModelIsInvalid(String invalidModel) {
         // given
-        RetrofittedVehicleDto licence = createRetrofittedVehicle(invalidModel);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(invalidModel);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(

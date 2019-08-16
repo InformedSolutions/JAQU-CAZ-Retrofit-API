@@ -29,7 +29,7 @@ class CsvObjectMapperTest {
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    then(result.getLicences()).containsOnly(
+    then(result.getRetrofittedVehicles()).containsOnly(
         RetrofittedVehicleDto.builder()
             .vrn("ZC62OMB")
             .vehicleCategory("category-2")
@@ -49,7 +49,7 @@ class CsvObjectMapperTest {
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    then(result.getLicences()).isEmpty();
+    then(result.getRetrofittedVehicles()).isEmpty();
   }
 
   @Test
@@ -61,7 +61,7 @@ class CsvObjectMapperTest {
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    then(result.getLicences()).isEmpty();
+    then(result.getRetrofittedVehicles()).isEmpty();
   }
 
   @ParameterizedTest
@@ -71,7 +71,7 @@ class CsvObjectMapperTest {
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    then(result.getLicences()).isEmpty();
+    then(result.getRetrofittedVehicles()).isEmpty();
     then(result.getValidationErrors()).hasSize(1);
   }
 
@@ -86,7 +86,7 @@ class CsvObjectMapperTest {
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    then(result.getLicences()).containsExactly(
+    then(result.getRetrofittedVehicles()).containsExactly(
         RetrofittedVehicleDto.builder()
             .vrn("ND84VSX")
             .vehicleCategory("category-3")
@@ -111,7 +111,7 @@ class CsvObjectMapperTest {
     CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
 
     // then
-    then(result.getLicences()).isEmpty();
+    then(result.getRetrofittedVehicles()).isEmpty();
     then(result.getValidationErrors()).containsExactly(
         ValidationError.valueError(
             "Line contains invalid character(s), is empty or has trailing comma character. Please make sure you have not included a header row.",
@@ -149,7 +149,7 @@ class CsvObjectMapperTest {
             .lineNumber(3)
             .build()
     );
-    then(result.getLicences()).containsOnly(expected);
+    then(result.getRetrofittedVehicles()).containsOnly(expected);
     then(result.getValidationErrors()).hasOnlyOneElementSatisfying(
         validationError -> then(validationError.getDetail())
             .startsWith("Line 2: Line contains invalid number of fields")

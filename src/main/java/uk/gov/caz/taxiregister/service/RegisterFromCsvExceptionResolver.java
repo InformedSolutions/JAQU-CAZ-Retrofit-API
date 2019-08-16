@@ -25,7 +25,7 @@ public class RegisterFromCsvExceptionResolver {
           + "register vehicles by CSV file. Expected a unique identifier (UUID)"));
   private static final RegisterResult MAX_FILE_SIZE_EXCEEDED = RegisterResult.failure(
       ValidationError.s3Error("Uploaded file is too large. Maximum allowed: "
-          + TaxiPhvLicenceCsvRepository.MAX_FILE_SIZE_IN_BYTES + " bytes"));
+          + RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES + " bytes"));
   private static final RegisterResult INTERNAL_ERROR = RegisterResult.failure(
       ValidationError.internal());
 

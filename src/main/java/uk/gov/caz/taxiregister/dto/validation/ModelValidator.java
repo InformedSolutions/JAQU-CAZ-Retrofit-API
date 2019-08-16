@@ -9,7 +9,7 @@ import uk.gov.caz.taxiregister.model.ValidationError;
 public class ModelValidator implements RetrofittedVehicleValidator {
 
   @VisibleForTesting
-  static final int MAX_LENGTH = 15;
+  static final int MAX_LENGTH = 30;
 
   @VisibleForTesting
   static final String MISSING_MODEL_MESSAGE = "Vehicle does not include the "
@@ -44,12 +44,12 @@ public class ModelValidator implements RetrofittedVehicleValidator {
       super(retrofittedVehicleDto);
     }
 
-    private ValidationError missing(String vrm) {
-      return missingFieldError(vrm, MISSING_MODEL_MESSAGE);
+    private ValidationError missing(String vrn) {
+      return missingFieldError(vrn, MISSING_MODEL_MESSAGE);
     }
 
-    private ValidationError invalidFormat(String vrm, int modelLength) {
-      return valueError(vrm, invalidFormatMessage(modelLength));
+    private ValidationError invalidFormat(String vrn, int modelLength) {
+      return valueError(vrn, invalidFormatMessage(modelLength));
     }
 
     private String invalidFormatMessage(int modelLength) {
