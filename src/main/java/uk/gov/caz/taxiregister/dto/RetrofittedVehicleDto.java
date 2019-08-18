@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Value;
 import uk.gov.caz.taxiregister.dto.validation.DateOfRetrofitInstallationValidator;
 import uk.gov.caz.taxiregister.dto.validation.ModelValidator;
@@ -12,6 +13,7 @@ import uk.gov.caz.taxiregister.dto.validation.VehicleCategoryValidator;
 import uk.gov.caz.taxiregister.dto.validation.VrnValidator;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
+@Getter
 @Value
 @Builder(toBuilder = true)
 public class RetrofittedVehicleDto {
