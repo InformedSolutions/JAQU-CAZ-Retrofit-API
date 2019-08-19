@@ -1,6 +1,5 @@
 package uk.gov.caz.taxiregister.util;
 
-import com.google.common.collect.ImmutableList;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -16,14 +15,6 @@ public class DatabaseInitializer {
 
   private final JdbcTemplate jdbcTemplate;
   private final DataSource dataSource;
-  private static final List<Path> WITHOUT_LICENCE_DATA = Collections.singletonList(
-      createTestSqlDataPath("licensing-authority-data.sql")
-  );
-
-  private static final List<Path> WITH_LICENCE_DATA = ImmutableList.<Path>builder()
-      .addAll(WITHOUT_LICENCE_DATA)
-      .add(createTestSqlDataPath("taxi-phv-data.sql"))
-      .build();
 
   private static final List<Path> REGISTER_JOB_DATA = Collections.singletonList(
       createTestSqlDataPath("register-job-data.sql")
@@ -34,19 +25,17 @@ public class DatabaseInitializer {
     this.dataSource = dataSource;
   }
 
-  public void initWithoutLicenceData() throws Exception {
-  }
-
   public void init() throws Exception {
   }
 
   public void initRegisterJobData() throws Exception {
+    executeScripts(REGISTER_JOB_DATA);
   }
 
   public void clear() {
     jdbcTemplate.execute("TRUNCATE TABLE retrofit.T_MD_REGISTER_JOBS CASCADE");
     jdbcTemplate.execute("TRUNCATE TABLE audit.logged_actions CASCADE");
-    jdbcTemplate.execute("TRUNCATE TABLE t_md_retrofitted_vehicles CASCADE");
+    jdbcTemplate.execute("TRUNCATE TABLE retrofit.t_vehicle_retrofit CASCADE");
   }
 
   private void executeScripts(List<Path> scripts) throws Exception {
