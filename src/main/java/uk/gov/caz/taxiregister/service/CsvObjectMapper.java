@@ -64,7 +64,7 @@ public class CsvObjectMapper {
       } else {
         RetrofittedVehicleDto retrofittedVehicleDto = createRetrofittedVehicle(fields, lineNo);
         vehiclesBuilder.add(retrofittedVehicleDto);
-        log.debug("Licence read: {}", retrofittedVehicleDto);
+        log.debug("Retrofitted vehicle read: {}", retrofittedVehicleDto);
       }
     }
     addTrailingRowErrorInfoIfApplicable(errors, lineNo - 1);

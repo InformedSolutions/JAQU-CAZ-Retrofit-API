@@ -35,7 +35,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
   private final AsyncBackgroundJobStarter asyncBackgroundJobStarter;
   private final RegisterJobSupervisor registerJobSupervisor;
-  private final CsvFileOnS3MetadataExtractor uploaderIdS3MetadataExtractor;
+  private final CsvFileOnS3MetadataExtractor metadataExtractor;
 
   /**
    * Creates new instance of {@link RegisterCsvFromS3Controller} class.
@@ -52,7 +52,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
       CsvFileOnS3MetadataExtractor csvFileOnS3MetadataExtractor) {
     this.asyncBackgroundJobStarter = asyncBackgroundJobStarter;
     this.registerJobSupervisor = registerJobSupervisor;
-    this.uploaderIdS3MetadataExtractor = csvFileOnS3MetadataExtractor;
+    this.metadataExtractor = csvFileOnS3MetadataExtractor;
   }
 
   @Override
@@ -62,8 +62,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
     checkPreconditions(csvMetadata.getUploaderId());
 
-    StartParams startParams = prepareStartParams(correlationId, startCommand,
-        csvMetadata.getUploaderId());
+    StartParams startParams = prepareStartParams(correlationId, startCommand, csvMetadata);
     RegisterJobName registerJobName = registerJobSupervisor.start(startParams);
 
     return ResponseEntity
@@ -74,8 +73,34 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
   private CsvMetadata getCsvMetadata(StartRegisterCsvFromS3JobCommand startCommand)
       throws FatalErrorWithCsvFileMetadataException {
-    return uploaderIdS3MetadataExtractor
+    return metadataExtractor
         .getRequiredMetadata(startCommand.getS3Bucket(), startCommand.getFilename());
+  }
+
+  private void checkPreconditions(UUID uploaderId) {
+    checkActiveJobsPrecondition(uploaderId);
+  }
+
+  private void checkActiveJobsPrecondition(UUID uploaderId) {
+    if (registerJobSupervisor.hasActiveJobs(uploaderId)) {
+      throw new ActiveJobsCountExceededException(uploaderId);
+    }
+  }
+
+  private StartParams prepareStartParams(String correlationId,
+      StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, CsvMetadata csvMetadata) {
+    return StartParams.builder()
+        .registerJobTrigger(RegisterJobTrigger.from(csvMetadata.getCsvContentType()))
+        .registerJobNameSuffix(stripCsvExtension(startRegisterCsvFromS3JobCommand.getFilename()))
+        .correlationId(correlationId)
+        .uploaderId(csvMetadata.getUploaderId())
+        .registerJobInvoker(
+            asyncRegisterJobInvoker(correlationId, startRegisterCsvFromS3JobCommand))
+        .build();
+  }
+
+  private String stripCsvExtension(String csvFileName) {
+    return csvFileName.replace(".csv", "");
   }
 
   @Override
@@ -91,23 +116,6 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
         .orElseGet(() -> ResponseEntity.notFound()
             .header(CORRELATION_ID_HEADER, correlationId)
             .build());
-  }
-
-  private StartParams prepareStartParams(String correlationId,
-      StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, UUID uploaderId) {
-    return StartParams.builder()
-        // TODO: from CsvContentType and update tests
-        .registerJobTrigger(RegisterJobTrigger.RETROFIT_CSV_FROM_S3)
-        .registerJobNameSuffix(stripCsvExtension(startRegisterCsvFromS3JobCommand.getFilename()))
-        .correlationId(correlationId)
-        .uploaderId(uploaderId)
-        .registerJobInvoker(
-            asyncRegisterJobInvoker(correlationId, startRegisterCsvFromS3JobCommand))
-        .build();
-  }
-
-  private String stripCsvExtension(String csvFileName) {
-    return csvFileName.replace(".csv", "");
   }
 
   private RegisterJobSupervisor.RegisterJobInvoker asyncRegisterJobInvoker(String correlationId,
@@ -131,16 +139,6 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
   private boolean thereWereErrors(RegisterJob registerJob) {
     return !registerJob.getErrors().isEmpty();
-  }
-
-  private void checkPreconditions(UUID uploaderId) {
-    checkActiveJobsPrecondition(uploaderId);
-  }
-
-  private void checkActiveJobsPrecondition(UUID uploaderId) {
-    if (registerJobSupervisor.hasActiveJobs(uploaderId)) {
-      throw new ActiveJobsCountExceededException(uploaderId);
-    }
   }
 
   @ExceptionHandler(FatalErrorWithCsvFileMetadataException.class)

@@ -24,7 +24,7 @@ import uk.gov.caz.taxiregister.model.ValidationError;
 class RegisterFromCsvCommandTest {
 
   @Mock
-  private TaxiPhvLicenceCsvRepository csvRepository;
+  private RetrofittedVehicleDtoCsvRepository csvRepository;
 
   private RegisterFromCsvCommand registerFromCsvCommand;
 

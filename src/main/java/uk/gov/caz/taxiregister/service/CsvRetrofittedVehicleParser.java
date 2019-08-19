@@ -11,7 +11,7 @@ import uk.gov.caz.taxiregister.service.exception.CsvMaxLineLengthExceededExcepti
 
 public class CsvRetrofittedVehicleParser implements ICSVParser {
 
-  static final int MAX_LINE_LENGTH = 110;
+  static final int MAX_LINE_LENGTH = 100;
   static final int EXPECTED_FIELDS_CNT = 4;
 
   private static final String MAX_LENGTH_MESSAGE_TEMPLATE =

@@ -15,13 +15,19 @@ import static uk.gov.caz.testutils.TestObjects.NOT_EXISTING_REGISTER_JOB_NAME;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
 import static uk.gov.caz.testutils.TestObjects.S3_RUNNING_REGISTER_JOB;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
-import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_CSV_CONTENT_TYPE;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_MOD_GREEN_LIST;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_MOD_WHITE_LIST;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_RETROFIT_LIST;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -31,6 +37,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.caz.taxiregister.dto.StartRegisterCsvFromS3JobCommand;
+import uk.gov.caz.taxiregister.model.CsvContentType;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobName;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
@@ -70,11 +77,13 @@ class RegisterCsvFromS3ControllerTest {
     Mockito.reset(mockedAsyncBackgroundJobStarter, mockedRegisterJobSupervisor);
   }
 
-  @Test
-  public void testRegisterJobStartWhenSuccessfullyObtainedMetadata() throws Exception {
+  @ParameterizedTest
+  @MethodSource("csvContentTypeMapToRegisterJobTrigger")
+  public void testRegisterJobStartWhenSuccessfullyObtainedMetadata(CsvContentType csvContentType,
+      RegisterJobTrigger registerJobTrigger) throws Exception {
     // given
     mockSupervisor();
-    mockCsvFileOnS3MetadataExtractorForSuccess();
+    mockCsvFileOnS3MetadataExtractorForSuccess(csvContentType);
     mockSupervisorForNotFindingStartingOrRunningJob();
 
     // when
@@ -83,7 +92,7 @@ class RegisterCsvFromS3ControllerTest {
     // then
     StartParams startParams = verifyThatSupervisorStartedJobAndCaptureItsParams();
     assertThat(startParams)
-        .wasTriggeredBy(RegisterJobTrigger.RETROFIT_CSV_FROM_S3)
+        .wasTriggeredBy(registerJobTrigger)
         .hasCorrelationId(TYPICAL_CORRELATION_ID)
         .hasJobNameSuffix("fileName")
         .wasUploadedBy(TYPICAL_REGISTER_JOB_UPLOADER_ID)
@@ -175,10 +184,10 @@ class RegisterCsvFromS3ControllerTest {
         .willReturn(new RegisterJobName(S3_REGISTER_JOB_NAME));
   }
 
-  private void mockCsvFileOnS3MetadataExtractorForSuccess() {
+  private void mockCsvFileOnS3MetadataExtractorForSuccess(CsvContentType csvContentType) {
     given(mockedCsvFileOnS3MetadataExtractor.getRequiredMetadata(S3_BUCKET, CSV_FILE))
         .willReturn(new CsvMetadata(TYPICAL_REGISTER_JOB_UPLOADER_ID,
-            TYPICAL_REGISTER_JOB_CSV_CONTENT_TYPE));
+            csvContentType));
   }
 
   private void mockCsvFileOnS3MetadataExtractorForError() {
@@ -209,7 +218,7 @@ class RegisterCsvFromS3ControllerTest {
 
   private void mockForSuccess() {
     mockSupervisor();
-    mockCsvFileOnS3MetadataExtractorForSuccess();
+    mockCsvFileOnS3MetadataExtractorForSuccess(TYPICAL_REGISTER_JOB_RETROFIT_LIST);
     mockSupervisorForFindingStartingOrRunningJob();
   }
 
@@ -247,5 +256,16 @@ class RegisterCsvFromS3ControllerTest {
   private StartParams verifyThatSupervisorStartedJobAndCaptureItsParams() {
     verify(mockedRegisterJobSupervisor).start(startParamsArgumentCaptor.capture());
     return startParamsArgumentCaptor.getValue();
+  }
+
+  private static Stream<Arguments> csvContentTypeMapToRegisterJobTrigger() {
+    return Stream.of(
+        Arguments.of(TYPICAL_REGISTER_JOB_RETROFIT_LIST,
+            RegisterJobTrigger.RETROFIT_CSV_FROM_S3),
+        Arguments.of(TYPICAL_REGISTER_JOB_MOD_GREEN_LIST,
+            RegisterJobTrigger.GREEN_MOD_CSV_FROM_S3),
+        Arguments.of(TYPICAL_REGISTER_JOB_MOD_WHITE_LIST,
+            RegisterJobTrigger.WHITE_MOD_CSV_FROM_S3)
+    );
   }
 }

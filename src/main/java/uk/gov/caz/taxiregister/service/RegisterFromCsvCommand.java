@@ -15,7 +15,7 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
   private final String bucket;
   private final String filename;
 
-  private final TaxiPhvLicenceCsvRepository csvRepository;
+  private final RetrofittedVehicleDtoCsvRepository csvRepository;
 
   private CsvFindResult csvFindResult;
 

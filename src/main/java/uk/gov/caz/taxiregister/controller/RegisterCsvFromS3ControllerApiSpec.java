@@ -33,8 +33,8 @@ import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 public interface RegisterCsvFromS3ControllerApiSpec {
 
   /**
-   * Request to start a job that registers Retrofitted vehicles or exempt ones. Source will be CSV
-   * file located on AWS S3.
+   * Request to start a job that registers Retrofitted or exempt vehicles. Source will be CSV file
+   * located on AWS S3.
    *
    * @param correlationId CorrelationID to track the request from the API gateway through the
    *     Enquiries stack
@@ -48,6 +48,7 @@ public interface RegisterCsvFromS3ControllerApiSpec {
   @ApiResponses({
       @ApiResponse(code = 500, message = "Internal Server Error / No message available"),
       @ApiResponse(code = 400, message = "Correlation Id missing"),
+      @ApiResponse(code = 406, message = "Given uploaderId has already active job"),
       @ApiResponse(code = 201, message =
           "A handle which uniquely identifies register job that has been started"),
   })

@@ -22,18 +22,18 @@ abstract class ValidationErrorResolver {
         : message;
   }
 
-  final ValidationError missingFieldError(String vrm, String message) {
+  final ValidationError missingFieldError(String vrn, String message) {
     String embellishedMessage = addCsvHeaderPresentInfoIfApplicable(message);
     return isLineNumberAware()
-        ? ValidationError.missingFieldError(vrm, embellishedMessage, lineNumber)
-        : ValidationError.missingFieldError(vrm, embellishedMessage);
+        ? ValidationError.missingFieldError(vrn, embellishedMessage, lineNumber)
+        : ValidationError.missingFieldError(vrn, embellishedMessage);
   }
 
-  final ValidationError valueError(String vrm, String message) {
+  final ValidationError valueError(String vrn, String message) {
     String embellishedMessage = addCsvHeaderPresentInfoIfApplicable(message);
     return isLineNumberAware()
-        ? ValidationError.valueError(vrm, embellishedMessage, lineNumber)
-        : ValidationError.valueError(vrm, embellishedMessage);
+        ? ValidationError.valueError(vrn, embellishedMessage, lineNumber)
+        : ValidationError.valueError(vrn, embellishedMessage);
   }
 
   private boolean isLineNumberAware() {

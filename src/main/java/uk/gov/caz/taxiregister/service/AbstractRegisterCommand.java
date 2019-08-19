@@ -25,7 +25,7 @@ public abstract class AbstractRegisterCommand {
   private final RegisterService registerService;
   private final RegisterFromCsvExceptionResolver exceptionResolver;
   private final RegisterJobSupervisor registerJobSupervisor;
-  private final RetrofittedVehicleDtoToModelConverter licenceConverter;
+  private final RetrofittedVehicleDtoToModelConverter vehiclesConverter;
 
   /**
    * Creates an instance of {@link AbstractRegisterCommand}.
@@ -35,7 +35,7 @@ public abstract class AbstractRegisterCommand {
     this.registerService = registerServicesContext.getRegisterService();
     this.exceptionResolver = registerServicesContext.getExceptionResolver();
     this.registerJobSupervisor = registerServicesContext.getRegisterJobSupervisor();
-    this.licenceConverter = registerServicesContext.getLicenceConverter();
+    this.vehiclesConverter = registerServicesContext.getLicenceConverter();
     this.registerJobId = registerJobId;
     this.correlationId = correlationId;
   }
@@ -61,7 +61,7 @@ public abstract class AbstractRegisterCommand {
 
       beforeExecute();
 
-      ConversionResults conversionResults = licenceConverter.convert(getLicencesToRegister());
+      ConversionResults conversionResults = vehiclesConverter.convert(getLicencesToRegister());
 
       if (conversionResults.hasValidationErrors() || hasParseValidationErrors()) {
         List<ValidationError> errors = merge(conversionResults.getValidationErrors(),

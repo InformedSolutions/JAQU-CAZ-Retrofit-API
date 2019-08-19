@@ -17,7 +17,7 @@ public class VehicleCategoryValidator implements RetrofittedVehicleValidator {
       + " should have from 1 to %d characters instead of %d.";
 
   @VisibleForTesting
-  static final int MAX_LENGTH = 50;
+  static final int MAX_LENGTH = 40;
 
   @Override
   public List<ValidationError> validate(RetrofittedVehicleDto retrofittedVehicleDto) {
@@ -46,12 +46,12 @@ public class VehicleCategoryValidator implements RetrofittedVehicleValidator {
       super(retrofittedVehicleDto);
     }
 
-    private ValidationError missing(String vrm) {
-      return missingFieldError(vrm, MISSING_VEHICLE_CATEGORY_MESSAGE);
+    private ValidationError missing(String vrn) {
+      return missingFieldError(vrn, MISSING_VEHICLE_CATEGORY_MESSAGE);
     }
 
-    private ValidationError invalidFormat(String vrm, int vehicleCategoryLength) {
-      return valueError(vrm, invalidFormatMessage(vehicleCategoryLength));
+    private ValidationError invalidFormat(String vrn, int vehicleCategoryLength) {
+      return valueError(vrn, invalidFormatMessage(vehicleCategoryLength));
     }
 
     private String invalidFormatMessage(int vehicleCategoryLength) {

@@ -13,37 +13,33 @@ class CsvRetrofittedVehicleParserTestIT {
   @Test
   public void shouldParseLineWithComma() throws IOException {
     // given
-    String line = "ZC62OMB,2019-04-15,2019-05-17,PHV,\"Field with a comma, comma\",beBCC,true";
+    String line = "ZC62OMB,\"Field with a comma, comma\",model-2,2019-05-17";
 
     // when
     String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
-    then(result).isEqualTo(new String[]{"ZC62OMB", "2019-04-15", "2019-05-17", "PHV",
-        "Field with a comma, comma", "beBCC", "true"});
+    then(result).isEqualTo(new String[]{"ZC62OMB", "Field with a comma, comma", "model-2", "2019-05-17"});
   }
 
   @Test
   public void shouldParseLineWithDoubleQuote() throws IOException {
     // given
-    String line = "ZC62OMB,2019-04-15,2019-05-17,PHV,\"\"Hooyah!\"\",beBCC,true";
+    String line = "ZC62OMB,\"\"Hooyah!\"\",model-2,2019-05-17";
 
     // when
     String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
-    then(result).isEqualTo(new String[]{"ZC62OMB", "2019-04-15", "2019-05-17", "PHV",
-        "\"Hooyah!\"", "beBCC", "true"});
+    then(result).isEqualTo(new String[]{"ZC62OMB", "\"Hooyah!\"", "model-2", "2019-05-17"});
   }
 
   @Test
   public void shouldParseLineWithCommaAndDoubleQuote() throws IOException {
     // given
-    String line = "\"\"\"\"," // one quote: "
-        + "\"\"\"\"\"\"," // two quotes: ""
+    String line = "\"\"\"\"\"\"," // two quotes: ""
         + "\",,\"," // two commas: ,,
         + "\"\"\",\"\",\"\"\"," // three quotes separated by commas: ",","
-        + "\",\"\",\"," // comma, quote, comma: ,",
         + "\"\"\",,\"\"\""; // quote, comma, comma, quote
 
     // when
@@ -51,11 +47,9 @@ class CsvRetrofittedVehicleParserTestIT {
 
     // then
     then(result).isEqualTo(new String[]{
-        "\"",
         "\"\"",
         ",,",
         "\",\",\"",
-        ",\",",
         "\",,\""
     });
   }
@@ -63,13 +57,12 @@ class CsvRetrofittedVehicleParserTestIT {
   @Test
   public void shouldParseLineWithAmpersandAndApostrophe() throws IOException {
     // given
-    String line = "ZC62OMB,2019-04-15,2019-05-17,PHV,a & b'c & d,beBCC";
+    String line = "ZC62OMB,category-2,a & b'c & d,2019-05-17";
 
     // when
     String[] result = csvRetrofittedVehicleParser.parseLineMulti(line);
 
     // then
-    then(result).isEqualTo(new String[]{"ZC62OMB", "2019-04-15", "2019-05-17", "PHV",
-        "a & b'c & d", "beBCC"});
+    then(result).isEqualTo(new String[]{"ZC62OMB", "category-2", "a & b'c & d", "2019-05-17"});
   }
 }

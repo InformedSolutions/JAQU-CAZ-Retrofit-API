@@ -23,10 +23,10 @@ class VehicleCategoryValidatorTest {
       public void shouldReturnMissingFieldErrorWhenCategoryIsNull() {
         // given
         String vehicleCategory = null;
-        RetrofittedVehicleDto licence = createRetrofittedVehicle(vehicleCategory);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(vehicleCategory);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
@@ -45,10 +45,10 @@ class VehicleCategoryValidatorTest {
         // given
         int lineNumber = 63;
         String vehicleCategory = null;
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(vehicleCategory, lineNumber);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(vehicleCategory, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
@@ -66,10 +66,10 @@ class VehicleCategoryValidatorTest {
       @ValueSource(strings = {"", "tooooooooooooLooooooooooooongLicensingAuthorityName"})
       public void shouldReturnValueErrorWhenCategoryIsInvalid(String invalidVehicleCategory) {
         // given
-        RetrofittedVehicleDto licence = createRetrofittedVehicle(invalidVehicleCategory);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(invalidVehicleCategory);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
@@ -88,10 +88,10 @@ class VehicleCategoryValidatorTest {
       public void shouldReturnValueErrorWhenCategoryIsInvalid(String invalidVehicleCategory) {
         // given
         int lineNumber = 90;
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(invalidVehicleCategory, lineNumber);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(invalidVehicleCategory, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
 
         // then
         then(validationErrors).containsExactly(
