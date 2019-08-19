@@ -6,11 +6,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import com.google.common.collect.Sets;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,10 +91,14 @@ class RegisterServiceTest {
         .containsExactlyInAnyOrder(NORMAL_VEHICLE_2);
   }
 
-  private static class InMemoryRetrofittedRepository implements
+  private static class InMemoryRetrofittedRepository extends
       RetrofittedVehiclePostgresRepository {
 
     private Set<RetrofittedVehicle> retrofittedVehicles = new HashSet<>();
+
+    public InMemoryRetrofittedRepository() {
+      super(null, 2);
+    }
 
     @Override
     public void insert(Set<RetrofittedVehicle> retrofittedVehicles) {
@@ -104,8 +111,8 @@ class RegisterServiceTest {
     }
 
     @Override
-    public Set<RetrofittedVehicle> findAll() {
-      return retrofittedVehicles;
+    public List<RetrofittedVehicle> findAll() {
+      return Lists.newArrayList(retrofittedVehicles);
     }
   }
 }
