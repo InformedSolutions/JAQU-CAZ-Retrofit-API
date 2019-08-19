@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 
 @Slf4j
-@Service
+@Repository
 public class RetrofittedVehiclePostgresRepository {
 
   @VisibleForTesting
@@ -64,7 +64,7 @@ public class RetrofittedVehiclePostgresRepository {
     @Override
     public void setValues(PreparedStatement preparedStatement, int index) throws SQLException {
       RetrofittedVehicle retrofittedVehicle = batch.get(index);
-      setCommonInsertUpdateStatementAttributes(preparedStatement, retrofittedVehicle);
+      setInsertStatementAttributes(preparedStatement, retrofittedVehicle);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class RetrofittedVehiclePostgresRepository {
     }
   }
 
-  private static int setCommonInsertUpdateStatementAttributes(PreparedStatement preparedStatement,
+  private static int setInsertStatementAttributes(PreparedStatement preparedStatement,
       RetrofittedVehicle retrofittedVehicle) throws SQLException {
     int i = 0;
     preparedStatement.setString(++i, retrofittedVehicle.getVrn());

@@ -29,4 +29,7 @@ databaseChangeLog:
               - column:
                   name: INSERT_TIMESTMP
                   type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
             stripComments: true
