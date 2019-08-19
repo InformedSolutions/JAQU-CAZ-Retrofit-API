@@ -57,7 +57,7 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.RegisterJobNameGenerator;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
-import uk.gov.caz.taxiregister.service.RetrofittedVehiclePostgresRepository;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehiclePostgresRepository;
 import uk.gov.caz.taxiregister.service.SourceAwareRegisterService;
 import uk.gov.caz.taxiregister.util.DatabaseInitializer;
 

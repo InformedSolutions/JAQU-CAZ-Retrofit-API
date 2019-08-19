@@ -5,6 +5,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehiclePostgresRepository;
 
 /**
  * Class which is responsible for registering vehicles. It wipes all vehicles before persisting new ones.

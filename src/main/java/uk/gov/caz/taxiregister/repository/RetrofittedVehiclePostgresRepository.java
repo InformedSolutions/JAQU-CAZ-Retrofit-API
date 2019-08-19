@@ -1,4 +1,4 @@
-package uk.gov.caz.taxiregister.service;
+package uk.gov.caz.taxiregister.repository;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;

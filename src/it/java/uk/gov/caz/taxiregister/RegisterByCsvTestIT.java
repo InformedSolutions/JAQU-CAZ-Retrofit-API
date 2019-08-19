@@ -30,7 +30,7 @@ import software.amazon.awssdk.services.s3.model.BucketCannedACL;
 import uk.gov.caz.taxiregister.annotation.IntegrationTest;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.service.RetrofittedVehicleDtoCsvRepository;
-import uk.gov.caz.taxiregister.service.RetrofittedVehiclePostgresRepository;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehiclePostgresRepository;
 import uk.gov.caz.taxiregister.service.SourceAwareRegisterService;
 import uk.gov.caz.taxiregister.util.DatabaseInitializer;
 
