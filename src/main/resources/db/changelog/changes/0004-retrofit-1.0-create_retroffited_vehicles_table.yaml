@@ -4,10 +4,24 @@ databaseChangeLog:
       author: adam.jedro
       changes:
         - createTable:
-            comment: Create table "retrofited_vehicles" that holds data extracted from CSV.
-            tableName: T_MD_RETROFFITED_VEHICLES
+            comment: Create table that holds data extracted from CSV.
+            tableName: T_VEHICLE_RETROFIT
             schemaName: retrofit
             columns:
+              - column:
+                  name: RETROFIT_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: retrofit_id_pkey
+              - column:
+                  name: RETROFIT_STATUS
+                  type: varchar(1)
+                  constraints:
+                    nullable: true
               - column:
                   name: VRN
                   type: varchar(7)
@@ -17,15 +31,22 @@ databaseChangeLog:
                   name: VEHICLE_CATEGORY
                   type: varchar(40)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: MODEL
                   type: varchar(30)
                   constraints:
+                    nullable: true
+              - column:
+                  name: DATE_OF_RETROFIT
+                  type: date
+                  constraints:
                     nullable: false
               - column:
-                  name: DATE_OF_RETROFIT_INSTALLATION
-                  type: date
+                  name: WHITELIST_DISCOUT_CODE
+                  type: varchar(5)
+                  constraints:
+                    nullable: true
               - column:
                   name: INSERT_TIMESTMP
                   type: timestamp(6)
