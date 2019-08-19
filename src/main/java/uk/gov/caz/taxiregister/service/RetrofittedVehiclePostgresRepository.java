@@ -18,14 +18,14 @@ import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 public class RetrofittedVehiclePostgresRepository {
 
   @VisibleForTesting
-  static final String DELETE_ALL_SQL = "DELETE FROM t_md_retroffited_vehicles";
+  static final String DELETE_ALL_SQL = "DELETE FROM t_vehicle_retrofit";
 
   @VisibleForTesting
-  static final String INSERT_SQL = "INSERT INTO t_md_retroffited_vehicles("
+  static final String INSERT_SQL = "INSERT INTO t_vehicle_retrofit("
       + "vrn, "
       + "vehicle_category, "
       + "model, "
-      + "date_of_retrofit_installation, "
+      + "date_of_retrofit, "
       + "insert_timestmp) "
       + "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
 

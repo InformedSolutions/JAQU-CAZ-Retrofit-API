@@ -4,10 +4,24 @@ databaseChangeLog:
       author: adam.jedro
       changes:
         - createTable:
-            comment: Create table "retrofited_vehicles" that holds data extracted from CSV.
-            tableName: T_MD_RETROFFITED_VEHICLES
+            comment: Create table that holds data extracted from CSV.
+            tableName: T_VEHICLE_RETROFIT
             schemaName: retrofit
             columns:
+              - column:
+                  name: RETROFIT_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: retrofit_id_pkey
+              - column:
+                  name: RETROFIT_STATUS
+                  type: varchar(1)
+                  constraints:
+                    nullable: true
               - column:
                   name: VRN
                   type: varchar(7)
@@ -17,15 +31,102 @@ databaseChangeLog:
                   name: VEHICLE_CATEGORY
                   type: varchar(40)
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: MODEL
                   type: varchar(30)
                   constraints:
+                    nullable: true
+              - column:
+                  name: DATE_OF_RETROFIT
+                  type: date
+                  constraints:
                     nullable: false
               - column:
-                  name: DATE_OF_RETROFIT_INSTALLATION
-                  type: date
+                  name: WHITELIST_DISCOUT_CODE
+                  type: varchar(5)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+            stripComments: true
+        - createTable:
+            tableName: T_WHITELIST_DISCOUNT_CODE
+            schemaName: retrofit
+            columns:
+              - column:
+                  name: WHITELIST_DISCOUT_CODE
+                  type: varchar(5)
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: DISCOUNT_CODE_DESCRIPTION
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+            stripComments: true
+        - createTable:
+            tableName: T_NATIONAL_WHITELIST_TYPE
+            schemaName: retrofit
+            columns:
+              - column:
+                  name: NATIONAL_WHITELIST_TYPE
+                  type: varchar(35)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: WHITELIST_TYPE_DESCRIPTION
+                  type: TEXT
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+            stripComments: true
+        - createTable:
+            tableName: T_MOD_WHITELIST
+            schemaName: retrofit
+            columns:
+              - column:
+                  name: MOD_WHITELIST_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: mod_whitelist_pkey
+              - column:
+                  name: MOD_WHITELIST_TYPE
+                  type: varchar(35)
+                  constraints:
+                    nullable: false
+                    references: retrofit.T_NATIONAL_WHITELIST_TYPE(NATIONAL_WHITELIST_TYPE)
+                    foreignKeyName: fk_national_whitelist_type
+              - column:
+                  name: WHITELIST_DISCOUNT_CODE
+                  type: varchar(7)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: VRN
+                  type: varchar(7)
+                  constraints:
+                    nullable: false
               - column:
                   name: INSERT_TIMESTMP
                   type: timestamp(6)
