@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.Sets;
 import java.time.LocalDate;
 import java.util.Set;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehiclePostgresRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RetrofittedVehiclePostgresRepositoryTest {

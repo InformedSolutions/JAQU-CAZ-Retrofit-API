@@ -1,9 +1,7 @@
 package uk.gov.caz.taxiregister.service;
 
-import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +40,6 @@ public abstract class AbstractRegisterCommand {
 
   abstract void beforeExecute();
 
-  abstract UUID getUploaderId();
-
   abstract List<RetrofittedVehicleDto> getLicencesToRegister();
 
   abstract List<ValidationError> getLicencesParseValidationErrors();
@@ -70,11 +66,7 @@ public abstract class AbstractRegisterCommand {
         return RegisterResult.failure(errors);
       }
 
-      RegisterResult result = registerService.register(
-          // TODO leave set as it was
-          Lists.newArrayList(conversionResults.getRetrofittedVehicles()),
-          getUploaderId()
-      );
+      RegisterResult result = registerService.register(conversionResults.getRetrofittedVehicles());
 
       postProcessRegistrationResult(result);
 

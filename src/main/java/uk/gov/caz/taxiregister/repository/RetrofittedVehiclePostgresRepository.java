@@ -1,9 +1,10 @@
-package uk.gov.caz.taxiregister.service;
+package uk.gov.caz.taxiregister.repository;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,8 @@ import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 @Repository
 public class RetrofittedVehiclePostgresRepository {
 
+  static final String FIND_ALL_SQL = "SELECT * FROM retrofit.t_vehicle_retrofit";
+
   @VisibleForTesting
   static final String DELETE_ALL_SQL = "DELETE FROM retrofit.t_vehicle_retrofit";
 
@@ -28,7 +31,6 @@ public class RetrofittedVehiclePostgresRepository {
       + "date_of_retrofit, "
       + "insert_timestmp) "
       + "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
-
 
   private final JdbcTemplate jdbcTemplate;
   private final int updateBatchSize;
@@ -50,6 +52,16 @@ public class RetrofittedVehiclePostgresRepository {
   public void deleteAll() {
     log.info("Deleting all retrofitted vehicles.");
     jdbcTemplate.update(DELETE_ALL_SQL);
+  }
+
+  @VisibleForTesting
+  public List<RetrofittedVehicle> findAll() {
+    return jdbcTemplate.query(FIND_ALL_SQL, (rs, rowNum) -> RetrofittedVehicle.builder()
+        .vrn(rs.getString("vrn"))
+        .vehicleCategory(rs.getString("vehicle_category"))
+        .model(rs.getString("model"))
+        .dateOfRetrofitInstallation(rs.getObject("date_of_retrofit", LocalDate.class))
+        .build());
   }
 
   @VisibleForTesting

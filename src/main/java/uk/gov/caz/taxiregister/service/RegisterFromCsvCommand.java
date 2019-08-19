@@ -2,7 +2,6 @@ package uk.gov.caz.taxiregister.service;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
-import java.util.UUID;
 import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.model.ValidationError;
@@ -19,10 +18,8 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
 
   private CsvFindResult csvFindResult;
 
-
   /**
    * Creates an instance of {@link RegisterFromCsvCommand}.
-   *
    */
   public RegisterFromCsvCommand(RegisterServicesContext registerServicesContext, int registerJobId,
       String correlationId, String bucket, String filename) {
@@ -35,12 +32,6 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
   @Override
   public void beforeExecute() {
     csvFindResult = csvRepository.findAll(bucket, filename);
-  }
-
-  @Override
-  public UUID getUploaderId() {
-    checkCsvParseResultsPresentPrecondition();
-    return csvFindResult.getUploaderId();
   }
 
   @Override

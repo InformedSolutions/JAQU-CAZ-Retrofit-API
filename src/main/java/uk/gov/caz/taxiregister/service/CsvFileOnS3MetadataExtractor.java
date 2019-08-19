@@ -23,7 +23,7 @@ public class CsvFileOnS3MetadataExtractor {
   static final String UPLOADER_ID_METADATA_KEY = "uploader-id";
 
   @VisibleForTesting
-  static final String CSV_CONTENT_TYPE_METADATA_KEY = "csv-content-type";
+  public static final String CSV_CONTENT_TYPE_METADATA_KEY = "csv-content-type";
 
   private final S3Client s3Client;
 
