@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0004-retrofit-1.0
+      author: adam.jedro
+      changes:
+        - createTable:
+            comment: Create table "retrofited_vehicles" that holds data extracted from CSV.
+            tableName: T_MD_RETROFFITED_VEHICLES
+            schemaName: retrofit
+            columns:
+              - column:
+                  name: VRN
+                  type: varchar(7)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: VEHICLE_CATEGORY
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: MODEL
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: DATE_OF_RETROFIT_INSTALLATION
+                  type: date
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+            stripComments: true
