@@ -211,6 +211,13 @@
       <artifactId>postgresql</artifactId>
     </dependency>
     <!--      db: end -->
+
+    <!--      module: begin -->
+    <dependency>
+      <groupId>uk.gov.caz</groupId>
+      <artifactId>sample</artifactId>
+    </dependency>
+    <!--      module: end -->
   </dependencies>
 
   <build>
