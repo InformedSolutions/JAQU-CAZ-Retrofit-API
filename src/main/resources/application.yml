@@ -14,8 +14,8 @@ management:
 
 swagger:
   api:
-    title: National Taxi/PHV Register Data Maintenance (API)
-    description: This interface enables integration, via a RESTful API, between LA business processes and systems and the CAZ Service for the purposes of allowing LA’s to maintain details of licensed taxis and Private Hire Vehicles (PHVs) held within the National Taxi/PHV Register – a centralised and authoritative register that details all taxis and PHVs operating in the United Kingdom
+    title: Retrofit Register API
+    description: This service allows uploading CSV files with retroffited vehicles. Uploaded CSV files are processed asynchronously. Data saved by Retrofit service is read by Vehicle Compliance Checker service directly from database.
     version: 0.1
 
 api:
