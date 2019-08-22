@@ -1,4 +1,4 @@
-package uk.gov.caz.taxiregister.service;
+package uk.gov.caz.taxiregister.repository;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
-import uk.gov.caz.taxiregister.repository.RetrofittedVehiclePostgresRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RetrofittedVehiclePostgresRepositoryTest {

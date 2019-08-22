@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
-import uk.gov.caz.taxiregister.service.exception.RequiredLicenceTypesAbsentInDbException;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehicleDtoCsvRepository;
 import uk.gov.caz.taxiregister.service.exception.S3InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
 import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
@@ -93,25 +93,6 @@ class RegisterFromCsvExceptionResolverTest {
               + RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES + " bytes");
     });
     assertThat(status).isEqualByComparingTo(RegisterJobStatus.STARTUP_FAILURE_TOO_LARGE_FILE);
-  }
-
-  @Test
-  public void shouldResolveRequiredLicenceTypesAbsentInDbException() {
-    // given
-    Exception input = new RequiredLicenceTypesAbsentInDbException("");
-
-    // when
-    RegisterResult result = resolver.resolve(input);
-    RegisterJobStatus status = resolver.resolveToRegisterJobFailureStatus(input);
-
-    //then
-    then(result.getValidationErrors()).hasOnlyOneElementSatisfying(validationError -> {
-      assertThat(validationError.getVrm()).isNull();
-      assertThat(validationError.getTitle()).isEqualTo("Internal error");
-      assertThat(validationError.getDetail()).isEqualTo("An internal error occurred while "
-          + "processing registration, please contact the system administrator");
-    });
-    assertThat(status).isEqualByComparingTo(RegisterJobStatus.STARTUP_FAILURE_MISSING_LICENCE_TYPES);
   }
 
   @Test

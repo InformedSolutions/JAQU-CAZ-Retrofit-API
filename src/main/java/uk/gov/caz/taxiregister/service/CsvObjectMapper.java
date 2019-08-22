@@ -51,7 +51,7 @@ public class CsvObjectMapper {
    * @param inputStream A stream which contains data in CSV format
    * @return {@link CsvParseResult}
    */
-  CsvParseResult read(InputStream inputStream) throws IOException {
+  public CsvParseResult read(InputStream inputStream) throws IOException {
     ImmutableList.Builder<RetrofittedVehicleDto> vehiclesBuilder = ImmutableList.builder();
     LinkedList<ValidationError> errors = Lists.newLinkedList();
     CSVReader csvReader = createReader(inputStream);
