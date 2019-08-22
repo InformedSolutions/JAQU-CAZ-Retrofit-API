@@ -42,7 +42,7 @@ public abstract class AbstractRegisterCommand {
 
   abstract void beforeExecute();
 
-  abstract List<RetrofittedVehicleDto> getLicencesToRegister();
+  abstract List<RetrofittedVehicleDto> getVehiclesToRegister();
 
   abstract List<ValidationError> getLicencesParseValidationErrors();
 
@@ -63,7 +63,7 @@ public abstract class AbstractRegisterCommand {
       int conversionMaxErrorCount = maxValidationErrorCount - parseValidationErrorCount();
 
       ConversionResults conversionResults = vehiclesConverter.convert(
-          getLicencesToRegister(), conversionMaxErrorCount
+          getVehiclesToRegister(), conversionMaxErrorCount
       );
 
       if (conversionResults.hasValidationErrors() || hasParseValidationErrors()) {

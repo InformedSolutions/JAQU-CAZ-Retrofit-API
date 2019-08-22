@@ -55,7 +55,7 @@ class RegisterFromCsvCommandTest {
     //then
     assertThat(registerFromCsvCommand.getLicencesParseValidationErrors())
         .isEqualTo(MODIFIED_REGISTER_JOB_VALIDATION_ERRORS);
-    assertThat(registerFromCsvCommand.getLicencesToRegister()).isEqualTo(licences);
+    assertThat(registerFromCsvCommand.getVehiclesToRegister()).isEqualTo(licences);
   }
 
   @Test
@@ -69,6 +69,6 @@ class RegisterFromCsvCommandTest {
     //then
     assertThrows(IllegalStateException.class,
         () -> registerFromCsvCommand.getLicencesParseValidationErrors());
-    assertThrows(IllegalStateException.class, () -> registerFromCsvCommand.getLicencesToRegister());
+    assertThrows(IllegalStateException.class, () -> registerFromCsvCommand.getVehiclesToRegister());
   }
 }

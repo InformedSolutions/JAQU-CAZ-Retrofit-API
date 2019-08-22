@@ -46,7 +46,7 @@ import uk.gov.caz.retrofit.util.DatabaseInitializer;
 public class RegisterByCsvTestIT {
 
   private static final UUID FIRST_UPLOADER_ID = UUID.randomUUID();
-
+  private static final UUID SECOND_UPLOADER_ID = UUID.randomUUID();
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
   private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 5;
 
@@ -57,7 +57,9 @@ public class RegisterByCsvTestIT {
 
   private static final Map<String, String[]> UPLOADER_TO_FILES = ImmutableMap.of(
       FIRST_UPLOADER_ID.toString(), new String[]{
-          "first-uploader-records-all.csv"}
+          "first-uploader-records-all.csv"},
+      SECOND_UPLOADER_ID.toString(), new String[]{
+          "second-uploader-max-validation-errors-exceeded.csv"}
   );
 
   @Value("${application.validation.max-errors-count}")
@@ -122,7 +124,7 @@ public class RegisterByCsvTestIT {
   @Test
   void shouldNotRegisterVehiclesWhenErrorsExceeded() {
     //given
-    String inputFilename = "fourth-uploader-max-validation-errors-exceeded.csv";
+    String inputFilename = "second-uploader-max-validation-errors-exceeded.csv";
 
     //when
     registerService

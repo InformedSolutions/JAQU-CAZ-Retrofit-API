@@ -70,10 +70,10 @@ public class AuditTrailTestIT {
 
   private void whenWeInsertSomeSampleDataIntoRegisterJobsTable(String jobName) {
     jdbcTemplate.update(
-        "INSERT INTO retrofit.t_md_register_jobs(TRIGGER, JOB_NAME, UPLOADER_ID, STATUS, "
+        "INSERT INTO retrofit.t_md_register_jobs(REGISTER_JOB_ID, TRIGGER, JOB_NAME, UPLOADER_ID, STATUS, "
             + "CORRELATION_ID, INSERT_TIMESTMP, LAST_MODIFIED_TIMESTMP) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?)",
-        TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(), jobName,
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        1, TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(), jobName,
         TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, "RUNNING", TestObjects.TYPICAL_CORRELATION_ID,
         DATE, DATE);
   }
