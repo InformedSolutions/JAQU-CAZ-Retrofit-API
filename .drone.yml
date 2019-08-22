@@ -1,0 +1,127 @@
+kind: pipeline
+name: ci
+
+steps:
+
+  # Clean agent images and containers to prevent disk space overuse
+  - name: clean agent
+    image: docker
+    commands:
+    - docker system prune -f
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Build docker images
+  - name: build docker maven base
+    image: docker
+    commands:
+    - docker build -t retrofit-api-base -f Dockerfile.base .
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Unit test
+  - name: unit test
+    image: retrofit-api-base
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    pull: never
+    commands:
+      - mvn test -P jacoco --no-transfer-progress
+
+  # IT test
+  - name: IT test
+    image: retrofit-api-base
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    pull: never
+    environment:
+      BUILD_ID: ${DRONE_BUILD_NUMBER}
+      POSTGRES_URL: postgres:5432
+      AWS_S3_URL: localstack:4572
+    commands:
+      - mvn verify -DskipUnitTests -P jacoco --no-transfer-progress
+
+  # Package
+  - name: package deployable zip
+    image: retrofit-api-base
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    environment:
+      BUILD_ID: ${DRONE_BUILD_NUMBER}
+    pull: never
+    commands:
+      - mvn package -DskipUnitTests --no-transfer-progress
+
+  # Scan with sonar
+  - name: sonar scan
+    image: retrofit-api-base
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    environment:
+      sonar_host:
+        from_secret: sonar_host
+      sonar_token:
+        from_secret: sonar_token
+    pull: never
+    commands:
+      - mvn sonar:sonar -Dsonar.host.url=$sonar_host
+        -Dsonar.projectKey=${DRONE_REPO}
+        -Dsonar.projectName=${DRONE_REPO}
+        -Dsonar.login=$sonar_token
+        -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
+        -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
+
+volumes:
+
+- name: docker_sock
+  host:
+    path: /var/run/docker.sock
+
+- name: package_directory
+  temp: {}
+
+- name: m2_repo
+  temp: {}
+
+# Triggers
+trigger:
+  branch:
+  - develop
+  event:
+  - pull_request
+  - push
