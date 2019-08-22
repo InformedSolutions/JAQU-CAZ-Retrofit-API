@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: caz-national-taxi-phv
+      POSTGRES_DB: caz_vcc
     ports:
       - 5432
   - name: localstack
