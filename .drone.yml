@@ -144,6 +144,10 @@ steps:
     volumes:
       - name: package_directory
         path: /opt/package
+    when:
+      event:
+        exclude:
+        - pull_request
 
 volumes:
 
