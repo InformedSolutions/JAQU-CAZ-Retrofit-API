@@ -8,10 +8,10 @@ import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 import java.util.UUID;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
-import uk.gov.caz.taxiregister.service.AsyncBackgroundJobStarter;
-import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
-import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJobTrigger;
+import uk.gov.caz.retrofit.service.AsyncBackgroundJobStarter;
+import uk.gov.caz.retrofit.service.RegisterJobSupervisor;
+import uk.gov.caz.retrofit.service.RegisterJobSupervisor.StartParams;
 
 public class RegisterJobSupervisorStartParamsAssert extends
     AbstractAssert<RegisterJobSupervisorStartParamsAssert, StartParams> {
