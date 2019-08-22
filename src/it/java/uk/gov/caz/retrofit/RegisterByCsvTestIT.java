@@ -24,6 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketCannedACL;
@@ -45,7 +46,7 @@ import uk.gov.caz.retrofit.util.DatabaseInitializer;
 public class RegisterByCsvTestIT {
 
   private static final UUID FIRST_UPLOADER_ID = UUID.randomUUID();
-
+  private static final UUID SECOND_UPLOADER_ID = UUID.randomUUID();
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
   private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 5;
 
@@ -56,8 +57,13 @@ public class RegisterByCsvTestIT {
 
   private static final Map<String, String[]> UPLOADER_TO_FILES = ImmutableMap.of(
       FIRST_UPLOADER_ID.toString(), new String[]{
-          "first-uploader-records-all.csv"}
+          "first-uploader-records-all.csv"},
+      SECOND_UPLOADER_ID.toString(), new String[]{
+          "second-uploader-max-validation-errors-exceeded.csv"}
   );
+
+  @Value("${application.validation.max-errors-count}")
+  private int maxErrorsCount;
 
   @Autowired
   private DatabaseInitializer databaseInitializer;
@@ -113,6 +119,19 @@ public class RegisterByCsvTestIT {
     then(retrofittedVehiclePostgresRepository.findAll()).containsExactlyInAnyOrder(
         VEHICLE_1, VEHICLE_2, VEHICLE_3, VEHICLE_4, VEHICLE_5
     );
+  }
+
+  @Test
+  void shouldNotRegisterVehiclesWhenErrorsExceeded() {
+    //given
+    String inputFilename = "second-uploader-max-validation-errors-exceeded.csv";
+
+    //when
+    registerService
+        .register(BUCKET_NAME, inputFilename, S3_REGISTER_JOB_ID, TYPICAL_CORRELATION_ID);
+
+    //then
+    then(retrofittedVehiclePostgresRepository.findAll()).isEmpty();
   }
 
   private void createBucketAndFilesInS3() {
