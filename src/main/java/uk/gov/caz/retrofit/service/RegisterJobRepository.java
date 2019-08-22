@@ -92,7 +92,8 @@ public class RegisterJobRepository {
       @Value("${registerjob.db.max-errors-count}") int maxErrorsCount) {
     this.jdbcTemplate = jdbcTemplate;
     jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-        .withTableName("retrofit.t_md_register_jobs")
+        .withTableName("t_md_register_jobs")
+        .withSchemaName("retrofit")
         .usingGeneratedKeyColumns(COL_REGISTER_JOB_ID)
         .usingColumns(COL_TRIGGER, COL_JOB_NAME, COL_UPLOADER_ID, COL_STATUS, COL_ERRORS,
             COL_CORRELATION_ID);
