@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.UUID;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import uk.gov.caz.taxiregister.model.registerjob.RegisterJob;
-import uk.gov.caz.taxiregister.model.registerjob.RegisterJobError;
-import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
-import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJobTrigger;
 
 public class RegisterJobAssert extends AbstractAssert<RegisterJobAssert, RegisterJob> {
 

@@ -1,8 +1,8 @@
 package uk.gov.caz.testutils;
 
 import org.assertj.core.api.Assertions;
-import uk.gov.caz.taxiregister.model.registerjob.RegisterJob;
-import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
+import uk.gov.caz.retrofit.service.RegisterJobSupervisor.StartParams;
 
 public class NtrAssertions extends Assertions {
 

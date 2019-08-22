@@ -11,7 +11,7 @@ Resources:
   JaquCazRetrofitMainFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: uk.gov.caz.taxiregister.amazonaws.StreamLambdaHandler::handleRequest
+      Handler: uk.gov.caz.retrofit.amazonaws.StreamLambdaHandler::handleRequest
       Runtime: java8
       CodeUri: target/retrofit-register-api-1.0-SNAPSHOT-lambda-package.zip
       MemorySize: 1512
@@ -32,7 +32,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: RetrofitRegisterCsvFromS3Function
-      Handler: uk.gov.caz.taxiregister.amazonaws.RetrofitRegisterCsvFromS3Lambda::handleRequest
+      Handler: uk.gov.caz.retrofit.amazonaws.RetrofitRegisterCsvFromS3Lambda::handleRequest
       Runtime: java8
       CodeUri: target/retrofit-register-api-1.0-SNAPSHOT-lambda-package.zip
       MemorySize: 1512
