@@ -25,7 +25,7 @@ import uk.gov.caz.taxiregister.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 
 /**
- * Rest Controller related to registering Retrofit and MOD exemptions from CSV file located on AWS
+ * Rest Controller related to registering Retrofit from CSV file located on AWS
  * S3.
  */
 @Api(tags = {SwaggerConfiguration.TAG_REGISTER_CSV_FROM_S3_CONTROLLER})
@@ -33,7 +33,7 @@ import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 public interface RegisterCsvFromS3ControllerApiSpec {
 
   /**
-   * Request to start a job that registers Retrofitted or exempt vehicles. Source will be CSV file
+   * Request to start a job that registers Retrofitted vehicles. Source will be CSV file
    * located on AWS S3.
    *
    * @param correlationId CorrelationID to track the request from the API gateway through the
