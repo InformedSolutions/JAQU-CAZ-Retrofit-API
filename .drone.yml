@@ -1,6 +1,22 @@
 kind: pipeline
 name: ci
 
+services:
+  - name: postgres
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caz-national-taxi-phv
+    ports:
+      - 5432
+  - name: localstack
+    image: localstack/localstack
+    environment:
+      SERVICES: s3
+    ports:
+      - 4572
+
 steps:
 
   # Clean agent images and containers to prevent disk space overuse
