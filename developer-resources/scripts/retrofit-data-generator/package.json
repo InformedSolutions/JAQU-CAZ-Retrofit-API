@@ -1,5 +1,5 @@
 {
-  "name": "taxi-phv-data-generator",
+  "name": "retrofit-data-generator",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
