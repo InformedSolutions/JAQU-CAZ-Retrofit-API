@@ -1,4 +1,4 @@
-package uk.gov.caz.taxiregister.service;
+package uk.gov.caz.taxiregister.repository;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.model.CsvParseResult;
+import uk.gov.caz.taxiregister.service.CsvObjectMapper;
 import uk.gov.caz.taxiregister.service.exception.S3InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
 import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
@@ -27,7 +28,7 @@ import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
 public class RetrofittedVehicleDtoCsvRepository {
 
   public static final String UPLOADER_ID_METADATA_KEY = "uploader-id";
-  static final long MAX_FILE_SIZE_IN_BYTES = 100L * 1024 * 1024; // 100 MB
+  public static final long MAX_FILE_SIZE_IN_BYTES = 100L * 1024 * 1024; // 100 MB
 
   private final S3Client s3Client;
   private final CsvObjectMapper csvObjectMapper;

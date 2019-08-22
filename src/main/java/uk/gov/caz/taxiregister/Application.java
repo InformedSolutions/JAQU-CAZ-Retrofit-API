@@ -9,6 +9,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
     "uk.gov.caz.taxiregister.controller",
     "uk.gov.caz.taxiregister.service",
     "uk.gov.caz.taxiregister.amazonaws",
+    "uk.gov.caz.taxiregister.repository",
 })
 public class Application extends SpringBootServletInitializer {
 

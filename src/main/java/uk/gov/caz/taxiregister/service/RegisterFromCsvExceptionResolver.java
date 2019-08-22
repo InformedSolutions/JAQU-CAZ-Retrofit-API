@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
-import uk.gov.caz.taxiregister.service.exception.RequiredLicenceTypesAbsentInDbException;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehicleDtoCsvRepository;
 import uk.gov.caz.taxiregister.service.exception.S3InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
 import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
@@ -26,9 +26,6 @@ public class RegisterFromCsvExceptionResolver {
   private static final RegisterResult MAX_FILE_SIZE_EXCEEDED = RegisterResult.failure(
       ValidationError.s3Error("Uploaded file is too large. Maximum allowed: "
           + RetrofittedVehicleDtoCsvRepository.MAX_FILE_SIZE_IN_BYTES + " bytes"));
-  private static final RegisterResult INTERNAL_ERROR = RegisterResult.failure(
-      ValidationError.internal());
-
   /**
    * These will be displayed to the end user.
    */
@@ -37,8 +34,7 @@ public class RegisterFromCsvExceptionResolver {
       NoSuchKeyException.class, BUCKET_OR_FILE_NOT_EXISTS,
       S3MetadataException.class, ABSENT_UPLOADER_ID,
       S3InvalidUploaderIdFormatException.class, MALFORMED_UPLOADER_ID,
-      S3MaxFileSizeExceededException.class, MAX_FILE_SIZE_EXCEEDED,
-      RequiredLicenceTypesAbsentInDbException.class, INTERNAL_ERROR
+      S3MaxFileSizeExceededException.class, MAX_FILE_SIZE_EXCEEDED
   );
 
   /**
@@ -51,8 +47,6 @@ public class RegisterFromCsvExceptionResolver {
       .put(S3InvalidUploaderIdFormatException.class,
           RegisterJobStatus.STARTUP_FAILURE_INVALID_UPLOADER_ID)
       .put(S3MaxFileSizeExceededException.class, RegisterJobStatus.STARTUP_FAILURE_TOO_LARGE_FILE)
-      .put(RequiredLicenceTypesAbsentInDbException.class,
-          RegisterJobStatus.STARTUP_FAILURE_MISSING_LICENCE_TYPES)
       .build();
 
   private static final RegisterResult UNKNOWN = RegisterResult.failure(ValidationError.unknown());

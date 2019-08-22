@@ -18,7 +18,7 @@ import uk.gov.caz.taxiregister.model.RetrofittedVehicle;
 @Repository
 public class RetrofittedVehiclePostgresRepository {
 
-  static final String FIND_ALL_SQL = "SELECT * FROM retrofit.t_vehicle_retrofit";
+  private static final String FIND_ALL_SQL = "SELECT * FROM retrofit.t_vehicle_retrofit";
 
   @VisibleForTesting
   static final String DELETE_ALL_SQL = "DELETE FROM retrofit.t_vehicle_retrofit";
@@ -41,6 +41,12 @@ public class RetrofittedVehiclePostgresRepository {
     this.updateBatchSize = updateBatchSize;
   }
 
+  /**
+   * Inserts passed set of {@link RetrofittedVehicle} into the database in batches. The size of a
+   * single batch sits in {@code application.jdbc.updateBatchSize} application property.
+   *
+   * @param retrofittedVehicles A set of vehicles that will be inserted in the database.
+   */
   public void insert(Set<RetrofittedVehicle> retrofittedVehicles) {
     Iterable<List<RetrofittedVehicle>> batches = Iterables
         .partition(retrofittedVehicles, updateBatchSize);
@@ -49,11 +55,19 @@ public class RetrofittedVehiclePostgresRepository {
     }
   }
 
+  /**
+   * Deletes all records from {@code retrofit.t_vehicle_retrofit} table.
+   */
   public void deleteAll() {
     log.info("Deleting all retrofitted vehicles.");
     jdbcTemplate.update(DELETE_ALL_SQL);
   }
 
+  /**
+   * Finds all vehicles in the database.
+   *
+   * @return A list of all vehicles in {@code retrofit.t_vehicle_retrofit} table.
+   */
   @VisibleForTesting
   public List<RetrofittedVehicle> findAll() {
     return jdbcTemplate.query(FIND_ALL_SQL, (rs, rowNum) -> RetrofittedVehicle.builder()
@@ -83,15 +97,15 @@ public class RetrofittedVehiclePostgresRepository {
     public int getBatchSize() {
       return batch.size();
     }
-  }
 
-  private static int setInsertStatementAttributes(PreparedStatement preparedStatement,
-      RetrofittedVehicle retrofittedVehicle) throws SQLException {
-    int i = 0;
-    preparedStatement.setString(++i, retrofittedVehicle.getVrn());
-    preparedStatement.setString(++i, retrofittedVehicle.getVehicleCategory());
-    preparedStatement.setString(++i, retrofittedVehicle.getModel());
-    preparedStatement.setObject(++i, retrofittedVehicle.getDateOfRetrofitInstallation());
-    return i;
+    private int setInsertStatementAttributes(PreparedStatement preparedStatement,
+        RetrofittedVehicle retrofittedVehicle) throws SQLException {
+      int i = 0;
+      preparedStatement.setString(++i, retrofittedVehicle.getVrn());
+      preparedStatement.setString(++i, retrofittedVehicle.getVehicleCategory());
+      preparedStatement.setString(++i, retrofittedVehicle.getModel());
+      preparedStatement.setObject(++i, retrofittedVehicle.getDateOfRetrofitInstallation());
+      return i;
+    }
   }
 }

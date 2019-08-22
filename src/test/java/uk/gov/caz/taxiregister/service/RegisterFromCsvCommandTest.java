@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.caz.taxiregister.dto.RetrofittedVehicleDto;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.model.ValidationError;
+import uk.gov.caz.taxiregister.repository.RetrofittedVehicleDtoCsvRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterFromCsvCommandTest {
