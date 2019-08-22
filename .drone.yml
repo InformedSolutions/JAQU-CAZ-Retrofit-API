@@ -122,6 +122,33 @@ steps:
         -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
         -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
 
+  # Invoke terraform apply
+  - name: deploy
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - git clone https://github.com/InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC/terraform/projects/retrofit-api/environments/dev
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - terraform init
+      - terraform workspace select dev
+      - terraform apply -auto-approve
+    environment:
+      TF_VAR_access_key:
+        from_secret: aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: aws_secret_access_key
+      TF_VAR_db_user:
+        from_secret: db_user
+      TF_VAR_db_password:
+        from_secret: db_password
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        exclude:
+        - pull_request
+
 volumes:
 
 - name: docker_sock
