@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 import uk.gov.caz.retrofit.model.CsvParseResult;
@@ -38,9 +39,12 @@ public class CsvObjectMapper {
       + "invalid number of fields (actual value: %d, allowable value: %d).";
 
   private final CsvAwareValidationMessageModifier messageModifier;
+  private final int maxErrorsCount;
 
-  public CsvObjectMapper(CsvAwareValidationMessageModifier messageModifier) {
+  public CsvObjectMapper(CsvAwareValidationMessageModifier messageModifier,
+      @Value("${application.validation.max-errors-count}") int maxErrorsCount) {
     this.messageModifier = messageModifier;
+    this.maxErrorsCount = maxErrorsCount;
   }
 
   /**
@@ -54,11 +58,11 @@ public class CsvObjectMapper {
   public CsvParseResult read(InputStream inputStream) throws IOException {
     ImmutableList.Builder<RetrofittedVehicleDto> vehiclesBuilder = ImmutableList.builder();
     LinkedList<ValidationError> errors = Lists.newLinkedList();
-    CSVReader csvReader = createReader(inputStream);
+    CSVReader reader = createReader(inputStream);
 
     String[] fields;
-    int lineNo;
-    for (lineNo = 1; (fields = readLine(csvReader, errors, lineNo)) != null; ++lineNo) {
+    int lineNo = 1;
+    while (errors.size() < maxErrorsCount && (fields = readLine(reader, errors, lineNo)) != null) {
       if (fields.length == 0) {
         log.trace("Validation error on line {}, skipping it", lineNo);
       } else {
@@ -66,20 +70,35 @@ public class CsvObjectMapper {
         vehiclesBuilder.add(retrofittedVehicleDto);
         log.debug("Retrofitted vehicle read: {}", retrofittedVehicleDto);
       }
+      lineNo += 1;
     }
-    addTrailingRowErrorInfoIfApplicable(errors, lineNo - 1);
+    logParsingEndReason(errors);
+    addTrailingRowErrorInfoIfApplicable(reader, errors, lineNo - 1);
 
     return new CsvParseResult(vehiclesBuilder.build(), Collections.unmodifiableList(errors));
   }
 
-  private void addTrailingRowErrorInfoIfApplicable(LinkedList<ValidationError> errors,
-      int numberOfLines) {
-    if (errors.isEmpty()) {
+  private void logParsingEndReason(LinkedList<ValidationError> errors) {
+    if (errors.size() >= maxErrorsCount) {
+      log.info("Finished parsing the input file: error max count ({}) reached", maxErrorsCount);
+    } else {
+      log.info("Finished parsing the input file: reached EOF");
+    }
+  }
+
+  private void addTrailingRowErrorInfoIfApplicable(CSVReader reader,
+      LinkedList<ValidationError> errors, int numberOfLines) throws IOException {
+    if (hasNotParsedWholeFile(reader) || errors.isEmpty()) {
+      log.trace("Skipped adding the info about the trailing row (errors size: {})", errors.size());
       return;
     }
     ValidationError lastError = errors.pollLast(); // lastError != null
     ValidationError lastErrorReplacement = computeLastErrorReplacement(numberOfLines, lastError);
     errors.add(lastErrorReplacement);
+  }
+
+  private boolean hasNotParsedWholeFile(CSVReader reader) throws IOException {
+    return reader.peek() != null;
   }
 
   private ValidationError computeLastErrorReplacement(int numberOfLines,

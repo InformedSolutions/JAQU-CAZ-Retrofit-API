@@ -1,5 +1,7 @@
 application:
   title: Retrofit Register API
+  validation:
+    max-errors-count: 5
 
 management:
   endpoints:

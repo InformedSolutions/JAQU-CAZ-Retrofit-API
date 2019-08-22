@@ -24,6 +24,8 @@ import uk.gov.caz.retrofit.repository.RetrofittedVehicleDtoCsvRepository;
 @ExtendWith(MockitoExtension.class)
 class RegisterFromCsvCommandTest {
 
+  private static final int ANY_MAX_ERRORS_COUNT = 10;
+
   @Mock
   private RetrofittedVehicleDtoCsvRepository csvRepository;
 
@@ -32,7 +34,7 @@ class RegisterFromCsvCommandTest {
   @BeforeEach
   public void setup() {
     registerFromCsvCommand = new RegisterFromCsvCommand(
-        new RegisterServicesContext(null, null, null, null, csvRepository), S3_REGISTER_JOB_ID,
+        new RegisterServicesContext(null, null, null, null, csvRepository, ANY_MAX_ERRORS_COUNT), S3_REGISTER_JOB_ID,
         TYPICAL_CORRELATION_ID, "bucket", "filename");
   }
 

@@ -5,6 +5,10 @@ spring:
     url: jdbc:postgresql://${postgres.url:localhost:9999}/caz_vcc
 #    url: jdbc:postgresql://${postgres.url:localhost:5432}/caz_vcc
 
+application:
+  validation:
+    max-errors-count: 10
+
 aws:
   s3:
     endpoint: http://${aws.s3.url:localhost:4572}
