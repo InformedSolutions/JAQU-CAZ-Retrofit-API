@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 
@@ -28,6 +29,7 @@ public class RegisterService {
    * @param retrofittedVehicles A set of {@link RetrofittedVehicle} that is to be registered.
    * @return An instance of {@link RegisterResult} that represents the result of the operation.
    */
+  @Transactional
   public RegisterResult register(Set<RetrofittedVehicle> retrofittedVehicles) {
     Preconditions.checkNotNull(retrofittedVehicles, "retrofittedVehicles cannot be null");
 
