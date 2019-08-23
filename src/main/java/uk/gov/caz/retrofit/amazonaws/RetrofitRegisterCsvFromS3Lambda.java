@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
@@ -36,7 +37,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
             "Invalid input, 'correlationId' is blank or null");
     Stopwatch timer = Stopwatch.createStarted();
     initializeHandlerAndService();
-    log.info("Handler initialization took {}", timer.toString());
+    log.info("Handler initialization took {}", timer.elapsed(TimeUnit.MILLISECONDS));
     String registerResult = String.valueOf(
         sourceAwareRegisterService.register(
             registerCsvFromS3LambdaInput.getS3Bucket(),
@@ -44,7 +45,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
             registerCsvFromS3LambdaInput.getRegisterJobId(),
             registerCsvFromS3LambdaInput.getCorrelationId())
             .isSuccess());
-    log.info("Register method took {}", timer.stop());
+    log.info("Register method took {}", timer.stop().elapsed(TimeUnit.MILLISECONDS));
     return registerResult;
   }
 
