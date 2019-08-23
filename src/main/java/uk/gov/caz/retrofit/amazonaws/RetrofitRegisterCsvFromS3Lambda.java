@@ -36,6 +36,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
             "Invalid input, 'correlationId' is blank or null");
     Stopwatch timer = Stopwatch.createStarted();
     initializeHandlerAndService();
+    log.info("Handler initialization took {}", timer.toString());
     String registerResult = String.valueOf(
         sourceAwareRegisterService.register(
             registerCsvFromS3LambdaInput.getS3Bucket(),
