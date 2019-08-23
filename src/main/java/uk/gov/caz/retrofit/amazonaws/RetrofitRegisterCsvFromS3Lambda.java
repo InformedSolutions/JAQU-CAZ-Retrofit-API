@@ -6,12 +6,15 @@ import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 import uk.gov.caz.retrofit.util.AwsHelpers;
 
+@Slf4j
 public class RetrofitRegisterCsvFromS3Lambda implements
     RequestHandler<RegisterCsvFromS3LambdaInput, String> {
 
@@ -31,14 +34,17 @@ public class RetrofitRegisterCsvFromS3Lambda implements
     Preconditions
         .checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getCorrelationId()),
             "Invalid input, 'correlationId' is blank or null");
+    Stopwatch timer = Stopwatch.createStarted();
     initializeHandlerAndService();
-    return String.valueOf(
+    String registerResult = String.valueOf(
         sourceAwareRegisterService.register(
             registerCsvFromS3LambdaInput.getS3Bucket(),
             registerCsvFromS3LambdaInput.getFileName(),
             registerCsvFromS3LambdaInput.getRegisterJobId(),
             registerCsvFromS3LambdaInput.getCorrelationId())
             .isSuccess());
+    log.info("Register method took {}", timer.stop());
+    return registerResult;
   }
 
   private boolean isWarmerPing(RegisterCsvFromS3LambdaInput registerCsvFromS3LambdaInput) {
