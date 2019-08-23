@@ -14,38 +14,24 @@ import static uk.gov.caz.testutils.TestObjects.TYPICAL_RUNNING_REGISTER_JOB_STAT
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.retrofit.service.RegisterJobRepository;
-import uk.gov.caz.retrofit.util.DatabaseInitializer;
 
 @IntegrationTest
-@Import(DatabaseInitializer.class)
+@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 public class RegisterJobRepositoryTestIT {
 
   @Autowired
-  private DatabaseInitializer databaseInitializer;
-
-  @Autowired
   private RegisterJobRepository registerJobRepository;
-
-  @BeforeEach
-  public void init() {
-    databaseInitializer.clear();
-  }
-
-  @AfterEach
-  public void clear() {
-    databaseInitializer.clear();
-  }
 
   @Test
   public void testRegisterJobRepositoryOperations() {
@@ -82,9 +68,9 @@ public class RegisterJobRepositoryTestIT {
   }
 
   @Test
-  public void shouldReturnNumberOfActivatedJobs() throws Exception {
+  @Sql("classpath:data/sql/register-job-data.sql")
+  public void shouldReturnNumberOfActivatedJobs() {
     // given
-    databaseInitializer.initRegisterJobData();
 
     // when
     Integer result = registerJobRepository

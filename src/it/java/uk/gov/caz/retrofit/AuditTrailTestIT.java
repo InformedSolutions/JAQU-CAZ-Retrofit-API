@@ -3,39 +3,25 @@ package uk.gov.caz.retrofit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
-import uk.gov.caz.retrofit.util.DatabaseInitializer;
 import uk.gov.caz.testutils.TestObjects;
 
 @IntegrationTest
-@Import(DatabaseInitializer.class)
+@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 public class AuditTrailTestIT {
 
   private static final String AUDIT_LOGGED_ACTIONS_TABLE = "audit.logged_actions";
   private static final LocalDate DATE = LocalDate.of(2019, 8, 14);
 
   @Autowired
-  private DatabaseInitializer databaseInitializer;
-
-  @Autowired
   private JdbcTemplate jdbcTemplate;
-
-  @BeforeEach
-  public void init() {
-    databaseInitializer.clear();
-  }
-
-  @AfterEach
-  public void clear() {
-    databaseInitializer.clear();
-  }
 
   @Test
   public void testInsertUpdateDeleteOperationsAgainstAuditTrailTable() {
