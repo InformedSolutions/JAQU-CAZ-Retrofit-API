@@ -1,16 +1,13 @@
 package uk.gov.caz.retrofit.dto.validation;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 import uk.gov.caz.retrofit.model.ValidationError;
 
 public class VehicleCategoryValidator implements RetrofittedVehicleValidator {
-
-  @VisibleForTesting
-  static final String MISSING_VEHICLE_CATEGORY_MESSAGE = "Vehicle does not include the "
-      + "'vehicleCategory' field which is mandatory.";
 
   @VisibleForTesting
   static final String INVALID_VEHICLE_CATEGORY_MESSAGE_TEMPLATE = "'vehicleCategory'"
@@ -28,12 +25,7 @@ public class VehicleCategoryValidator implements RetrofittedVehicleValidator {
     String vrn = retrofittedVehicleDto.getVrn();
     String vehicleCategory = retrofittedVehicleDto.getVehicleCategory();
 
-    if (vehicleCategory == null) {
-      validationErrorsBuilder.add(errorResolver.missing(vrn));
-    }
-
-    if (vehicleCategory != null
-        && (vehicleCategory.isEmpty() || vehicleCategory.length() > MAX_LENGTH)) {
+    if (!Strings.isNullOrEmpty(vehicleCategory) && vehicleCategory.length() > MAX_LENGTH) {
       validationErrorsBuilder.add(errorResolver.invalidFormat(vrn, vehicleCategory.length()));
     }
 
@@ -44,10 +36,6 @@ public class VehicleCategoryValidator implements RetrofittedVehicleValidator {
 
     private VehicleCategoryErrorResolver(RetrofittedVehicleDto retrofittedVehicleDto) {
       super(retrofittedVehicleDto);
-    }
-
-    private ValidationError missing(String vrn) {
-      return missingFieldError(vrn, MISSING_VEHICLE_CATEGORY_MESSAGE);
     }
 
     private ValidationError invalidFormat(String vrn, int vehicleCategoryLength) {

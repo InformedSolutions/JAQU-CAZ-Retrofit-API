@@ -175,8 +175,8 @@ class RetrofittedVehicleDtoToModelConverterTest {
 
   private RetrofittedVehicleDto createInvalidRetrofittedVehicleWithThreeAttributes() {
     String invalidVrn = "8AAAA99";
-    String invalidModel = "";
-    String invalidVehicleCategory = "";
+    String invalidModel = "tooooooooooooooooooooooooLooooooooooooooong";
+    String invalidVehicleCategory = "tooooooooooooooooooooooooLooooooooooooooong";
     return RetrofittedVehicleDto.builder()
         .vrn(invalidVrn)
         .vehicleCategory(invalidVehicleCategory)

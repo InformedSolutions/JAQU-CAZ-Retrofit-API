@@ -1,5 +1,6 @@
 package uk.gov.caz.retrofit.service;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opencsv.CSVParser;
@@ -36,7 +37,7 @@ public class CsvObjectMapper {
   private static final String LINE_INVALID_FORMAT_MESSAGE = "Line contains invalid "
       + "character(s), is empty or has trailing comma character.";
   private static final String LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE = "Line contains "
-      + "invalid number of fields (actual value: %d, allowable value: %d).";
+      + "invalid number of fields (actual value: %d, allowable values: %d or %d).";
 
   private final CsvAwareValidationMessageModifier messageModifier;
   private final int maxErrorsCount;
@@ -124,8 +125,8 @@ public class CsvObjectMapper {
   private RetrofittedVehicleDto createRetrofittedVehicle(String[] fields, int lineNo) {
     return RetrofittedVehicleDto.builder()
         .vrn(fields[0])
-        .vehicleCategory(fields[1])
-        .model(fields[2])
+        .vehicleCategory(Strings.emptyToNull(fields[1]))
+        .model(Strings.emptyToNull(fields[2]))
         .dateOfRetrofitInstallation(fields[3])
         .lineNumber(lineNo)
         .build();
@@ -150,7 +151,7 @@ public class CsvObjectMapper {
 
   private String invalidFieldsCountErrorDetail(CsvInvalidFieldsCountException e) {
     return String.format(LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE, e.getFieldsCount(),
-        CsvRetrofittedVehicleParser.EXPECTED_FIELDS_CNT);
+        CsvRetrofittedVehicleParser.MIN_FIELDS_CNT, CsvRetrofittedVehicleParser.MAX_FIELDS_CNT);
   }
 
   private String maximumLineLengthErrorDetail(CsvMaxLineLengthExceededException e) {

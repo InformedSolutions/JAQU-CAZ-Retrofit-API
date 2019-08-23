@@ -185,7 +185,7 @@ class CsvObjectMapperTest {
   public void shouldIgnoreLinesWithTooFewAttributes() throws IOException {
     // given
     String csvLine = "ZC62OMB,category-2,model-2,2019-05-17\n"
-        + "DL76MWX,2019-04-11\n"
+        + "DL76MWX\n"
         + "ND84VSX,category-3,model-3,2019-04-14";
 
     // when

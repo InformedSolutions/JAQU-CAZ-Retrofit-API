@@ -71,7 +71,7 @@ public class RegisterCsvFromS3LambdaInvokePipelineTestIT {
       System.currentTimeMillis()
   );
   private static final String CSV_FILE = "first-uploader-records-all.csv";
-  private static final int CSV_FILE_LICENCES_COUNT = 5;
+  private static final int CSV_FILE_LICENCES_COUNT = 8;
   private static final String JOB_SUFFIX = "first-uploader-records-all";
   private static final String JOB_NAME = "prefixed_" + JOB_SUFFIX;
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");

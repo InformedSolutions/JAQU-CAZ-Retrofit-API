@@ -6,6 +6,9 @@ import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_2;
 import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_3;
 import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_4;
 import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_5;
+import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_6;
+import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_7;
+import static uk.gov.caz.retrofit.util.TestVehicles.VEHICLE_8;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 
@@ -48,7 +51,7 @@ public class RegisterByCsvTestIT {
   private static final UUID FIRST_UPLOADER_ID = UUID.randomUUID();
   private static final UUID SECOND_UPLOADER_ID = UUID.randomUUID();
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
-  private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 5;
+  private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 8;
 
   private static final String BUCKET_NAME = String.format(
       "retrofitted-vehicles-data-%d",
@@ -117,7 +120,7 @@ public class RegisterByCsvTestIT {
 
     //then
     then(retrofittedVehiclePostgresRepository.findAll()).containsExactlyInAnyOrder(
-        VEHICLE_1, VEHICLE_2, VEHICLE_3, VEHICLE_4, VEHICLE_5
+        VEHICLE_1, VEHICLE_2, VEHICLE_3, VEHICLE_4, VEHICLE_5, VEHICLE_6, VEHICLE_7, VEHICLE_8
     );
   }
 
