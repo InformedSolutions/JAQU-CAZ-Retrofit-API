@@ -5,9 +5,7 @@ if (!recordsCnt)
   throw new Error('Please specify the number of records that will be generated: --recordsCnt');
 
 for(let i = 0; i < recordsCnt; i++) {
-  const licenceStartDate = randomDateGreaterThanNow();
-  const licenceEndDate = randomDateGreaterThan(licenceStartDate);
-  console.log(`${vrn()},${toISODate(licenceStartDate)},${toISODate(licenceEndDate)},${randomVehicleType()},${randomLicensingAuthorityName()},${randomLicensePlateNumber()},${randomWheelchairAccessibleVehicle()}`);
+  console.log(`${vrn()},${randomCategory()},${randomModel()},${toISODate(randomDateGreaterThanNow())}`);
 }
 
 function vrn() {
@@ -28,28 +26,14 @@ function toISODate(input) {
   return input.toISOString().substring(0, 10);
 }
 
-function randomVehicleType() {
-  return randomDigit() % 2 == 0 ? 'taxi' : 'PHV';
+function randomCategory() {
+  const categories = ["category-1", "category-2", "category-3", "category-4"];
+  return categories[ randomIntInclusive(0, categories.length - 1)  ];
 }
 
-function randomLicensePlateNumber() {
-  return randomString(5);
-}
-
-function randomWheelchairAccessibleVehicle() {
-  return randomDigit() % 2 ? "true" : "false";
-}
-
-function randomLicensingAuthorityName() {
-  const LA = ["la-1", "la-2", "la-3"];
-  return LA[ randomIntInclusive(0, LA.length - 1)  ];
-}
-
-function randomString(length) {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  var result = '';
-  for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-  return result;
+function randomModel() {
+  const models = ["model-1", "model-2", "model-3", "model-4"];
+  return models[ randomIntInclusive(0, models.length - 1)  ];
 }
 
 function randomUppercaseString(length) {
