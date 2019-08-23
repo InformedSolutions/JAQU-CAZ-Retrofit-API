@@ -37,7 +37,7 @@ public class CsvObjectMapper {
   private static final String LINE_INVALID_FORMAT_MESSAGE = "Line contains invalid "
       + "character(s), is empty or has trailing comma character.";
   private static final String LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE = "Line contains "
-      + "invalid number of fields (actual value: %d, allowable values: %d or %d).";
+      + "invalid number of fields (actual value: %d, allowable values: between %d and %d).";
 
   private final CsvAwareValidationMessageModifier messageModifier;
   private final int maxErrorsCount;

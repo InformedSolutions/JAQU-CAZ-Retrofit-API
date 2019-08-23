@@ -16,9 +16,9 @@ public class CsvRetrofittedVehicleParser implements ICSVParser {
   static final int MAX_FIELDS_CNT = 4;
 
   private static final String MAX_LENGTH_MESSAGE_TEMPLATE =
-      "Line is too long (max :" + CsvRetrofittedVehicleParser.MAX_LINE_LENGTH + ", current: %d).";
+      "Line is too long (max:" + CsvRetrofittedVehicleParser.MAX_LINE_LENGTH + ", current: %d).";
   private static final String LINE_INVALID_FIELDS_CNT_MESSAGE_TEMPLATE = "Line contains %d fields "
-      + "whereas it should either " + MIN_FIELDS_CNT + " or " + MAX_FIELDS_CNT;
+      + "whereas it should between " + MIN_FIELDS_CNT + " and " + MAX_FIELDS_CNT + ".";
 
   private static final String REGEX = "^[\\w &,'\"\\-().*/%!+:;=?@\\[\\]^{}~]+$";
   private static final Pattern ALLOWABLE_CHARACTERS = Pattern.compile(REGEX);

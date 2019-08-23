@@ -5,7 +5,7 @@ JAQU CAZ Retrofit Register API
 
 #### Validation
 
-Validation rules can be found [here](#validation-rules-for-retrofitted-vehicles).
+Validation rules can be found [here](#validation-rules-for-registering-retrofitted-vehicles).
 
 ## Development Environment Configuration
 
@@ -116,39 +116,46 @@ The `develop`  and `master` branches are protected branches. Polices are enforce
 
 ## Validation rules for registering retrofitted vehicles
 
+### Expected CSV fields
+```
+VRN,Vehicle Category,Model,Date of retrofit
+```
+
+where:
+* VRN - mandatory; should be a valid vehicle registration number in UK
+* Vehicle Category - optional; max length: 40
+* Model - optional; max length: 30
+* Date of retrofit - mandatory; a date in ISO 8601 format
+
+### Rules specification
+
 | Rule description                                                                             | Error message                                                                                             |
 |----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------| 
-| Missing VRM field                                                                            | N/A - there will be a parse error.                                                                        | 
-| Empty VRM field                                                                              | Line {}: Vrm should have from 1 to 7 characters instead of 0.                                             | 
-| VRM field too long                                                                           | Line {}: Vrm should have from 1 to 7 characters instead of 28.                                            | 
-| Invalid format of VRM                                                                        | Line {}: Invalid format of VRM (regex validation).                                                        | 
-| Missing licence start/end date                                                               | N/A - there will be a parse error                                                                         | 
-| Invalid format of licence start/end date                                                     | Line {}: Invalid format of licence {START_OR_END} date, should be ISO 8601.                               | 
-| Missing licence type                                                                         | N/A - there will be a parse error.                                                                        | 
-| Invalid format of licence type                                                               | Line {}: Invalid value of 'taxiOrPHV' field. Allowable values: [taxi, PHV].                               | 
-| Missing licence plate number                                                                 | N/A - there will be a parse error                                                                         | 
-| Invalid format of licence plate number                                                       | Line {}: 'LicensePlateNumber' should have from 1 to 15 characters instead of {ACTUAL_LENGTH}.             | 
-| Missing licensing authority name                                                             | N/A - there will be a parse error                                                                         | 
-| Invalid format of licensing authority name                                                   | Line {}: 'licensingAuthorityName' should have from 1 to 50 characters instead of {ACTUAL_LENGTH}.         | 
+| Missing field                                                                                | N/A (there will be a parse error)                                                                         | 
+| Empty VRN                                                                                    | Line {}: VRN should have from 1 to 7 characters instead of 0.                                             | 
+| Too long VRN                                                                                 | Line {}: VRN should have from 1 to 7 characters instead of {}.                                            | 
+| Invalid format of VRN                                                                        | Line {}: Invalid format of VRN (regex validation).                                                        | 
+| Invalid format of category                                                                   | Line {}: 'vehicleCategory' should have from 1 to 40 characters instead of {}.                             | 
+| Invalid format of model                                                                      | Line {}: 'model' should have from 1 to 30 characters instead of {}.                                       | 
+| Invalid format of date of retrofit installation                                              | Line {}: Invalid format of date of retrofit installation, should be ISO 8601.                             | 
 | Cannot connect to S3 bucket/filename. Bucket or filename does not exist or is not accessible.| S3 bucket or file not found or not accessible                                                             | 
-| Lack of 'uploader-id' metadata                                                               | uploader-id' not found in file's metadata                                                                 | 
+| Lack of 'uploader-id' metadata                                                               | 'uploader-id' not found in file's metadata                                                                | 
 | Invalid format of 'uploader-id'                                                              | Malformed ID of an entity which want to register vehicles by CSV file. Expected a unique identifier (UUID)| 
 | Too large CSV file                                                                           | Uploaded file is too large. Maximum allowed: 104857600 bytes                                              | 
-| Invalid fields number in CSV                                                                 | Line {}: Line contains invalid number of fields (actual value: {}, allowable values: 6 or 7).             | 
-| Maximum line length exceeded                                                                 | Line {}: Line is too long (actual value: {}, allowed value: 110).                                         | 
+| Invalid fields number in CSV                                                                 | Line {}: Line contains invalid number of fields (actual value: 7, allowable values: between 2 and 4).     | 
+| Maximum line length exceeded                                                                 | Line {}: Line is too long (actual value: {}, allowed value: 100).                                         | 
 | Invalid format of a line (e.g. it contains invalid characters)                               | Line {}: Line contains invalid character(s), is empty or has trailing comma character.                    | 
 | Potentially included header row                                                              | Line 1: {VALIDATION_ERROR_MSG}. Please make sure you have not included a header row.                      | 
 | Potentially included trailing row                                                            | Line {LAST_LINE_NO}: {VALIDATION_ERROR_MSG}. Please make sure you have not included a trailing row.       | 
 
-### Validation rules applicable only to REST API dealing with starting/querying import jobs 
+#### Validation rules applicable only to REST API dealing with starting/querying register jobs 
 
-| Rule description                                       | Error message                                                                                                                                                                                                      |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Missing request payload                                | ```{"vrm":"","title":"Validation error","detail":"Required request body is missing(...)","status":400}```                                                                                                          |
-| Empty JSON payload ('{}')                              | ```{"vrm":"","title":"Validation error","detail":"vehicleDetails cannot be null","status":400}```                                                                                                                  |
-| Malformed request payload (malformed JSON, e.g. '{,}') | ```{"vrm":"","title":"Validation error","detail":"JSON parse error: Unexpected character ...","status":400}```                                                                                                     |
-| Missing Content-type header                            | ```{"timestamp":1565101505257,"status":415,"error":"Unsupported Media Type","message":"Content type  not supported","path":"/v1/scheme-management/taxiphvdatabase","code":"UNKNOWN"}```                            |
-| Unsupported Content-type header                        | ```{"timestamp":1565101610979,"status":415,"error":"Unsupported Media Type","message":"Content type {NOT_SUPPORTED_CONTENT_TYPE} not supported","path":"/v1/scheme-management/taxiphvdatabase","code":"UNKNOWN"}```|
-| Wrong HTTP method                                      | ```{"timestamp":1565101671868,"status":405,"error":"Method Not Allowed","message":"Request method {METHOD} not supported","path":"/v1/scheme-management/taxiphvdatabase","code":"CAZ00070"}```                     | 
-| Missing 'X-Correlation-ID' header                      | ```Missing request header 'X-Correlation-ID' for method parameter of type String```                                                                                                                                | 
-| Missing 'x-api-key' header                             | ```Missing request header 'x-api-key' for method parameter of type String```                                                                                                                                       | 
+| Rule description                                       | Error message                                                                                                                                                                                                                 |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------           |
+| Missing request payload                                | ```{"timestamp":1566566412602,"status":400,"error":"Bad Request","message":"Required request body is missing: public (...)","path":"/v1/retrofit/register-csv-from-s3/jobs"}```                                               |
+| Empty JSON payload ('{}')                              | ```{"timestamp":1566566473871,"status":400,"error":"Bad Request","errors":[...],"message":"Validation failed for object=startRegisterCsvFromS3JobCommand. Error count: {}","path":"/v1/retrofit/register-csv-from-s3/jobs"}```|
+| Malformed request payload (malformed JSON, e.g. '{,}') | ```{"timestamp":1566566412602,"status":400,"error":"Bad Request","message":"JSON parse error: Unexpected character (',' ...","path":"/v1/retrofit/register-csv-from-s3/jobs"}```                                              |
+| Missing Content-type header                            | ```{"timestamp":1565101505257,"status":415,"error":"Unsupported Media Type","message":"Content type  not supported","path":"//v1/retrofit/register-csv-from-s3/jobs"```                                                       |
+| Unsupported Content-type header                        | ```{"timestamp":1565101610979,"status":415,"error":"Unsupported Media Type","message":"Content type {NOT_SUPPORTED_CONTENT_TYPE} not supported","path":"/v1/retrofit/register-csv-from-s3/jobs"```                            |
+| Wrong HTTP method                                      | ```{"timestamp":1565101671868,"status":405,"error":"Method Not Allowed","message":"Request method {METHOD} not supported","path":"/v1/retrofit/register-csv-from-s3/jobs"}```                                                 | 
+| Missing 'X-Correlation-ID' header                      | ```Missing request header 'X-Correlation-ID' for method parameter of type String```                                                                                                                                           | 
