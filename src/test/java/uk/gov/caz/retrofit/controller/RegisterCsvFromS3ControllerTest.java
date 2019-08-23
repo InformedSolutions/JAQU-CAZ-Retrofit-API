@@ -53,6 +53,7 @@ class RegisterCsvFromS3ControllerTest {
 
   private static final String S3_BUCKET = "s3Bucket";
   private static final String CSV_FILE = "fileName.csv";
+  private static final String CSV_FILE_UPPERCASE = "FILENAME.CSV";
 
   @MockBean
   private AsyncBackgroundJobStarter mockedAsyncBackgroundJobStarter;
@@ -78,25 +79,26 @@ class RegisterCsvFromS3ControllerTest {
   }
 
   @ParameterizedTest
-  @MethodSource("csvContentTypeMapToRegisterJobTrigger")
+  @MethodSource("csvContentTypeMapToRegisterJobTriggerAndCsvFileName")
   public void testRegisterJobStartWhenSuccessfullyObtainedMetadata(CsvContentType csvContentType,
-      RegisterJobTrigger registerJobTrigger) throws Exception {
+      RegisterJobTrigger registerJobTrigger, String csvFileName, String expectedJobSuffix)
+      throws Exception {
     // given
     mockSupervisor();
-    mockCsvFileOnS3MetadataExtractorForSuccess(csvContentType);
+    mockCsvFileOnS3MetadataExtractorForSuccess(csvFileName, csvContentType);
     mockSupervisorForNotFindingStartingOrRunningJob();
 
     // when
-    postToStartRegisterJobAndCheckIfItStartedOk();
+    postToStartRegisterJobAndCheckIfItStartedOk(csvFileName);
 
     // then
     StartParams startParams = verifyThatSupervisorStartedJobAndCaptureItsParams();
     assertThat(startParams)
         .wasTriggeredBy(registerJobTrigger)
         .hasCorrelationId(TYPICAL_CORRELATION_ID)
-        .hasJobNameSuffix("fileName")
+        .hasJobNameSuffix(expectedJobSuffix)
         .wasUploadedBy(TYPICAL_REGISTER_JOB_UPLOADER_ID)
-        .invokedJob(mockedAsyncBackgroundJobStarter, S3_BUCKET, CSV_FILE);
+        .invokedJob(mockedAsyncBackgroundJobStarter, S3_BUCKET, csvFileName);
   }
 
   @Test
@@ -184,8 +186,9 @@ class RegisterCsvFromS3ControllerTest {
         .willReturn(new RegisterJobName(S3_REGISTER_JOB_NAME));
   }
 
-  private void mockCsvFileOnS3MetadataExtractorForSuccess(CsvContentType csvContentType) {
-    given(mockedCsvFileOnS3MetadataExtractor.getRequiredMetadata(S3_BUCKET, CSV_FILE))
+  private void mockCsvFileOnS3MetadataExtractorForSuccess(String csvFileName,
+      CsvContentType csvContentType) {
+    given(mockedCsvFileOnS3MetadataExtractor.getRequiredMetadata(S3_BUCKET, csvFileName))
         .willReturn(new CsvMetadata(TYPICAL_REGISTER_JOB_UPLOADER_ID,
             csvContentType));
   }
@@ -218,13 +221,13 @@ class RegisterCsvFromS3ControllerTest {
 
   private void mockForSuccess() {
     mockSupervisor();
-    mockCsvFileOnS3MetadataExtractorForSuccess(TYPICAL_REGISTER_JOB_RETROFIT_LIST);
+    mockCsvFileOnS3MetadataExtractorForSuccess(CSV_FILE, TYPICAL_REGISTER_JOB_RETROFIT_LIST);
     mockSupervisorForFindingStartingOrRunningJob();
   }
 
-  private void postToStartRegisterJobAndCheckIfItStartedOk() throws Exception {
+  private void postToStartRegisterJobAndCheckIfItStartedOk(String csvFileName) throws Exception {
     StartRegisterCsvFromS3JobCommand cmd = new
-        StartRegisterCsvFromS3JobCommand(S3_BUCKET, CSV_FILE);
+        StartRegisterCsvFromS3JobCommand(S3_BUCKET, csvFileName);
 
     mockMvc.perform(
         post(RegisterCsvFromS3Controller.PATH)
@@ -258,14 +261,14 @@ class RegisterCsvFromS3ControllerTest {
     return startParamsArgumentCaptor.getValue();
   }
 
-  private static Stream<Arguments> csvContentTypeMapToRegisterJobTrigger() {
+  private static Stream<Arguments> csvContentTypeMapToRegisterJobTriggerAndCsvFileName() {
     return Stream.of(
         Arguments.of(TYPICAL_REGISTER_JOB_RETROFIT_LIST,
-            RegisterJobTrigger.RETROFIT_CSV_FROM_S3),
+            RegisterJobTrigger.RETROFIT_CSV_FROM_S3, CSV_FILE, "fileName"),
         Arguments.of(TYPICAL_REGISTER_JOB_MOD_GREEN_LIST,
-            RegisterJobTrigger.GREEN_MOD_CSV_FROM_S3),
+            RegisterJobTrigger.GREEN_MOD_CSV_FROM_S3, CSV_FILE, "fileName"),
         Arguments.of(TYPICAL_REGISTER_JOB_MOD_WHITE_LIST,
-            RegisterJobTrigger.WHITE_MOD_CSV_FROM_S3)
+            RegisterJobTrigger.WHITE_MOD_CSV_FROM_S3, CSV_FILE_UPPERCASE, "FILENAME")
     );
   }
 }
