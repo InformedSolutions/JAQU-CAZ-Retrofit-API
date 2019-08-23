@@ -19,6 +19,7 @@ public abstract class AbstractRegisterCommand {
 
   private final int registerJobId;
   private final String correlationId;
+  private final int maxValidationErrorCount;
 
   private final RegisterService registerService;
   private final RegisterFromCsvExceptionResolver exceptionResolver;
@@ -34,13 +35,14 @@ public abstract class AbstractRegisterCommand {
     this.exceptionResolver = registerServicesContext.getExceptionResolver();
     this.registerJobSupervisor = registerServicesContext.getRegisterJobSupervisor();
     this.vehiclesConverter = registerServicesContext.getLicenceConverter();
+    this.maxValidationErrorCount = registerServicesContext.getMaxValidationErrorCount();
     this.registerJobId = registerJobId;
     this.correlationId = correlationId;
   }
 
   abstract void beforeExecute();
 
-  abstract List<RetrofittedVehicleDto> getLicencesToRegister();
+  abstract List<RetrofittedVehicleDto> getVehiclesToRegister();
 
   abstract List<ValidationError> getLicencesParseValidationErrors();
 
@@ -57,7 +59,12 @@ public abstract class AbstractRegisterCommand {
 
       beforeExecute();
 
-      ConversionResults conversionResults = vehiclesConverter.convert(getLicencesToRegister());
+      // assertion: conversionMaxErrorCount >= 0
+      int conversionMaxErrorCount = maxValidationErrorCount - parseValidationErrorCount();
+
+      ConversionResults conversionResults = vehiclesConverter.convert(
+          getVehiclesToRegister(), conversionMaxErrorCount
+      );
 
       if (conversionResults.hasValidationErrors() || hasParseValidationErrors()) {
         List<ValidationError> errors = merge(conversionResults.getValidationErrors(),
@@ -83,6 +90,10 @@ public abstract class AbstractRegisterCommand {
 
   private boolean hasParseValidationErrors() {
     return !getLicencesParseValidationErrors().isEmpty();
+  }
+
+  private int parseValidationErrorCount() {
+    return getLicencesParseValidationErrors().size();
   }
 
   private List<ValidationError> merge(List<ValidationError> a, List<ValidationError> b) {

@@ -6,7 +6,11 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.assertj.core.api.iterable.Extractor;
 import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -17,8 +21,63 @@ import uk.gov.caz.retrofit.service.validation.CsvAwareValidationMessageModifier;
 
 class CsvObjectMapperTest {
 
+  private static final int ANY_MAX_ERRORS_COUNT = 3;
+
   private CsvObjectMapper csvObjectMapper = new CsvObjectMapper(
-      new CsvAwareValidationMessageModifier());
+      new CsvAwareValidationMessageModifier(), ANY_MAX_ERRORS_COUNT);
+
+  @Nested
+  class MaximumErrorCount {
+    @Nested
+    class WhenErrorsCountHasReachedMaxAllowedValue {
+
+      @Test
+      public void shouldStopParsing() throws IOException {
+        // given
+        int maxErrorCount = 2;
+        csvObjectMapper = new CsvObjectMapper(new CsvAwareValidationMessageModifier(), maxErrorCount);
+        String input = createInputContainingErrors(maxErrorCount);
+
+        // when
+        CsvParseResult result = csvObjectMapper.read(toInputStream(input));
+
+        // then
+        then(result.getRetrofittedVehicles()).hasSize(1);
+        then(result.getValidationErrors()).hasSize(maxErrorCount);
+      }
+
+      @Test
+      public void shouldNotIncludeTrailingRowInfoWhenFileHasNotBeenFullyParsed() throws IOException {
+        // given
+        int maxErrorCount = 2;
+        csvObjectMapper = new CsvObjectMapper(new CsvAwareValidationMessageModifier(), maxErrorCount);
+        String input = createInputContainingErrors(maxErrorCount);
+
+        // when
+        CsvParseResult result = csvObjectMapper.read(toInputStream(input));
+
+        // then
+        then(result.getValidationErrors())
+            .extracting((Extractor<ValidationError, String>) ValidationError::getDetail)
+            .noneMatch(detail -> detail.endsWith("Please make sure you have not included a trailing row."));
+      }
+
+      private String createInputContainingErrors(int maxErrorCount) {
+        return IntStream.rangeClosed(1, 3 * maxErrorCount + 1)
+            // (3 * maxErrorCount)/2+1 lines with error, (3 * maxErrorCount)/2 ok
+            .mapToObj(i -> i % 2 == 1 ? invalidLine(i) : validLine(i))
+            .collect(Collectors.joining("\n"));
+      }
+
+      private String invalidLine(int index) {
+        return validLine(index) + "$";
+      }
+
+      private String validLine(int index) {
+        return "ZC" + index + "62OMB,category-1,model-1,2019-04-27";
+      }
+    }
+  }
 
   @Test
   public void shouldReadValidCsvData() throws IOException {

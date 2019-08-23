@@ -1,0 +1,170 @@
+kind: pipeline
+name: ci
+
+services:
+  - name: postgres
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caz_vcc
+    ports:
+      - 5432
+  - name: localstack
+    image: localstack/localstack
+    environment:
+      SERVICES: s3
+    ports:
+      - 4572
+
+steps:
+
+  # Clean agent images and containers to prevent disk space overuse
+  - name: clean agent
+    image: docker
+    commands:
+    - docker system prune -f
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Build docker images
+  - name: build docker maven base
+    image: docker
+    commands:
+    - docker build -t retrofit-api-base -f Dockerfile.base .
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Unit test
+  - name: unit test
+    image: retrofit-api-base
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    pull: never
+    commands:
+      - mvn test -P jacoco --no-transfer-progress
+
+  # IT test
+  - name: IT test
+    image: retrofit-api-base
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    pull: never
+    environment:
+      BUILD_ID: ${DRONE_BUILD_NUMBER}
+      POSTGRES_URL: postgres:5432
+      AWS_S3_URL: localstack:4572
+    commands:
+      - mvn verify -DskipUnitTests -P jacoco --no-transfer-progress
+
+  # Package
+  - name: package deployable zip
+    image: retrofit-api-base
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    environment:
+      BUILD_ID: ${DRONE_BUILD_NUMBER}
+    pull: never
+    commands:
+      - mvn package -DskipUnitTests --no-transfer-progress
+
+  # Scan with sonar
+  - name: sonar scan
+    image: retrofit-api-base
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    environment:
+      sonar_host:
+        from_secret: sonar_host
+      sonar_token:
+        from_secret: sonar_token
+    pull: never
+    commands:
+      - mvn sonar:sonar -Dsonar.host.url=$sonar_host
+        -Dsonar.projectKey=${DRONE_REPO}
+        -Dsonar.projectName=${DRONE_REPO}
+        -Dsonar.login=$sonar_token
+        -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
+        -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
+
+  # Invoke terraform apply
+  - name: deploy
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - git clone https://github.com/InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC/terraform/projects/retrofit-api/environments/dev
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - terraform init
+      - terraform workspace select dev
+      - terraform apply -auto-approve
+    environment:
+      TF_VAR_access_key:
+        from_secret: aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: aws_secret_access_key
+      TF_VAR_db_user:
+        from_secret: db_user
+      TF_VAR_db_password:
+        from_secret: db_password
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        exclude:
+        - pull_request
+
+volumes:
+
+- name: docker_sock
+  host:
+    path: /var/run/docker.sock
+
+- name: package_directory
+  temp: {}
+
+- name: m2_repo
+  temp: {}
+
+# Triggers
+trigger:
+  branch:
+  - develop
+  event:
+  - pull_request
+  - push

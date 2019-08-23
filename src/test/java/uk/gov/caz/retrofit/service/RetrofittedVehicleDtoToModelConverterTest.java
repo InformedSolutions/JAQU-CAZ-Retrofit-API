@@ -1,5 +1,6 @@
 package uk.gov.caz.retrofit.service;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.Arrays;
@@ -8,6 +9,8 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 import uk.gov.caz.retrofit.model.ConversionResult;
@@ -54,6 +57,7 @@ class RetrofittedVehicleDtoToModelConverterTest {
 
   @Nested
   class WhenConvertingListOfVehicles {
+    private static final int UNLIMITED_ERROR_COUNT = Integer.MAX_VALUE;
 
     @Test
     public void shouldReturnConvertedValidVehicles() {
@@ -62,10 +66,28 @@ class RetrofittedVehicleDtoToModelConverterTest {
           createValidRetrofittedVehicle());
 
       // when
-      ConversionResults conversionResults = converter.convert(retrofittedVehicleDtos);
+      ConversionResults conversionResults = converter.convert(retrofittedVehicleDtos, UNLIMITED_ERROR_COUNT);
 
       // then
       then(conversionResults.hasValidationErrors()).isFalse();
+      then(conversionResults.getRetrofittedVehicles()).hasSize(1);
+    }
+
+    @Test
+    public void shouldConvertUpToPassedErrorThreshold() {
+      // given
+      int maxErrorCount = 3;
+      List<RetrofittedVehicleDto> licences = Arrays.asList(
+          createValidRetrofittedVehicle(),
+          createInvalidRetrofittedVehicleWithThreeAttributes(),
+          createInvalidLicenceWithTwoAttributes()
+      );
+
+      // when
+      ConversionResults conversionResults = converter.convert(licences, maxErrorCount);
+
+      // then
+      then(conversionResults.getValidationErrors()).hasSize(maxErrorCount);
       then(conversionResults.getRetrofittedVehicles()).hasSize(1);
     }
 
@@ -77,12 +99,30 @@ class RetrofittedVehicleDtoToModelConverterTest {
       );
 
       // when
-      ConversionResults conversionResults = converter.convert(retrofittedVehicleDtos);
+      ConversionResults conversionResults = converter.convert(retrofittedVehicleDtos, UNLIMITED_ERROR_COUNT);
 
       // then
       then(conversionResults.hasValidationErrors()).isTrue();
       then(conversionResults.getValidationErrors()).hasSize(1);
       then(conversionResults.getRetrofittedVehicles()).hasSize(1);
+    }
+
+    @Test
+    public void shouldConvertAndTruncateErrorsToPassedErrorThreshold() {
+      // given
+      int maxErrorCount = 4;
+      // contains 5 validation errors in total
+      List<RetrofittedVehicleDto> licences = Arrays.asList(
+          createInvalidLicenceWithTwoAttributes(),
+          createInvalidRetrofittedVehicleWithThreeAttributes()
+      );
+
+      // when
+      ConversionResults conversionResults = converter.convert(licences, maxErrorCount);
+
+      // then
+      then(conversionResults.getValidationErrors()).hasSize(maxErrorCount);
+      then(conversionResults.getRetrofittedVehicles()).isEmpty();
     }
 
     @Test
@@ -94,11 +134,24 @@ class RetrofittedVehicleDtoToModelConverterTest {
       );
 
       // when
-      ConversionResults conversionResults = converter.convert(retrofittedVehicleDtos);
+      ConversionResults conversionResults = converter.convert(retrofittedVehicleDtos, UNLIMITED_ERROR_COUNT);
 
       // then
       then(conversionResults.getValidationErrors()).hasSize(5);
       then(conversionResults.getRetrofittedVehicles()).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1 -2, -15, -100})
+    public void shouldThrowIllegalArgumentExceptionIfErrorCountIsNegative(int maxErrorCount) {
+      // given
+      List<RetrofittedVehicleDto> licences = Collections.singletonList(createInvalidLicenceWithTwoAttributes());
+
+      // when
+      Throwable throwable = catchThrowable(() -> converter.convert(licences, maxErrorCount));
+
+      // then
+      then(throwable).isInstanceOf(IllegalArgumentException.class);
     }
   }
 
