@@ -41,4 +41,26 @@ public class TestVehicles {
       .model("model-1")
       .dateOfRetrofitInstallation(LocalDate.parse("2019-04-14"))
       .build();
+
+  public static final RetrofittedVehicle VEHICLE_6 = RetrofittedVehicle.builder()
+      .vrn("KL14VXX")
+      .vehicleCategory(null)
+      .model(null)
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-04-19"))
+      .build();
+
+  public static final RetrofittedVehicle VEHICLE_7 = RetrofittedVehicle.builder()
+      .vrn("JO32VXX")
+      .vehicleCategory("category-1")
+      .model(null)
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-04-13"))
+      .build();
+
+
+  public static final RetrofittedVehicle VEHICLE_8 = RetrofittedVehicle.builder()
+      .vrn("II19VXX")
+      .vehicleCategory(null)
+      .model("model-1")
+      .dateOfRetrofitInstallation(LocalDate.parse("2019-04-18"))
+      .build();
 }
