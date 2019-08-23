@@ -22,7 +22,7 @@ class RetrofittedVehicleDtoToModelConverterTest {
   private RetrofittedVehicleDtoToModelConverter converter = new RetrofittedVehicleDtoToModelConverter();
 
   @Nested
-  class WhenConvertingOneLicence {
+  class WhenConvertingOneVehicle {
 
     @Test
     public void shouldReturnSuccessWhenConvertValidVehicle() {
@@ -77,14 +77,14 @@ class RetrofittedVehicleDtoToModelConverterTest {
     public void shouldConvertUpToPassedErrorThreshold() {
       // given
       int maxErrorCount = 3;
-      List<RetrofittedVehicleDto> licences = Arrays.asList(
+      List<RetrofittedVehicleDto> vehicles = Arrays.asList(
           createValidRetrofittedVehicle(),
           createInvalidRetrofittedVehicleWithThreeAttributes(),
-          createInvalidLicenceWithTwoAttributes()
+          createInvalidRetrofittedVehicleWithTwoAttributes()
       );
 
       // when
-      ConversionResults conversionResults = converter.convert(licences, maxErrorCount);
+      ConversionResults conversionResults = converter.convert(vehicles, maxErrorCount);
 
       // then
       then(conversionResults.getValidationErrors()).hasSize(maxErrorCount);
@@ -113,7 +113,7 @@ class RetrofittedVehicleDtoToModelConverterTest {
       int maxErrorCount = 4;
       // contains 5 validation errors in total
       List<RetrofittedVehicleDto> licences = Arrays.asList(
-          createInvalidLicenceWithTwoAttributes(),
+          createInvalidRetrofittedVehicleWithTwoAttributes(),
           createInvalidRetrofittedVehicleWithThreeAttributes()
       );
 
@@ -130,7 +130,7 @@ class RetrofittedVehicleDtoToModelConverterTest {
       // given
       List<RetrofittedVehicleDto> retrofittedVehicleDtos = Arrays.asList(
           createInvalidRetrofittedVehicleWithThreeAttributes(),
-          createInvalidLicenceWithTwoAttributes()
+          createInvalidRetrofittedVehicleWithTwoAttributes()
       );
 
       // when
@@ -145,7 +145,8 @@ class RetrofittedVehicleDtoToModelConverterTest {
     @ValueSource(ints = {-1 -2, -15, -100})
     public void shouldThrowIllegalArgumentExceptionIfErrorCountIsNegative(int maxErrorCount) {
       // given
-      List<RetrofittedVehicleDto> licences = Collections.singletonList(createInvalidLicenceWithTwoAttributes());
+      List<RetrofittedVehicleDto> licences = Collections.singletonList(
+          createInvalidRetrofittedVehicleWithTwoAttributes());
 
       // when
       Throwable throwable = catchThrowable(() -> converter.convert(licences, maxErrorCount));
@@ -185,7 +186,7 @@ class RetrofittedVehicleDtoToModelConverterTest {
         .build();
   }
 
-  private RetrofittedVehicleDto createInvalidLicenceWithTwoAttributes() {
+  private RetrofittedVehicleDto createInvalidRetrofittedVehicleWithTwoAttributes() {
     String invalidVrn = "8AAAA99";
     String invalidDateOfRetrofitInstallation = "2019-03-09-01";
     return RetrofittedVehicleDto.builder()

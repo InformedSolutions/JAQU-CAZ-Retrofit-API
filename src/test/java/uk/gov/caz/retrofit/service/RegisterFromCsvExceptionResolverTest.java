@@ -29,7 +29,7 @@ class RegisterFromCsvExceptionResolverTest {
 
     //then
     then(result.getValidationErrors()).hasOnlyOneElementSatisfying(validationError -> {
-      assertThat(validationError.getVrm()).isNull();
+      assertThat(validationError.getVrn()).isNull();
       assertThat(validationError.getTitle()).isEqualTo("S3 error");
       assertThat(validationError.getDetail())
           .isEqualTo("S3 bucket or file not found or not accessible");
@@ -48,7 +48,7 @@ class RegisterFromCsvExceptionResolverTest {
 
     //then
     then(result.getValidationErrors()).hasOnlyOneElementSatisfying(validationError -> {
-      assertThat(validationError.getVrm()).isNull();
+      assertThat(validationError.getVrn()).isNull();
       assertThat(validationError.getTitle()).isEqualTo("S3 error");
       assertThat(validationError.getDetail())
           .isEqualTo("'uploader-id' not found in file's metadata");
@@ -67,7 +67,7 @@ class RegisterFromCsvExceptionResolverTest {
 
     //then
     then(result.getValidationErrors()).hasOnlyOneElementSatisfying(validationError -> {
-      assertThat(validationError.getVrm()).isNull();
+      assertThat(validationError.getVrn()).isNull();
       assertThat(validationError.getTitle()).isEqualTo("S3 error");
       assertThat(validationError.getDetail()).isEqualTo("Malformed ID of an entity which want to "
           + "register vehicles by CSV file. Expected a unique identifier (UUID)");
@@ -86,7 +86,7 @@ class RegisterFromCsvExceptionResolverTest {
 
     //then
     then(result.getValidationErrors()).hasOnlyOneElementSatisfying(validationError -> {
-      assertThat(validationError.getVrm()).isNull();
+      assertThat(validationError.getVrn()).isNull();
       assertThat(validationError.getTitle()).isEqualTo("S3 error");
       assertThat(validationError.getDetail())
           .isEqualTo("Uploaded file is too large. Maximum allowed: "
@@ -106,7 +106,7 @@ class RegisterFromCsvExceptionResolverTest {
 
     //then
     then(result.getValidationErrors()).hasOnlyOneElementSatisfying(validationError -> {
-      assertThat(validationError.getVrm()).isNull();
+      assertThat(validationError.getVrn()).isNull();
       assertThat(validationError.getTitle()).isEqualTo("Unknown error");
       assertThat(validationError.getDetail()).isEqualTo("Unknown error occurred while processing "
           + "registration");

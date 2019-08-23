@@ -42,10 +42,10 @@ class RegisterFromCsvCommandTest {
   public void shouldFetchCsvResultAndReturnResults() {
     //given
     UUID uploaderId = UUID.randomUUID();
-    List<RetrofittedVehicleDto> licences = Lists
+    List<RetrofittedVehicleDto> vehicles = Lists
         .list(RetrofittedVehicleDto.builder().vrn("abc").build());
     List<ValidationError> validationErrors = MODIFIED_REGISTER_JOB_VALIDATION_ERRORS;
-    CsvFindResult csvFindResult = new CsvFindResult(uploaderId, licences, validationErrors);
+    CsvFindResult csvFindResult = new CsvFindResult(uploaderId, vehicles, validationErrors);
 
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
 
@@ -53,9 +53,9 @@ class RegisterFromCsvCommandTest {
     registerFromCsvCommand.beforeExecute();
 
     //then
-    assertThat(registerFromCsvCommand.getLicencesParseValidationErrors())
+    assertThat(registerFromCsvCommand.getParseValidationErrors())
         .isEqualTo(MODIFIED_REGISTER_JOB_VALIDATION_ERRORS);
-    assertThat(registerFromCsvCommand.getVehiclesToRegister()).isEqualTo(licences);
+    assertThat(registerFromCsvCommand.getVehiclesToRegister()).isEqualTo(vehicles);
   }
 
   @Test
@@ -68,7 +68,7 @@ class RegisterFromCsvCommandTest {
 
     //then
     assertThrows(IllegalStateException.class,
-        () -> registerFromCsvCommand.getLicencesParseValidationErrors());
+        () -> registerFromCsvCommand.getParseValidationErrors());
     assertThrows(IllegalStateException.class, () -> registerFromCsvCommand.getVehiclesToRegister());
   }
 }

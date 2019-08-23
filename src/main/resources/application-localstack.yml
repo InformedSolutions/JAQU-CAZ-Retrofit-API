@@ -5,7 +5,7 @@
 ---
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/caz-national-taxi-phv
+    url: jdbc:postgresql://localhost:5432/caz_vcc
 aws:
   s3:
     endpoint: http://localhost:4572

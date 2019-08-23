@@ -66,7 +66,7 @@ You need to have AWS account with at least programmatic access. And:
 3. You need to have environment variable set: export AWS_REGION=eu-west-2 (you can choose whatever region works for you)
 
 #### Building
-1. Pull the branch you want from NTR Backend: https://github.com/InformedSolutions/JAQU-CAZ-National-Taxi-Register
+1. Pull the branch you want from https://github.com/InformedSolutions/JAQU-CAZ-Retrofit-API
 2. Run `make clean` to make sure that everything is clean and ready to build.
 3. Run `make build` to build and test project locally - it may take some time as there are a lot of tests including integration ones.
 

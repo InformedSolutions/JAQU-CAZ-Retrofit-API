@@ -38,11 +38,11 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
   @Override
   public List<RetrofittedVehicleDto> getVehiclesToRegister() {
     checkCsvParseResultsPresentPrecondition();
-    return csvFindResult.getLicences();
+    return csvFindResult.getVehicles();
   }
 
   @Override
-  List<ValidationError> getLicencesParseValidationErrors() {
+  List<ValidationError> getParseValidationErrors() {
     checkCsvParseResultsPresentPrecondition();
     return csvFindResult.getValidationErrors();
   }

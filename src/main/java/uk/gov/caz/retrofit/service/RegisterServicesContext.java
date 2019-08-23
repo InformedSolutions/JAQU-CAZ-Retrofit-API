@@ -10,7 +10,7 @@ public class RegisterServicesContext {
   RegisterService registerService;
   RegisterFromCsvExceptionResolver exceptionResolver;
   RegisterJobSupervisor registerJobSupervisor;
-  RetrofittedVehicleDtoToModelConverter licenceConverter;
+  RetrofittedVehicleDtoToModelConverter dtoToModelConverter;
   RetrofittedVehicleDtoCsvRepository csvRepository;
   int maxValidationErrorCount;
 
@@ -20,13 +20,13 @@ public class RegisterServicesContext {
   public RegisterServicesContext(RegisterService registerService,
       RegisterFromCsvExceptionResolver exceptionResolver,
       RegisterJobSupervisor registerJobSupervisor,
-      RetrofittedVehicleDtoToModelConverter licenceConverter,
+      RetrofittedVehicleDtoToModelConverter dtoToModelConverter,
       RetrofittedVehicleDtoCsvRepository csvRepository,
       @Value("${application.validation.max-errors-count}") int maxValidationErrorCount) {
     this.registerService = registerService;
     this.exceptionResolver = exceptionResolver;
     this.registerJobSupervisor = registerJobSupervisor;
-    this.licenceConverter = licenceConverter;
+    this.dtoToModelConverter = dtoToModelConverter;
     this.csvRepository = csvRepository;
     this.maxValidationErrorCount = maxValidationErrorCount;
   }

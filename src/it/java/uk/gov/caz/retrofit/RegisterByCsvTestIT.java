@@ -104,7 +104,7 @@ public class RegisterByCsvTestIT {
         inputFilename);
 
     // then
-    then(csvFindResult.getLicences()).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
+    then(csvFindResult.getVehicles()).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
     then(csvFindResult.getUploaderId()).isEqualTo(FIRST_UPLOADER_ID);
     then(csvFindResult.getValidationErrors()).isEmpty();
   }

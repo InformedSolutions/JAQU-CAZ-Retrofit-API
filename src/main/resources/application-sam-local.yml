@@ -6,4 +6,4 @@
 ---
 spring:
   datasource:
-    url: jdbc:postgresql://postgres.docker:5432/caz-national-taxi-phv
+    url: jdbc:postgresql://postgres.docker:5432/caz_vcc

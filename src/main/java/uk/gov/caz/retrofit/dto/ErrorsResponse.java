@@ -14,7 +14,7 @@ public class ErrorsResponse {
   private static final ErrorsResponse UNHANDLED_EXCEPTION_RESPONSE = new ErrorsResponse(
       Collections.singletonList(
           ErrorResponse.builder()
-              .vrm("")
+              .vrn("")
               .title("Unknown error")
               .detail("Internal server error")
               .status(HttpStatus.INTERNAL_SERVER_ERROR.value())

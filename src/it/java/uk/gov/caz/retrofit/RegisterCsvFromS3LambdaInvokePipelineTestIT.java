@@ -71,7 +71,7 @@ public class RegisterCsvFromS3LambdaInvokePipelineTestIT {
       System.currentTimeMillis()
   );
   private static final String CSV_FILE = "first-uploader-records-all.csv";
-  private static final int CSV_FILE_LICENCES_COUNT = 8;
+  private static final int CSV_FILE_VEHICLES_COUNT = 8;
   private static final String JOB_SUFFIX = "first-uploader-records-all";
   private static final String JOB_NAME = "prefixed_" + JOB_SUFFIX;
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
@@ -138,7 +138,7 @@ public class RegisterCsvFromS3LambdaInvokePipelineTestIT {
     // Register Job workload. In summary:
     // 1. It waits for 2 seconds keeping freshly started job in 'STARTING' status.
     // 2. After 2 seconds starts register job. It changes status to 'RUNNING'.
-    // 3. Register job reads CSV file and adds licences.
+    // 3. Register job reads CSV file and adds vehicles.
     // 4. After that changes status to 'SUCCESS' and finishes successfully.
 
     // Job Startup - Job starts with 'STARTING' status
@@ -264,7 +264,7 @@ public class RegisterCsvFromS3LambdaInvokePipelineTestIT {
   private void checkIfVehiclesHaveBeenCorrectlyInserted() {
     List<RetrofittedVehicle> vehicles = retrofittedVehiclePostgresRepository
         .findAll();
-    assertThat(vehicles).hasSize(CSV_FILE_LICENCES_COUNT);
+    assertThat(vehicles).hasSize(CSV_FILE_VEHICLES_COUNT);
   }
 
   private void prepareDataInS3() {
