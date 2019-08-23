@@ -6,6 +6,7 @@ import static uk.gov.caz.retrofit.controller.Constants.CORRELATION_ID_HEADER;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -91,16 +92,13 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
       StartRegisterCsvFromS3JobCommand startRegisterCsvFromS3JobCommand, CsvMetadata csvMetadata) {
     return StartParams.builder()
         .registerJobTrigger(RegisterJobTrigger.from(csvMetadata.getCsvContentType()))
-        .registerJobNameSuffix(stripCsvExtension(startRegisterCsvFromS3JobCommand.getFilename()))
+        .registerJobNameSuffix(
+            FilenameUtils.removeExtension(startRegisterCsvFromS3JobCommand.getFilename()))
         .correlationId(correlationId)
         .uploaderId(csvMetadata.getUploaderId())
         .registerJobInvoker(
             asyncRegisterJobInvoker(correlationId, startRegisterCsvFromS3JobCommand))
         .build();
-  }
-
-  private String stripCsvExtension(String csvFileName) {
-    return csvFileName.replace(".csv", "");
   }
 
   @Override
