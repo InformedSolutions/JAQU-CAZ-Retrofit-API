@@ -23,7 +23,7 @@ import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobTrigger;
-import uk.gov.caz.retrofit.service.RegisterJobRepository;
+import uk.gov.caz.retrofit.repository.RegisterJobRepository;
 
 @IntegrationTest
 @Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)

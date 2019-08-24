@@ -13,6 +13,7 @@ import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobName;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobTrigger;
+import uk.gov.caz.retrofit.repository.RegisterJobRepository;
 
 /**
  * This class acts as a supervisor around running Register Jobs. It manages status and database

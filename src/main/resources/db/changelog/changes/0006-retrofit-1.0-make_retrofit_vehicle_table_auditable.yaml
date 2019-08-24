@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-retrofit-1.0
+      author: patryk.lenza
+      changes:
+        - sql:
+            comment: Create Audit Trigger on t_vehicle_retrofit table
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_VEHICLE_RETROFIT_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_VEHICLE_RETROFIT
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true

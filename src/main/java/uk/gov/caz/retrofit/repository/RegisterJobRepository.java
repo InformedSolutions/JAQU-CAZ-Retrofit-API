@@ -1,4 +1,4 @@
-package uk.gov.caz.retrofit.service;
+package uk.gov.caz.retrofit.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -48,7 +48,7 @@ public class RegisterJobRepository {
         + "rj." + COL_STATUS + ", "
         + "rj." + COL_ERRORS + ", "
         + "rj." + COL_CORRELATION_ID + " "
-        + "FROM retrofit.t_md_register_jobs rj ";
+        + "FROM t_md_register_jobs rj ";
   }
 
   private static final String SELECT_BY_REGISTER_JOB_ID =
@@ -58,17 +58,17 @@ public class RegisterJobRepository {
       selectAllColumns() + "WHERE rj." + COL_JOB_NAME + " = ?";
 
   private static final String SELECT_COUNT_BY_UPLOADER_ID_AND_STATUS =
-      "SELECT count(*) FROM retrofit.t_md_register_jobs WHERE " + COL_UPLOADER_ID + " = ? "
+      "SELECT count(*) FROM t_md_register_jobs WHERE " + COL_UPLOADER_ID + " = ? "
           + "AND (" + COL_STATUS + " = \'" + RegisterJobStatus.STARTING
           + "\' OR " + COL_STATUS + " = \'" + RegisterJobStatus.RUNNING + "\')";
 
-  private static final String UPDATE_STATUS_SQL = "UPDATE retrofit.t_md_register_jobs "
+  private static final String UPDATE_STATUS_SQL = "UPDATE t_md_register_jobs "
       + "SET "
       + COL_STATUS + " = ?, "
       + "last_modified_timestmp = CURRENT_TIMESTAMP "
       + "WHERE " + COL_REGISTER_JOB_ID + " = ?";
 
-  private static final String UPDATE_ERRORS_SQL = "UPDATE retrofit.t_md_register_jobs "
+  private static final String UPDATE_ERRORS_SQL = "UPDATE t_md_register_jobs "
       + "SET "
       + COL_ERRORS + " = ?, "
       + "last_modified_timestmp = CURRENT_TIMESTAMP "
@@ -93,7 +93,6 @@ public class RegisterJobRepository {
     this.jdbcTemplate = jdbcTemplate;
     jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
         .withTableName("t_md_register_jobs")
-        .withSchemaName("retrofit")
         .usingGeneratedKeyColumns(COL_REGISTER_JOB_ID)
         .usingColumns(COL_TRIGGER, COL_JOB_NAME, COL_UPLOADER_ID, COL_STATUS, COL_ERRORS,
             COL_CORRELATION_ID);
