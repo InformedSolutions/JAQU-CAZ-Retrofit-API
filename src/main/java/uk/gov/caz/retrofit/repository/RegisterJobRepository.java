@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobName;
@@ -57,8 +58,8 @@ public class RegisterJobRepository {
   private static final String SELECT_BY_REGISTER_JOB_NAME =
       selectAllColumns() + "WHERE rj." + COL_JOB_NAME + " = ?";
 
-  private static final String SELECT_COUNT_BY_UPLOADER_ID_AND_STATUS =
-      "SELECT count(*) FROM t_md_register_jobs WHERE " + COL_UPLOADER_ID + " = ? "
+  private static final String SELECT_COUNT_BY_TRIGGER_AND_STATUS =
+      "SELECT count(*) FROM t_md_register_jobs WHERE " + COL_TRIGGER + " = ? "
           + "AND (" + COL_STATUS + " = \'" + RegisterJobStatus.STARTING
           + "\' OR " + COL_STATUS + " = \'" + RegisterJobStatus.RUNNING + "\')";
 
@@ -134,14 +135,15 @@ public class RegisterJobRepository {
   }
 
   /**
-   * Counts active (not finished) jobs by the given {@code uploaderId}.
+   * Counts active (not finished) jobs by the given {@link CsvContentType}.
    *
-   * @param uploaderId UUID of {@link RegisterJob} that will be fetched.
+   * @param csvContentType Content type {@link CsvContentType} that will be checked.
    * @return An {@link Integer} of active jobs.
    */
-  public Integer countActiveJobsByUploaderId(UUID uploaderId) {
+  public Integer countActiveJobsByContentType(CsvContentType csvContentType) {
+    RegisterJobTrigger triggeredBy = RegisterJobTrigger.from(csvContentType);
     return jdbcTemplate
-        .queryForObject(SELECT_COUNT_BY_UPLOADER_ID_AND_STATUS, Integer.class, uploaderId);
+        .queryForObject(SELECT_COUNT_BY_TRIGGER_AND_STATUS, Integer.class, triggeredBy.name());
   }
 
   /**

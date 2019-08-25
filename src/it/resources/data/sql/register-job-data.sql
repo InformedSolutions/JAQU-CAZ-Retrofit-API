@@ -44,7 +44,7 @@ INSERT INTO T_MD_REGISTER_JOBS(REGISTER_JOB_ID,
                                STATUS,
                                CORRELATION_ID)
 VALUES (458,
-        'RETROFIT_CSV_FROM_S3',
+        'WHITE_MOD_CSV_FROM_S3',
         '20190809_154821_RETROFIT_CSV_FROM_S3_CAZ-2018-12-14',
         '0d7ab5c4-5fff-4935-8c4e-56267c0c9493',
         'STARTING',
