@@ -31,6 +31,7 @@ import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobName;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
+import uk.gov.caz.retrofit.repository.RegisterJobRepository;
 import uk.gov.caz.retrofit.service.RegisterJobSupervisor.StartParams;
 
 @ExtendWith(MockitoExtension.class)

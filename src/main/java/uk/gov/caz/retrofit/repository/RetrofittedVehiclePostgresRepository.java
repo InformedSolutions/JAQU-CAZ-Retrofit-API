@@ -18,13 +18,13 @@ import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 @Repository
 public class RetrofittedVehiclePostgresRepository {
 
-  private static final String FIND_ALL_SQL = "SELECT * FROM retrofit.t_vehicle_retrofit";
+  private static final String FIND_ALL_SQL = "SELECT * FROM t_vehicle_retrofit";
 
   @VisibleForTesting
-  static final String DELETE_ALL_SQL = "DELETE FROM retrofit.t_vehicle_retrofit";
+  static final String DELETE_ALL_SQL = "DELETE FROM t_vehicle_retrofit";
 
   @VisibleForTesting
-  static final String INSERT_SQL = "INSERT INTO retrofit.t_vehicle_retrofit("
+  static final String INSERT_SQL = "INSERT INTO t_vehicle_retrofit("
       + "vrn, "
       + "vehicle_category, "
       + "model, "
@@ -56,7 +56,7 @@ public class RetrofittedVehiclePostgresRepository {
   }
 
   /**
-   * Deletes all records from {@code retrofit.t_vehicle_retrofit} table.
+   * Deletes all records from {@code t_vehicle_retrofit} table.
    */
   public void deleteAll() {
     log.info("Deleting all retrofitted vehicles.");
@@ -66,7 +66,7 @@ public class RetrofittedVehiclePostgresRepository {
   /**
    * Finds all vehicles in the database.
    *
-   * @return A list of all vehicles in {@code retrofit.t_vehicle_retrofit} table.
+   * @return A list of all vehicles in {@code t_vehicle_retrofit} table.
    */
   @VisibleForTesting
   public List<RetrofittedVehicle> findAll() {

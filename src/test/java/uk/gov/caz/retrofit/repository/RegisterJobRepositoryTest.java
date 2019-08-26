@@ -1,4 +1,4 @@
-package uk.gov.caz.retrofit.service;
+package uk.gov.caz.retrofit.repository;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
@@ -10,12 +10,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static uk.gov.caz.retrofit.service.RegisterJobRepository.COL_CORRELATION_ID;
-import static uk.gov.caz.retrofit.service.RegisterJobRepository.COL_ERRORS;
-import static uk.gov.caz.retrofit.service.RegisterJobRepository.COL_JOB_NAME;
-import static uk.gov.caz.retrofit.service.RegisterJobRepository.COL_REGISTER_JOB_ID;
-import static uk.gov.caz.retrofit.service.RegisterJobRepository.COL_STATUS;
-import static uk.gov.caz.retrofit.service.RegisterJobRepository.COL_TRIGGER;
+import static uk.gov.caz.retrofit.repository.RegisterJobRepository.COL_CORRELATION_ID;
+import static uk.gov.caz.retrofit.repository.RegisterJobRepository.COL_ERRORS;
+import static uk.gov.caz.retrofit.repository.RegisterJobRepository.COL_JOB_NAME;
+import static uk.gov.caz.retrofit.repository.RegisterJobRepository.COL_REGISTER_JOB_ID;
+import static uk.gov.caz.retrofit.repository.RegisterJobRepository.COL_STATUS;
+import static uk.gov.caz.retrofit.repository.RegisterJobRepository.COL_TRIGGER;
 import static uk.gov.caz.testutils.NtrAssertions.assertThat;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
@@ -43,7 +43,8 @@ import org.mockito.Mockito;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
-import uk.gov.caz.retrofit.service.RegisterJobRepository.RegisterJobRowMapper;
+import uk.gov.caz.retrofit.repository.RegisterJobRepository;
+import uk.gov.caz.retrofit.repository.RegisterJobRepository.RegisterJobRowMapper;
 
 class RegisterJobRepositoryTest {
 
