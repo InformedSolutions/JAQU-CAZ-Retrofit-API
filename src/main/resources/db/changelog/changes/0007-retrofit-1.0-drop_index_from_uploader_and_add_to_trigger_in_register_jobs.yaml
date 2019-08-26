@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0007-retrofit-1.0
+      author: patryk.lenza
+      changes:
+        - createIndex:
+            indexName: T_MD_REGISTER_JOBS_TRIGGER_IDX
+            tableName: T_MD_REGISTER_JOBS
+            columns:
+              - column:
+                  name: TRIGGER
+                  type: varchar(128)
+        - dropIndex:
+            indexName: T_MD_REGISTER_JOBS_UPLOADER_ID_IDX
+            tableName: T_MD_REGISTER_JOBS

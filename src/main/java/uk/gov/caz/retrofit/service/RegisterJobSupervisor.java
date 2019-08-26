@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Value;
 import org.springframework.stereotype.Service;
+import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.ValidationError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
@@ -95,8 +96,8 @@ public class RegisterJobSupervisor {
     return jobName;
   }
 
-  public boolean hasActiveJobs(UUID uploaderId) {
-    Integer count = registerJobRepository.countActiveJobsByUploaderId(uploaderId);
+  public boolean hasActiveJobsFor(CsvContentType csvContentType) {
+    Integer count = registerJobRepository.countActiveJobsByContentType(csvContentType);
     return count != null && count > 0;
   }
 

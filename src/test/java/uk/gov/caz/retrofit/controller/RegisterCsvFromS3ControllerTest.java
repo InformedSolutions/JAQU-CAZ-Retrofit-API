@@ -15,9 +15,6 @@ import static uk.gov.caz.testutils.TestObjects.NOT_EXISTING_REGISTER_JOB_NAME;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_NAME;
 import static uk.gov.caz.testutils.TestObjects.S3_RUNNING_REGISTER_JOB;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
-import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_MOD_GREEN_LIST;
-import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_MOD_WHITE_LIST;
-import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_RETROFIT_LIST;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -209,20 +206,20 @@ class RegisterCsvFromS3ControllerTest {
         .willReturn(Optional.empty());
   }
 
-  private void mockSupervisorForFindingStartingOrRunningJob() {
-    given(mockedRegisterJobSupervisor.hasActiveJobs(TYPICAL_REGISTER_JOB_UPLOADER_ID))
-        .willReturn(true);
+  private void mockForSuccess() {
+    mockSupervisor();
+    mockCsvFileOnS3MetadataExtractorForSuccess(CSV_FILE, CsvContentType.RETROFIT_LIST);
+    mockSupervisorForFindingStartingOrRunningJob();
   }
 
   private void mockSupervisorForNotFindingStartingOrRunningJob() {
-    given(mockedRegisterJobSupervisor.hasActiveJobs(TYPICAL_REGISTER_JOB_UPLOADER_ID))
+    given(mockedRegisterJobSupervisor.hasActiveJobsFor(CsvContentType.RETROFIT_LIST))
         .willReturn(false);
   }
 
-  private void mockForSuccess() {
-    mockSupervisor();
-    mockCsvFileOnS3MetadataExtractorForSuccess(CSV_FILE, TYPICAL_REGISTER_JOB_RETROFIT_LIST);
-    mockSupervisorForFindingStartingOrRunningJob();
+  private void mockSupervisorForFindingStartingOrRunningJob() {
+    given(mockedRegisterJobSupervisor.hasActiveJobsFor(CsvContentType.RETROFIT_LIST))
+        .willReturn(true);
   }
 
   private void postToStartRegisterJobAndCheckIfItStartedOk(String csvFileName) throws Exception {
@@ -263,11 +260,11 @@ class RegisterCsvFromS3ControllerTest {
 
   private static Stream<Arguments> csvContentTypeMapToRegisterJobTriggerAndCsvFileName() {
     return Stream.of(
-        Arguments.of(TYPICAL_REGISTER_JOB_RETROFIT_LIST,
+        Arguments.of(CsvContentType.RETROFIT_LIST,
             RegisterJobTrigger.RETROFIT_CSV_FROM_S3, CSV_FILE, "fileName"),
-        Arguments.of(TYPICAL_REGISTER_JOB_MOD_GREEN_LIST,
+        Arguments.of(CsvContentType.MOD_GREEN_LIST,
             RegisterJobTrigger.GREEN_MOD_CSV_FROM_S3, CSV_FILE, "fileName"),
-        Arguments.of(TYPICAL_REGISTER_JOB_MOD_WHITE_LIST,
+        Arguments.of(CsvContentType.MOD_WHITE_LIST,
             RegisterJobTrigger.WHITE_MOD_CSV_FROM_S3, CSV_FILE_UPPERCASE, "FILENAME")
     );
   }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
+import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
@@ -74,7 +75,7 @@ public class RegisterJobRepositoryTestIT {
 
     // when
     Integer result = registerJobRepository
-        .countActiveJobsByUploaderId(UUID.fromString("0d7ab5c4-5fff-4935-8c4e-56267c0c9493"));
+        .countActiveJobsByContentType(CsvContentType.RETROFIT_LIST);
 
     // then
     assertThat(result).isEqualTo(2);
@@ -86,7 +87,7 @@ public class RegisterJobRepositoryTestIT {
 
     // when
     Integer result = registerJobRepository
-        .countActiveJobsByUploaderId(UUID.fromString("0d7ab5c4-5fff-4935-8c4e-56267c0c9493"));
+        .countActiveJobsByContentType(CsvContentType.RETROFIT_LIST);
 
     // then
     assertThat(result).isEqualTo(0);

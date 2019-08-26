@@ -48,7 +48,7 @@ public interface RegisterCsvFromS3ControllerApiSpec {
   @ApiResponses({
       @ApiResponse(code = 500, message = "Internal Server Error / No message available"),
       @ApiResponse(code = 400, message = "Correlation Id missing"),
-      @ApiResponse(code = 406, message = "Given uploaderId has already active job"),
+      @ApiResponse(code = 406, message = "Previous retrofit register job has not finished yet"),
       @ApiResponse(code = 201, message =
           "A handle which uniquely identifies register job that has been started"),
   })

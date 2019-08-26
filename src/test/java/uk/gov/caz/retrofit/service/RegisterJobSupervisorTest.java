@@ -26,6 +26,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.ValidationError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
@@ -96,16 +97,6 @@ class RegisterJobSupervisorTest {
   }
 
   @Test
-  public void isRunningOrStartingJob() {
-    // when
-    registerJobSupervisor.hasActiveJobs(TYPICAL_REGISTER_JOB_UPLOADER_ID);
-
-    // then
-    verify(mockedRegisterJobRepository)
-        .countActiveJobsByUploaderId(TYPICAL_REGISTER_JOB_UPLOADER_ID);
-  }
-
-  @Test
   public void testFindByName() {
     // when
     registerJobSupervisor.findJobWithName(new RegisterJobName(S3_REGISTER_JOB_NAME));
@@ -137,15 +128,26 @@ class RegisterJobSupervisorTest {
   class activeJobs {
 
     @Test
+    public void isRunningOrStartingJob() {
+      // when
+      registerJobSupervisor.hasActiveJobsFor(CsvContentType.RETROFIT_LIST);
+
+      // then
+      verify(mockedRegisterJobRepository)
+          .countActiveJobsByContentType(CsvContentType.RETROFIT_LIST);
+    }
+
+
+    @Test
     public void testHasActiveJobsIsFalseWhenNoJobsArePresent() {
       // given
       given(
-          mockedRegisterJobRepository.countActiveJobsByUploaderId(TYPICAL_REGISTER_JOB_UPLOADER_ID))
+          mockedRegisterJobRepository.countActiveJobsByContentType(CsvContentType.RETROFIT_LIST))
           .willReturn(null);
 
       // when
       boolean areThereActiveJobs = registerJobSupervisor
-          .hasActiveJobs(TYPICAL_REGISTER_JOB_UPLOADER_ID);
+          .hasActiveJobsFor(CsvContentType.RETROFIT_LIST);
 
       // then
       assertThat(areThereActiveJobs).isFalse();
@@ -155,12 +157,12 @@ class RegisterJobSupervisorTest {
     public void testHasActiveJobsIsFalseWhenAllJobsAreFinished() {
       // given
       given(
-          mockedRegisterJobRepository.countActiveJobsByUploaderId(TYPICAL_REGISTER_JOB_UPLOADER_ID))
+          mockedRegisterJobRepository.countActiveJobsByContentType(CsvContentType.RETROFIT_LIST))
           .willReturn(0);
 
       // when
       boolean areThereActiveJobs = registerJobSupervisor
-          .hasActiveJobs(TYPICAL_REGISTER_JOB_UPLOADER_ID);
+          .hasActiveJobsFor(CsvContentType.RETROFIT_LIST);
 
       // then
       assertThat(areThereActiveJobs).isFalse();
@@ -170,12 +172,12 @@ class RegisterJobSupervisorTest {
     public void testHasActiveJobsIsTrueWhenAtLeastOneJobHasNotFinished() {
       // given
       given(
-          mockedRegisterJobRepository.countActiveJobsByUploaderId(TYPICAL_REGISTER_JOB_UPLOADER_ID))
+          mockedRegisterJobRepository.countActiveJobsByContentType(CsvContentType.RETROFIT_LIST))
           .willReturn(1);
 
       // when
       boolean areThereActiveJobs = registerJobSupervisor
-          .hasActiveJobs(TYPICAL_REGISTER_JOB_UPLOADER_ID);
+          .hasActiveJobsFor(CsvContentType.RETROFIT_LIST);
 
       // then
       assertThat(areThereActiveJobs).isTrue();

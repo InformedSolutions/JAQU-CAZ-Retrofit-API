@@ -43,7 +43,6 @@ import org.mockito.Mockito;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
-import uk.gov.caz.retrofit.repository.RegisterJobRepository;
 import uk.gov.caz.retrofit.repository.RegisterJobRepository.RegisterJobRowMapper;
 
 class RegisterJobRepositoryTest {
