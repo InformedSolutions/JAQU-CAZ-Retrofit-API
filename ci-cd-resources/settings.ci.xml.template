@@ -1,0 +1,68 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <servers>
+    <server>
+      <id>jaqu.nexus-snapshots</id>
+      <username>${env.JAQU_NEXUS_USER}</username>
+      <password>${env.JAQU_NEXUS_PASSWORD}</password>
+    </server>
+    <server>
+      <id>jaqu.nexus</id>
+      <username>${env.JAQU_NEXUS_USER}</username>
+      <password>${env.JAQU_NEXUS_PASSWORD}</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <mirror>
+      <id>jaqu.nexus</id>
+      <mirrorOf>*</mirrorOf>
+      <url>${env.JAQU_NEXUS_URL}repository/maven-public/</url>
+    </mirror>
+  </mirrors>
+
+  <profiles>
+    <profile>
+      <id>jaqu-nexus</id>
+      <properties>
+        <jaqu.nexus.url>${env.JAQU_NEXUS_URL}</jaqu.nexus.url>
+        <jaqu.nexus.username>${env.JAQU_NEXUS_USER}</jaqu.nexus.username>
+        <jaqu.nexus.password>${env.JAQU_NEXUS_PASSWORD}</jaqu.nexus.password>
+      </properties>
+      <!-- Enable snapshots for the built in central repo to direct -->
+      <!-- all requests to nexus via the mirror -->
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>jaqu-nexus</activeProfile>
+  </activeProfiles>
+
+</settings>
