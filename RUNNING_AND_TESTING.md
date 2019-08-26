@@ -90,7 +90,7 @@ Now you can call Spring-Boot endpoints as usual using REST client for example cu
 
 ### Manual testing: Alternative 2: AWS Lambda Integration type run and test
 This mode is suitable if we want to test AWS Lambda to Spring-Boot plumbing code. See
-`StreamLambdaHandler` or `RegisterCsvFromS3Lambda` classes to see how this plumbing looks like.
+`StreamLambdaHandler` or `RetrofitRegisterCsvFromS3Lambda` classes to see how this plumbing looks like.
 For any other functionality Alternative 1 is recommended.
 
 In this mode we will run and test our Lambda code in simulated local Lambda runner. 

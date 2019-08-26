@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("development")
+@Profile("development | integration-tests")
 @Slf4j
 public class AsyncJavaBackgroundJobStarter implements AsyncBackgroundJobStarter {
 
