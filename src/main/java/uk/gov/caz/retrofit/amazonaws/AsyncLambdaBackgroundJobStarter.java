@@ -16,7 +16,7 @@ import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.AsyncBackgroundJobStarter;
 
 @Component
-@Profile("!development")
+@Profile("!development & !integration-tests")
 @Slf4j
 public class AsyncLambdaBackgroundJobStarter implements AsyncBackgroundJobStarter {
 

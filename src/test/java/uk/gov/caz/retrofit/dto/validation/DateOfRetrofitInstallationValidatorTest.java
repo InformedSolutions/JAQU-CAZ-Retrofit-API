@@ -10,7 +10,7 @@ import uk.gov.caz.retrofit.model.ValidationError;
 
 class DateOfRetrofitInstallationValidatorTest {
 
-  private static final String ANY_VRM = "ZC62OMB";
+  private static final String ANY_VRN = "ZC62OMB";
 
   private final DateOfRetrofitInstallationValidator validator = new DateOfRetrofitInstallationValidator();
 
@@ -23,14 +23,14 @@ class DateOfRetrofitInstallationValidatorTest {
         // given
         int lineNumber = 71;
         String date = null;
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(date, lineNumber);
+        RetrofittedVehicleDto vehicle = createRetrofittedVehicleWithLineNumber(date, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(vehicle);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.missingFieldError(ANY_VRM, DateOfRetrofitInstallationValidator.MISSING_DATE_MESSAGE, lineNumber));
+            ValidationError.missingFieldError(ANY_VRN, DateOfRetrofitInstallationValidator.MISSING_DATE_MESSAGE, lineNumber));
       }
     }
     @Nested
@@ -39,14 +39,14 @@ class DateOfRetrofitInstallationValidatorTest {
       public void shouldReturnMissingFieldErrorWhenDateIsNull() {
         // given
         String date = null;
-        RetrofittedVehicleDto licence = createRetrofittedVehicle(date);
+        RetrofittedVehicleDto vehicle = createRetrofittedVehicle(date);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(vehicle);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.missingFieldError(ANY_VRM, DateOfRetrofitInstallationValidator.MISSING_DATE_MESSAGE));
+            ValidationError.missingFieldError(ANY_VRN, DateOfRetrofitInstallationValidator.MISSING_DATE_MESSAGE));
       }
     }
   }
@@ -58,14 +58,14 @@ class DateOfRetrofitInstallationValidatorTest {
       public void shouldReturnValueErrorsWhenDateHaveInvalidFormat() {
         // given
         String date = "2019-05-17-01";
-        RetrofittedVehicleDto licence = createRetrofittedVehicle(date);
+        RetrofittedVehicleDto vehicle = createRetrofittedVehicle(date);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(vehicle);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.valueError(ANY_VRM, DateOfRetrofitInstallationValidator.INVALID_DATE_FORMAT_MESSAGE)
+            ValidationError.valueError(ANY_VRN, DateOfRetrofitInstallationValidator.INVALID_DATE_FORMAT_MESSAGE)
         );
       }
     }
@@ -76,14 +76,14 @@ class DateOfRetrofitInstallationValidatorTest {
         // given
         int lineNumber = 74;
         String date = "2019-05-17-01";
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(date, lineNumber);
+        RetrofittedVehicleDto vehicle = createRetrofittedVehicleWithLineNumber(date, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(vehicle);
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.valueError(ANY_VRM, DateOfRetrofitInstallationValidator.INVALID_DATE_FORMAT_MESSAGE, lineNumber)
+            ValidationError.valueError(ANY_VRN, DateOfRetrofitInstallationValidator.INVALID_DATE_FORMAT_MESSAGE, lineNumber)
         );
       }
     }
@@ -93,10 +93,10 @@ class DateOfRetrofitInstallationValidatorTest {
   public void shouldReturnEmptyListWhenDateIsValid() {
     // given
     String date = "2019-05-17";
-    RetrofittedVehicleDto licence = createRetrofittedVehicle(date);
+    RetrofittedVehicleDto vehicle = createRetrofittedVehicle(date);
 
     // when
-    List<ValidationError> validationErrors = validator.validate(licence);
+    List<ValidationError> validationErrors = validator.validate(vehicle);
 
     // then
     then(validationErrors).isEmpty();
@@ -104,14 +104,14 @@ class DateOfRetrofitInstallationValidatorTest {
 
   private RetrofittedVehicleDto createRetrofittedVehicle(String dateOfRetrofitInstallation) {
     return RetrofittedVehicleDto.builder()
-        .vrn(ANY_VRM)
+        .vrn(ANY_VRN)
         .dateOfRetrofitInstallation(dateOfRetrofitInstallation)
         .build();
   }
 
   private RetrofittedVehicleDto createRetrofittedVehicleWithLineNumber(String dateOfRetrofitInstallation, int lineNumber) {
     return RetrofittedVehicleDto.builder()
-        .vrn(ANY_VRM)
+        .vrn(ANY_VRN)
         .dateOfRetrofitInstallation(dateOfRetrofitInstallation)
         .lineNumber(lineNumber)
         .build();

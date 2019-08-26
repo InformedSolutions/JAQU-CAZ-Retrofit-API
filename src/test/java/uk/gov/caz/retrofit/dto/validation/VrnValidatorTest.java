@@ -71,10 +71,10 @@ class VrnValidatorTest {
       public void shouldReturnValueErrorWhenVrnIsBlankOrTooLong(String vrn) {
         // given
         int lineNumber = 87;
-        RetrofittedVehicleDto licence = createRetrofittedVehicleWithLineNumber(vrn, lineNumber);
+        RetrofittedVehicleDto vehicle = createRetrofittedVehicleWithLineNumber(vrn, lineNumber);
 
         // when
-        List<ValidationError> validationErrors = validator.validate(licence);
+        List<ValidationError> validationErrors = validator.validate(vehicle);
 
         // then
         then(validationErrors).contains(
@@ -190,7 +190,7 @@ class VrnValidatorTest {
         "VAR7A", "FES23", "PG227", "30JFA", "868BO", "1289J", "B8659", "K97LUK", "MAN07U", "546BAR",
         "JU0043", "8839GF"
     })
-    public void shouldAcceptValidVrm(String validVrn) {
+    public void shouldAcceptValidVrn(String validVrn) {
       // given
       RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(validVrn);
 

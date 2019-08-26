@@ -1,7 +1,9 @@
 package uk.gov.caz.retrofit.model.registerjob;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
 import uk.gov.caz.retrofit.model.CsvContentType;
 
@@ -26,5 +28,17 @@ class RegisterJobTriggerTest {
 
     assertThat(RegisterJobTrigger.from(CsvContentType.MOD_WHITE_LIST))
         .isEqualByComparingTo(RegisterJobTrigger.WHITE_MOD_CSV_FROM_S3);
+  }
+
+  @Test
+  public void testNullCsvContentType() {
+    // given
+    CsvContentType csvContentType = null;
+
+    // when
+    Throwable throwable = catchThrowable(() -> RegisterJobTrigger.from(csvContentType));
+
+    // then
+    BDDAssertions.then(throwable).isInstanceOf(UnsupportedOperationException.class);
   }
 }

@@ -37,7 +37,7 @@ public class CsvObjectMapper {
   private static final String LINE_INVALID_FORMAT_MESSAGE = "Line contains invalid "
       + "character(s), is empty or has trailing comma character.";
   private static final String LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE = "Line contains "
-      + "invalid number of fields (actual value: %d, allowable values: between %d and %d).";
+      + "invalid number of fields (actual value: %d, allowable value: %d).";
 
   private final CsvAwareValidationMessageModifier messageModifier;
   private final int maxErrorsCount;
@@ -151,7 +151,7 @@ public class CsvObjectMapper {
 
   private String invalidFieldsCountErrorDetail(CsvInvalidFieldsCountException e) {
     return String.format(LINE_INVALID_FIELDS_COUNT_MESSAGE_TEMPLATE, e.getFieldsCount(),
-        CsvRetrofittedVehicleParser.MIN_FIELDS_CNT, CsvRetrofittedVehicleParser.MAX_FIELDS_CNT);
+        CsvRetrofittedVehicleParser.EXPECTED_FIELDS_CNT);
   }
 
   private String maximumLineLengthErrorDetail(CsvMaxLineLengthExceededException e) {

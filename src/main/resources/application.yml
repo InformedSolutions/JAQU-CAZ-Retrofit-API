@@ -20,9 +20,6 @@ swagger:
     description: This service allows uploading CSV files with retroffited vehicles. Uploaded CSV files are processed asynchronously. Data saved by Retrofit service is read by Vehicle Compliance Checker service directly from database.
     version: 0.1
 
-api:
-  max-licences-count: 20000
-
 registerjob:
   db:
     max-errors-count: 100

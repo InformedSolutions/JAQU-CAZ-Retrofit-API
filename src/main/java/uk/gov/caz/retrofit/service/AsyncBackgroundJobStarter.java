@@ -6,8 +6,8 @@ package uk.gov.caz.retrofit.service;
 public interface AsyncBackgroundJobStarter {
 
   /**
-   * Starts arbitrary background task which registers Taxi and PHV licences from CSV file located on
-   * S3.
+   * Starts arbitrary background task which registers retrofitted vehicle data from CSV file located
+   * on S3.
    * <p>
    * Runs task in 'fire and forget' mode - so returns void and allows task to continue in the
    * background unsupervised.

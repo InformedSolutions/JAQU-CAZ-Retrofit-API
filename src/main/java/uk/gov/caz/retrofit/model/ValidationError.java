@@ -24,7 +24,7 @@ public class ValidationError {
       "An internal error occurred while processing registration, please contact the "
           + "system administrator", EMPTY_LINE_NUMBER);
 
-  String vrm;
+  String vrn;
   String title;
   String detail;
   @Getter(AccessLevel.NONE)
@@ -42,22 +42,22 @@ public class ValidationError {
     return detail;
   }
 
-  public static ValidationError missingFieldError(String vrm, String detail) {
-    return new ValidationError(vrm, MANDATORY_FIELD_MISSING_ERROR_TITLE, detail, EMPTY_LINE_NUMBER);
+  public static ValidationError missingFieldError(String vrn, String detail) {
+    return new ValidationError(vrn, MANDATORY_FIELD_MISSING_ERROR_TITLE, detail, EMPTY_LINE_NUMBER);
   }
 
-  public static ValidationError missingFieldError(String vrm, String detail, int lineNumber) {
+  public static ValidationError missingFieldError(String vrn, String detail, int lineNumber) {
     checkLineNumberPrecondition(lineNumber);
-    return new ValidationError(vrm, MANDATORY_FIELD_MISSING_ERROR_TITLE, detail, lineNumber);
+    return new ValidationError(vrn, MANDATORY_FIELD_MISSING_ERROR_TITLE, detail, lineNumber);
   }
 
-  public static ValidationError valueError(String vrm, String detail) {
-    return new ValidationError(vrm, VALUE_ERROR_TITLE, detail, EMPTY_LINE_NUMBER);
+  public static ValidationError valueError(String vrn, String detail) {
+    return new ValidationError(vrn, VALUE_ERROR_TITLE, detail, EMPTY_LINE_NUMBER);
   }
 
-  public static ValidationError valueError(String vrm, String detail, int lineNumber) {
+  public static ValidationError valueError(String vrn, String detail, int lineNumber) {
     checkLineNumberPrecondition(lineNumber);
-    return new ValidationError(vrm, VALUE_ERROR_TITLE, detail, lineNumber);
+    return new ValidationError(vrn, VALUE_ERROR_TITLE, detail, lineNumber);
   }
 
   public static ValidationError valueError(String detail, int lineNumber) {
@@ -74,7 +74,7 @@ public class ValidationError {
    */
   public static ValidationError from(RegisterJobError registerJobError) {
     return new ValidationError(
-        registerJobError.getVrm(),
+        registerJobError.getVrn(),
         registerJobError.getTitle(),
         registerJobError.getDetail(),
         EMPTY_LINE_NUMBER
@@ -87,7 +87,7 @@ public class ValidationError {
    */
   public static ValidationError copyWithNewDetail(ValidationError source, String newDetail) {
     return new ValidationError(
-        source.getVrm(),
+        source.getVrn(),
         source.getTitle(),
         newDetail,
         source.getLineNumber().orElse(EMPTY_LINE_NUMBER)

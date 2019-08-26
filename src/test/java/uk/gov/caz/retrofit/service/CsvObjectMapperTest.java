@@ -185,7 +185,8 @@ class CsvObjectMapperTest {
   public void shouldIgnoreLinesWithTooFewAttributes() throws IOException {
     // given
     String csvLine = "ZC62OMB,category-2,model-2,2019-05-17\n"
-        + "DL76MWX\n"
+        + "DL76MWX,2019-04-11\n"
+        + "BD76MWY\n"
         + "ND84VSX,category-3,model-3,2019-04-14";
 
     // when
@@ -205,13 +206,13 @@ class CsvObjectMapperTest {
             .vehicleCategory("category-3")
             .model("model-3")
             .dateOfRetrofitInstallation("2019-04-14")
-            .lineNumber(3)
+            .lineNumber(4)
             .build()
     );
     then(result.getRetrofittedVehicles()).containsOnly(expected);
-    then(result.getValidationErrors()).hasOnlyOneElementSatisfying(
+    then(result.getValidationErrors()).allSatisfy(
         validationError -> then(validationError.getDetail())
-            .startsWith("Line 2: Line contains invalid number of fields")
+            .contains("Line contains invalid number of fields")
     );
   }
 

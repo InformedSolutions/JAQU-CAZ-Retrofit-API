@@ -9,7 +9,7 @@ import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 import uk.gov.caz.retrofit.model.ValidationError;
 
 class ModelValidatorTest {
-  private static final String ANY_VRM = "ZC62OMB";
+  private static final String ANY_VRN = "ZC62OMB";
 
   private ModelValidator validator = new ModelValidator();
 
@@ -31,7 +31,7 @@ class ModelValidatorTest {
         // then
         then(validationErrors).containsExactly(
             ValidationError.valueError(
-                ANY_VRM,
+                ANY_VRN,
                 invalidFormatError(invalidModel),
                 lineNumber
             )
@@ -52,7 +52,7 @@ class ModelValidatorTest {
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.valueError(ANY_VRM, invalidFormatError(invalidModel))
+            ValidationError.valueError(ANY_VRN, invalidFormatError(invalidModel))
         );
       }
     }
@@ -68,14 +68,14 @@ class ModelValidatorTest {
 
   private RetrofittedVehicleDto createRetrofittedVehicle(String model) {
     return RetrofittedVehicleDto.builder()
-        .vrn(ANY_VRM)
+        .vrn(ANY_VRN)
         .model(model)
         .build();
   }
 
   private RetrofittedVehicleDto createRetrofittedVehicleWithLineNumber(String model, int lineNumber) {
     return RetrofittedVehicleDto.builder()
-        .vrn(ANY_VRM)
+        .vrn(ANY_VRN)
         .model(model)
         .lineNumber(lineNumber)
         .build();

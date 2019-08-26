@@ -9,7 +9,7 @@ import uk.gov.caz.retrofit.model.ValidationError;
 @JsonInclude(Include.NON_EMPTY)
 public class RegisterJobError {
 
-  String vrm;
+  String vrn;
   String title;
   String detail;
 
@@ -19,7 +19,7 @@ public class RegisterJobError {
    */
   public static RegisterJobError from(ValidationError validationError) {
     return new RegisterJobError(
-        validationError.getVrm(),
+        validationError.getVrn(),
         validationError.getTitle(),
         validationError.getDetail()
     );

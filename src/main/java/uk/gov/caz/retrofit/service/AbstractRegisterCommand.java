@@ -34,7 +34,7 @@ public abstract class AbstractRegisterCommand {
     this.registerService = registerServicesContext.getRegisterService();
     this.exceptionResolver = registerServicesContext.getExceptionResolver();
     this.registerJobSupervisor = registerServicesContext.getRegisterJobSupervisor();
-    this.vehiclesConverter = registerServicesContext.getLicenceConverter();
+    this.vehiclesConverter = registerServicesContext.getDtoToModelConverter();
     this.maxValidationErrorCount = registerServicesContext.getMaxValidationErrorCount();
     this.registerJobId = registerJobId;
     this.correlationId = correlationId;
@@ -44,7 +44,7 @@ public abstract class AbstractRegisterCommand {
 
   abstract List<RetrofittedVehicleDto> getVehiclesToRegister();
 
-  abstract List<ValidationError> getLicencesParseValidationErrors();
+  abstract List<ValidationError> getParseValidationErrors();
 
   /**
    * Method that executes logic common for all providers eg. S3 or REST API.
@@ -68,7 +68,7 @@ public abstract class AbstractRegisterCommand {
 
       if (conversionResults.hasValidationErrors() || hasParseValidationErrors()) {
         List<ValidationError> errors = merge(conversionResults.getValidationErrors(),
-            getLicencesParseValidationErrors());
+            getParseValidationErrors());
         markJobFailed(RegisterJobStatus.FINISHED_FAILURE_VALIDATION_ERRORS, errors);
         return RegisterResult.failure(errors);
       }
@@ -89,11 +89,11 @@ public abstract class AbstractRegisterCommand {
   }
 
   private boolean hasParseValidationErrors() {
-    return !getLicencesParseValidationErrors().isEmpty();
+    return !getParseValidationErrors().isEmpty();
   }
 
   private int parseValidationErrorCount() {
-    return getLicencesParseValidationErrors().size();
+    return getParseValidationErrors().size();
   }
 
   private List<ValidationError> merge(List<ValidationError> a, List<ValidationError> b) {

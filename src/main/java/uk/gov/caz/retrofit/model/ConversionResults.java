@@ -22,7 +22,8 @@ public class ConversionResults {
   /**
    * Creates an instance of {@link ConversionResults} from a list of {@link ConversionResult}. All
    * validation errors from each {@link ConversionResult} are flattened to one list. All
-   * successfully converted licences are collected to a set in {@code licences} attribute.
+   * successfully converted vehicles are collected to a set in {@code retrofittedVehicles}
+   * attribute.
    */
   public static ConversionResults from(List<ConversionResult> conversionResults) {
     List<ValidationError> validationErrors = conversionResults.stream()
