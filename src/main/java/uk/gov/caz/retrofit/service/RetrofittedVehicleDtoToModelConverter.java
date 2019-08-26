@@ -20,7 +20,7 @@ public class RetrofittedVehicleDtoToModelConverter {
    * Converts the passed list of {@link RetrofittedVehicleDto}s to {@link ConversionResults} with
    * the respect to the total number of validation errors that occur while converting. If {@code
    * maxErrorsCount} is zero, then no conversion takes place and an instance of {@link
-   * ConversionResults} is returned with empty licences and validation errors.
+   * ConversionResults} is returned with empty vehicles and validation errors.
    *
    * @param vehicles A list of {@link RetrofittedVehicleDto} which are to be mapped to a list of
    *     {@link RetrofittedVehicle} wrapped in {@link ConversionResults}.
@@ -29,9 +29,9 @@ public class RetrofittedVehicleDtoToModelConverter {
    *     is stopped immediately and the list of validation errors is truncated to satisfy the
    *     predicate: {@code ConversionResults.getValidationErrors().size() <= maxErrorsCount}.
    * @return An instance of {@link ConversionResults} which contains a list of converted vehicles
-   *     into licences and a list of validation errors whose size does not exceed {@code
+   *     into vehicles and a list of validation errors whose size does not exceed {@code
    *     maxErrorsCount} if {@code maxErrorsCount > 0}. If {@code maxErrorsCount == 0} an instance
-   *     of {@link ConversionResults} with with empty licences and validation errors is returned.
+   *     of {@link ConversionResults} with with empty vehicles and validation errors is returned.
    * @throws IllegalArgumentException if {@code maxErrorsCount < 0}.
    */
   public ConversionResults convert(List<RetrofittedVehicleDto> vehicles, int maxErrorsCount) {

@@ -10,10 +10,10 @@ import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 @Builder
 public class ErrorResponse {
 
-  private static final String NO_VRM = "";
+  private static final String NO_VRN = "";
   private static final String VALIDATION_ERROR_TITLE = "Validation error";
 
-  String vrm;
+  String vrn;
   String title;
   String detail;
   Integer status;
@@ -27,7 +27,7 @@ public class ErrorResponse {
    */
   public static ErrorResponse from(ValidationError validationError) {
     return ErrorResponse.builder()
-        .vrm(validationError.getVrm())
+        .vrn(validationError.getVrn())
         .title(validationError.getTitle())
         .detail(validationError.getDetail())
         .status(HttpStatus.BAD_REQUEST.value())
@@ -40,7 +40,7 @@ public class ErrorResponse {
    */
   public static ErrorResponse from(RegisterJobError registerJobError) {
     return ErrorResponse.builder()
-        .vrm(registerJobError.getVrm())
+        .vrn(registerJobError.getVrn())
         .title(registerJobError.getTitle())
         .detail(registerJobError.getDetail())
         .status(HttpStatus.BAD_REQUEST.value())
@@ -49,11 +49,11 @@ public class ErrorResponse {
 
   /**
    * Creates a validation error response, i.e. its title is fixed and equal to 'Validation error',
-   * vrm is an empty string, status is equal to 400 and detail is set to the parameter.
+   * vrn is an empty string, status is equal to 400 and detail is set to the parameter.
    */
   public static ErrorResponse validationErrorResponse(String detail) {
     return ErrorResponse.builder()
-        .vrm(NO_VRM)
+        .vrn(NO_VRN)
         .title(VALIDATION_ERROR_TITLE)
         .detail(detail)
         .status(HttpStatus.BAD_REQUEST.value())

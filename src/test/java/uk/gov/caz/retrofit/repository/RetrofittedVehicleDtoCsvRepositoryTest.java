@@ -176,7 +176,7 @@ class RetrofittedVehicleDtoCsvRepositoryTest {
     mockValidS3HeadObjectResponse();
     mockValidFileReading(content, vehicles);
 
-    assertThat(csvRepository.findAll(ANY_BUCKET, ANY_FILE).getLicences())
+    assertThat(csvRepository.findAll(ANY_BUCKET, ANY_FILE).getVehicles())
         .containsExactlyElementsOf(vehicles);
   }
 

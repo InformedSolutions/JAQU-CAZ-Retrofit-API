@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -20,6 +21,7 @@ import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
 
 @EnableSwagger2
 @Configuration
+@Profile("!integration-tests")
 @Import({BeanValidatorPluginsConfiguration.class, SwaggerApiInfo.class})
 public class SwaggerConfiguration {
 

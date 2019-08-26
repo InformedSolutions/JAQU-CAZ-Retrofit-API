@@ -9,6 +9,6 @@ import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 public class CsvFindResult {
 
   UUID uploaderId;
-  List<RetrofittedVehicleDto> licences;
+  List<RetrofittedVehicleDto> vehicles;
   List<ValidationError> validationErrors;
 }

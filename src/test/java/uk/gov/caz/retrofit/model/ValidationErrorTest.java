@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ValidationErrorTest {
   private static final String ANY_DETAIL = "details";
-  private static final String ANY_VRM = "vrm1";
+  private static final String ANY_VRN = "vrn1";
 
   @ParameterizedTest
   @ValueSource(ints = {-100, -87, -1, 0})
@@ -37,7 +37,7 @@ class ValidationErrorTest {
   @ValueSource(ints = {8, 5, 912, 9012})
   public void shouldIncludeLineNumberInDetailForMissingFieldError(int lineNumber) {
     // when
-    ValidationError error = ValidationError.missingFieldError(ANY_VRM, ANY_DETAIL, lineNumber);
+    ValidationError error = ValidationError.missingFieldError(ANY_VRN, ANY_DETAIL, lineNumber);
 
     // then
     then(error.getDetail()).startsWith("Line " + lineNumber);

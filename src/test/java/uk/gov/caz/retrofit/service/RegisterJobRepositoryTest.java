@@ -110,10 +110,10 @@ class RegisterJobRepositoryTest {
     public void shouldSaveJsonListWithAllParameters() {
       // given
       int registerJobId = 12;
-      String vrm = "123";
+      String vrn = "123";
       String title = "Validation error";
       String detail = "some error";
-      List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError(vrm,
+      List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError(vrn,
           title, detail));
 
       // when
@@ -121,7 +121,7 @@ class RegisterJobRepositoryTest {
 
       // then
       String expected = new StringBuilder().append('[').append('{')
-          .append(jsonField("vrm", vrm))
+          .append(jsonField("vrn", vrn))
           .append(',')
           .append(jsonField("title", title))
           .append(',')
@@ -145,7 +145,7 @@ class RegisterJobRepositoryTest {
 
       // then
       String expected = new StringBuilder().append('[').append('{')
-          .append(jsonField("vrm", "123"))
+          .append(jsonField("vrn", "123"))
           .append(',')
           .append(jsonField("title", "Validation error"))
           .append(',')
@@ -160,13 +160,13 @@ class RegisterJobRepositoryTest {
     }
 
     @Test
-    public void shouldSaveJsonListWithoutVrmWhenVrmIsNull() {
+    public void shouldSaveJsonListWithoutVrnWhenVrnIsNull() {
       // given
       int registerJobId = 12;
-      String vrm = null;
+      String vrn = null;
       String title = "Validation error";
       String detail = "some error";
-      List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError(vrm,
+      List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError(vrn,
           title, detail));
 
       // when
@@ -183,13 +183,13 @@ class RegisterJobRepositoryTest {
     }
 
     @Test
-    public void shouldSaveJsonListWithoutVrmWhenVrmIsEmpty() {
+    public void shouldSaveJsonListWithoutVrnWhenVrnIsEmpty() {
       // given
       int registerJobId = 12;
-      String vrm = "";
+      String vrn = "";
       String title = "Validation error";
       String detail = "some error";
-      List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError(vrm,
+      List<RegisterJobError> errors = Collections.singletonList(new RegisterJobError(vrn,
           title, detail));
 
       // when

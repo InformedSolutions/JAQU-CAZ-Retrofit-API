@@ -19,11 +19,11 @@
 
     <artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-    <codeCoverage.minCoveredRatio>0.90</codeCoverage.minCoveredRatio>
+    <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
     <sonar.coverage.exclusions>
       **/configuration/**/*.java,**/Application.java,**/amazonaws/StreamLambdaHandler.java,
-      **/amazonaws/RegisterCsvFromS3Lambda.java,**/util/AwsHelpers.java,**/dto/*.java
+      **/amazonaws/RetrofitRegisterCsvFromS3Lambda.java,**/util/AwsHelpers.java,**/dto/*.java
     </sonar.coverage.exclusions>
     <sonar.coverage.jacoco.xmlReportPaths>
       ./target/site/jacoco-aggregate/jacoco.xml
@@ -488,7 +488,7 @@
                 <exclude>**/configuration/**/*.class</exclude>
                 <exclude>**/Application.class</exclude>
                 <exclude>**/amazonaws/StreamLambdaHandler.class</exclude>
-                <exclude>**/amazonaws/RegisterCsvFromS3Lambda.class</exclude>
+                <exclude>**/amazonaws/RetrofitRegisterCsvFromS3Lambda.class</exclude>
                 <exclude>**/util/AwsHelpers.class</exclude>
                 <exclude>**/dto/*.class</exclude>
               </excludes>
@@ -567,6 +567,16 @@
                   <dataFile>${project.build.directory}/jacoco-aggregate.exec</dataFile>
                   <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate
                   </outputDirectory>
+                </configuration>
+              </execution>
+              <execution>
+                <id>post-merge-check</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <dataFile>${project.build.directory}/jacoco-aggregate.exec</dataFile>
                 </configuration>
               </execution>
             </executions>
