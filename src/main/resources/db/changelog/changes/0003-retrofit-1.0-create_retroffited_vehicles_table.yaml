@@ -1,12 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: 0004-retrofit-1.0
+      id: 0003.1-retrofit-1.0
       author: adam.jedro
       changes:
         - createTable:
             comment: Create table that holds data extracted from CSV.
             tableName: T_VEHICLE_RETROFIT
-            schemaName: retrofit
             columns:
               - column:
                   name: RETROFIT_ID
@@ -53,4 +52,17 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
+            stripComments: true
+  - changeSet:
+      id: 0003.2-retrofit-1.0
+      author: patryk.lenza
+      changes:
+        - sql:
+            comment: Create Audit Trigger on t_vehicle_retrofit table
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_VEHICLE_RETROFIT_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_VEHICLE_RETROFIT
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
             stripComments: true

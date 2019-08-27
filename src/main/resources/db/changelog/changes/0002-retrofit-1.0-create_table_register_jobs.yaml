@@ -1,11 +1,16 @@
 databaseChangeLog:
   - changeSet:
-      id: 0003.1-retrofit-1.0
+      id: 0002-retrofit-1.0
       author: patryk.lenza
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: public
+              tableName: T_MD_REGISTER_JOBS
       changes:
         - createTable:
             tableName: T_MD_REGISTER_JOBS
-            schemaName: retrofit
             columns:
               - column:
                   name: REGISTER_JOB_ID
@@ -59,31 +64,25 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - createIndex:
-            indexName: T_MD_REGISTER_JOBS_UPLOADER_ID_IDX
-            schemaName: retrofit
+            indexName: T_MD_REGISTER_JOBS_TRIGGER_IDX
             tableName: T_MD_REGISTER_JOBS
             columns:
               - column:
-                  name: UPLOADER_ID
-                  type: UUID
+                  name: TRIGGER
+                  type: varchar(128)
         - createIndex:
             indexName: T_MD_REGISTER_JOBS_JOB_NAME_IDX
-            schemaName: retrofit
             tableName: T_MD_REGISTER_JOBS
             columns:
               - column:
                   name: JOB_NAME
                   type: varchar(256)
-  - changeSet:
-      id: 0003.2-retrofit-1.0
-      author: patryk.lenza
-      changes:
         - sql:
-            comment: Create Audit Trigger on retrofit.REGISTER_JOBS table
+            comment: Create Audit Trigger on REGISTER_JOBS table
             dbms: postgresql
             endDelimiter: ;GO
             splitStatements: true
-            sql: CREATE TRIGGER T_MD_RETROFIT_REGISTER_JOBS_AUDIT
-                 AFTER INSERT OR UPDATE OR DELETE ON retrofit.T_MD_REGISTER_JOBS
-                 FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            sql: CREATE TRIGGER T_MD_REGISTER_JOBS_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_MD_REGISTER_JOBS
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
             stripComments: true
