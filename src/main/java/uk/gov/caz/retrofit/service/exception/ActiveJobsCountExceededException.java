@@ -1,16 +1,16 @@
 package uk.gov.caz.retrofit.service.exception;
 
-import java.util.UUID;
+import uk.gov.caz.retrofit.model.CsvContentType;
 
 public class ActiveJobsCountExceededException extends RuntimeException {
 
-  private final UUID uploaderId;
+  private final CsvContentType csvContentType;
 
-  public ActiveJobsCountExceededException(UUID uploaderId) {
-    this.uploaderId = uploaderId;
+  public ActiveJobsCountExceededException(CsvContentType csvContentType) {
+    this.csvContentType = csvContentType;
   }
 
-  public UUID getUploaderId() {
-    return uploaderId;
+  public CsvContentType getCsvContentType() {
+    return csvContentType;
   }
 }

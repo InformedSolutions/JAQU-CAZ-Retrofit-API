@@ -56,7 +56,7 @@ public class AuditTrailTestIT {
 
   private void whenWeInsertSomeSampleDataIntoRegisterJobsTable(String jobName) {
     jdbcTemplate.update(
-        "INSERT INTO retrofit.t_md_register_jobs(REGISTER_JOB_ID, TRIGGER, JOB_NAME, UPLOADER_ID, STATUS, "
+        "INSERT INTO t_md_register_jobs(REGISTER_JOB_ID, TRIGGER, JOB_NAME, UPLOADER_ID, STATUS, "
             + "CORRELATION_ID, INSERT_TIMESTMP, LAST_MODIFIED_TIMESTMP) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         1, TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(), jobName,
@@ -79,7 +79,7 @@ public class AuditTrailTestIT {
   }
 
   private void whenWeUpdateRegisterJobsTo(String oldJobName, String newJobName) {
-    jdbcTemplate.update("UPDATE retrofit.t_md_register_jobs "
+    jdbcTemplate.update("UPDATE t_md_register_jobs "
             + "set JOB_NAME = ? "
             + "where JOB_NAME = ?",
         newJobName, oldJobName
@@ -91,7 +91,7 @@ public class AuditTrailTestIT {
   }
 
   private void whenWeDeleteRowFromRegisterJobsTable(String jobName) {
-    jdbcTemplate.update("DELETE from retrofit.t_md_register_jobs "
+    jdbcTemplate.update("DELETE from t_md_register_jobs "
         + "where JOB_NAME = ?", jobName);
   }
 

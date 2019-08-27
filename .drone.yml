@@ -23,23 +23,21 @@ steps:
   - name: clean agent
     image: docker
     commands:
-    - docker system prune -f
+      - docker system prune -f
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
 
-  # Build docker images
-  - name: build docker maven base
-    image: docker
+  # Prepare configuration for Maven and Nexus
+  - name: prepare maven and nexus config
+    image: alpine
     commands:
-    - docker build -t retrofit-api-base -f Dockerfile.base .
+      - sed -i 's|${env.JAQU_NEXUS_URL}|'"$JAQU_NEXUS_URL"'|g' ci-cd-resources/settings.ci.xml.template
+      - sed -i 's|${env.JAQU_NEXUS_USER}|'"$JAQU_NEXUS_USER"'|g' ci-cd-resources/settings.ci.xml.template
+      - sed -i 's|${env.JAQU_NEXUS_PASSWORD}|'"$JAQU_NEXUS_PASSWORD"'|g' ci-cd-resources/settings.ci.xml.template
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
-
-  # Unit test
-  - name: unit test
-    image: retrofit-api-base
     environment:
       JAQU_NEXUS_URL:
         from_secret: nexus_url
@@ -47,6 +45,19 @@ steps:
         from_secret: nexus_username
       JAQU_NEXUS_PASSWORD:
         from_secret: nexus_password
+
+  # Build docker images
+  - name: build docker maven base
+    image: docker
+    commands:
+      - docker build -t retrofit-api-base -f ci-cd-resources/Dockerfile.ci.base .
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Unit test
+  - name: unit test
+    image: retrofit-api-base
     volumes:
       - name: package_directory
         path: /drone/src/target
@@ -59,13 +70,6 @@ steps:
   # IT test
   - name: IT test
     image: retrofit-api-base
-    environment:
-      JAQU_NEXUS_URL:
-        from_secret: nexus_url
-      JAQU_NEXUS_USER:
-        from_secret: nexus_username
-      JAQU_NEXUS_PASSWORD:
-        from_secret: nexus_password
     volumes:
       - name: package_directory
         path: /drone/src/target
@@ -82,13 +86,6 @@ steps:
   # Package
   - name: package deployable zip
     image: retrofit-api-base
-    environment:
-      JAQU_NEXUS_URL:
-        from_secret: nexus_url
-      JAQU_NEXUS_USER:
-        from_secret: nexus_username
-      JAQU_NEXUS_PASSWORD:
-        from_secret: nexus_password
     volumes:
       - name: package_directory
         path: /drone/src/target
@@ -147,24 +144,24 @@ steps:
     when:
       event:
         exclude:
-        - pull_request
+          - pull_request
 
 volumes:
 
-- name: docker_sock
-  host:
-    path: /var/run/docker.sock
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
 
-- name: package_directory
-  temp: {}
+  - name: package_directory
+    temp: {}
 
-- name: m2_repo
-  temp: {}
+  - name: m2_repo
+    temp: {}
 
 # Triggers
 trigger:
   branch:
-  - develop
+    - develop
   event:
-  - pull_request
-  - push
+    - pull_request
+    - push

@@ -1,4 +1,4 @@
-package uk.gov.caz.retrofit.service;
+package uk.gov.caz.retrofit.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobName;
@@ -48,7 +49,7 @@ public class RegisterJobRepository {
         + "rj." + COL_STATUS + ", "
         + "rj." + COL_ERRORS + ", "
         + "rj." + COL_CORRELATION_ID + " "
-        + "FROM retrofit.t_md_register_jobs rj ";
+        + "FROM t_md_register_jobs rj ";
   }
 
   private static final String SELECT_BY_REGISTER_JOB_ID =
@@ -57,18 +58,18 @@ public class RegisterJobRepository {
   private static final String SELECT_BY_REGISTER_JOB_NAME =
       selectAllColumns() + "WHERE rj." + COL_JOB_NAME + " = ?";
 
-  private static final String SELECT_COUNT_BY_UPLOADER_ID_AND_STATUS =
-      "SELECT count(*) FROM retrofit.t_md_register_jobs WHERE " + COL_UPLOADER_ID + " = ? "
+  private static final String SELECT_COUNT_BY_TRIGGER_AND_STATUS =
+      "SELECT count(*) FROM t_md_register_jobs WHERE " + COL_TRIGGER + " = ? "
           + "AND (" + COL_STATUS + " = \'" + RegisterJobStatus.STARTING
           + "\' OR " + COL_STATUS + " = \'" + RegisterJobStatus.RUNNING + "\')";
 
-  private static final String UPDATE_STATUS_SQL = "UPDATE retrofit.t_md_register_jobs "
+  private static final String UPDATE_STATUS_SQL = "UPDATE t_md_register_jobs "
       + "SET "
       + COL_STATUS + " = ?, "
       + "last_modified_timestmp = CURRENT_TIMESTAMP "
       + "WHERE " + COL_REGISTER_JOB_ID + " = ?";
 
-  private static final String UPDATE_ERRORS_SQL = "UPDATE retrofit.t_md_register_jobs "
+  private static final String UPDATE_ERRORS_SQL = "UPDATE t_md_register_jobs "
       + "SET "
       + COL_ERRORS + " = ?, "
       + "last_modified_timestmp = CURRENT_TIMESTAMP "
@@ -93,7 +94,6 @@ public class RegisterJobRepository {
     this.jdbcTemplate = jdbcTemplate;
     jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
         .withTableName("t_md_register_jobs")
-        .withSchemaName("retrofit")
         .usingGeneratedKeyColumns(COL_REGISTER_JOB_ID)
         .usingColumns(COL_TRIGGER, COL_JOB_NAME, COL_UPLOADER_ID, COL_STATUS, COL_ERRORS,
             COL_CORRELATION_ID);
@@ -135,14 +135,15 @@ public class RegisterJobRepository {
   }
 
   /**
-   * Counts active (not finished) jobs by the given {@code uploaderId}.
+   * Counts active (not finished) jobs by the given {@link CsvContentType}.
    *
-   * @param uploaderId UUID of {@link RegisterJob} that will be fetched.
+   * @param csvContentType Content type {@link CsvContentType} that will be checked.
    * @return An {@link Integer} of active jobs.
    */
-  public Integer countActiveJobsByUploaderId(UUID uploaderId) {
+  public Integer countActiveJobsByContentType(CsvContentType csvContentType) {
+    RegisterJobTrigger triggeredBy = RegisterJobTrigger.from(csvContentType);
     return jdbcTemplate
-        .queryForObject(SELECT_COUNT_BY_UPLOADER_ID_AND_STATUS, Integer.class, uploaderId);
+        .queryForObject(SELECT_COUNT_BY_TRIGGER_AND_STATUS, Integer.class, triggeredBy.name());
   }
 
   /**
