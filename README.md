@@ -200,7 +200,7 @@ where:
 | Lack of 'uploader-id' metadata                                                               | 'uploader-id' not found in file's metadata                                                                | 
 | Invalid format of 'uploader-id'                                                              | Malformed ID of an entity which want to register vehicles by CSV file. Expected a unique identifier (UUID)| 
 | Too large CSV file                                                                           | Uploaded file is too large. Maximum allowed: 104857600 bytes                                              | 
-| Invalid fields number in CSV                                                                 | Line {}: Line contains invalid number of fields (actual value: 7, allowable values: between 2 and 4).     | 
+| Invalid fields number in CSV                                                                 | Line {}: Line contains invalid number of fields (actual value: {}, allowable value: 4).                   | 
 | Maximum line length exceeded                                                                 | Line {}: Line is too long (actual value: {}, allowed value: 100).                                         | 
 | Invalid format of a line (e.g. it contains invalid characters)                               | Line {}: Line contains invalid character(s), is empty or has trailing comma character.                    | 
 | Potentially included header row                                                              | Line 1: {VALIDATION_ERROR_MSG}. Please make sure you have not included a header row.                      | 
