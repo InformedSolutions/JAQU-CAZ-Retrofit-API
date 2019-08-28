@@ -1,7 +1,13 @@
 databaseChangeLog:
   - changeSet:
-      id: 0003.1-retrofit-1.0
+      id: 0003-retrofit-1.0
       author: adam.jedro
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: public
+              tableName: T_VEHICLE_RETROFIT
       changes:
         - createTable:
             comment: Create table that holds data extracted from CSV.
@@ -54,10 +60,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
             stripComments: true
-  - changeSet:
-      id: 0003.2-retrofit-1.0
-      author: patryk.lenza
-      changes:
         - sql:
             comment: Create Audit Trigger on t_vehicle_retrofit table
             dbms: postgresql
