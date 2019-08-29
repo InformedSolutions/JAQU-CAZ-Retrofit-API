@@ -19,6 +19,8 @@
 
     <artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
+    <internal.libraries.version>1.1-SNAPSHOT</internal.libraries.version>
+
     <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
     <sonar.coverage.exclusions>
@@ -56,6 +58,24 @@
   </dependencyManagement>
 
   <dependencies>
+
+    <!-- Internal libraries : begin -->
+    <dependency>
+      <groupId>uk.gov.caz</groupId>
+      <artifactId>global-exception-mapper</artifactId>
+      <version>${internal.libraries.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.caz</groupId>
+      <artifactId>correlation-id</artifactId>
+      <version>${internal.libraries.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.caz</groupId>
+      <artifactId>logger</artifactId>
+      <version>${internal.libraries.version}</version>
+    </dependency>
+    <!-- Internal libraries : end -->
 
     <dependency>
       <groupId>com.google.guava</groupId>
