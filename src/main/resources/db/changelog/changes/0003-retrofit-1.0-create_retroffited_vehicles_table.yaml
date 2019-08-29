@@ -50,7 +50,7 @@ databaseChangeLog:
               - column:
                   name: WHITELIST_DISCOUNT_CODE
                   type: varchar(32)
-                  defaultValue: WDC002 - RETROFIT
+                  defaultValue: WDC002
                   constraints:
                     nullable: true
               - column:
