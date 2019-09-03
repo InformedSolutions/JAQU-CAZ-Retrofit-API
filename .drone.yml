@@ -124,7 +124,7 @@ steps:
     image: hashicorp/terraform:0.12.3
     commands:
       - mkdir /root/.ssh
-      - echo -n "$SSH_KEY" > /root/.ssh/id_rsa
+      - echo -n "$GIT_PRIVATE_SSH" > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
       - touch /root/.ssh/known_hosts
       - chmod 600 /root/.ssh/known_hosts
