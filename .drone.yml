@@ -119,7 +119,7 @@ steps:
         -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
         -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
 
-  # Invoke terraform apply
+  # Invoke terraform apply for dev
   - name: deploy to dev
     image: hashicorp/terraform:0.12.3
     commands:
@@ -154,7 +154,7 @@ steps:
           - pull_request
       branch: develop
 
-  # Invoke terraform apply
+  # Invoke terraform apply for sit
   - name: deploy to sit
     image: hashicorp/terraform:0.12.3
     commands:
