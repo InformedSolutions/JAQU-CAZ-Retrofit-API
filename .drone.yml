@@ -120,7 +120,7 @@ steps:
         -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
 
   # Invoke terraform apply
-  - name: deploy
+  - name: deploy to dev
     image: hashicorp/terraform:0.12.3
     commands:
       - mkdir /root/.ssh
@@ -152,6 +152,43 @@ steps:
       event:
         exclude:
           - pull_request
+      branch: develop
+
+  # Invoke terraform apply
+  - name: deploy to sit
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - mkdir /root/.ssh
+      - echo -n "$GIT_PRIVATE_SSH" > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
+      - touch /root/.ssh/known_hosts
+      - chmod 600 /root/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC/terraform/projects/retrofit-api/environments/sit
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - terraform init
+      - terraform workspace select sit || terraform workspace new sit
+      - terraform init
+      - terraform apply -auto-approve
+    environment:
+      TF_VAR_access_key:
+        from_secret: aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: aws_secret_access_key
+      TF_VAR_db_user: vccsuser
+      TF_VAR_db_password:
+        from_secret: db_password
+      GIT_PRIVATE_SSH:
+        from_secret: github_private_key
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        exclude:
+          - pull_request
+      branch: release/*
 
 volumes:
 
@@ -169,6 +206,7 @@ volumes:
 trigger:
   branch:
     - develop
+    - release/*
   event:
     - pull_request
     - push
