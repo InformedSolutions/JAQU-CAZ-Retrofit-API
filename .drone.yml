@@ -140,7 +140,7 @@ steps:
         from_secret: aws_access_key_id
       TF_VAR_secret_key:
         from_secret: aws_secret_access_key
-      TF_VAR_db_user: vccsuser
+      TF_VAR_db_user: vccsservice
       TF_VAR_db_password:
         from_secret: db_password
       GIT_PRIVATE_SSH:
@@ -176,7 +176,7 @@ steps:
         from_secret: aws_access_key_id
       TF_VAR_secret_key:
         from_secret: aws_secret_access_key
-      TF_VAR_db_user: vccsuser
+      TF_VAR_db_user: vccsservice
       TF_VAR_db_password:
         from_secret: db_password
       GIT_PRIVATE_SSH:
