@@ -123,18 +123,34 @@ steps:
   - name: deploy to dev
     image: hashicorp/terraform:0.12.3
     commands:
-      - mkdir /root/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > /root/.ssh/id_rsa
-      - chmod 600 /root/.ssh/id_rsa
-      - touch /root/.ssh/known_hosts
-      - chmod 600 /root/.ssh/known_hosts
+      - apk update && apk add bash
+      - mkdir ~/.ssh
+      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
-      - cd JAQU-CAZ-IAC/terraform/projects/retrofit-api/environments/dev
+      - cd JAQU-CAZ-IAC
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
-      - terraform init
-      - terraform workspace select dev
-      - terraform apply -auto-approve
+      - cd terraform/projects/retrofit/layers/00.global
+      - PATH=$PATH:../../../../bin/
+      - chmod +x ../../../../bin/tf
+      - tf init
+      - tf workspace select default
+      - tf apply -auto-approve
+      - cd ../01.networking
+      - tf init
+      - tf workspace select dev
+      - tf apply -auto-approve
+      - cd ../02.backends
+      - tf init
+      - tf workspace select dev
+      - tf apply -auto-approve
+      - cd ../03.api
+      - tf init
+      - tf workspace select dev
+      - tf apply -auto-approve
     environment:
       TF_VAR_access_key:
         from_secret: aws_access_key_id
