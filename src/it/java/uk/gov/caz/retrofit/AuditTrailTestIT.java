@@ -2,7 +2,9 @@ package uk.gov.caz.retrofit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,15 +15,20 @@ import uk.gov.caz.retrofit.annotation.IntegrationTest;
 import uk.gov.caz.testutils.TestObjects;
 
 @IntegrationTest
-@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = {
+    "classpath:data/sql/clear.sql",
+    "classpath:data/sql/add-audit-log-data.sql"},
+    executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "classpath:data/sql/delete-audit-log-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 public class AuditTrailTestIT {
 
   private static final String AUDIT_LOGGED_ACTIONS_TABLE = "audit.logged_actions";
-  private static final LocalDate DATE = LocalDate.of(2019, 8, 14);
 
   @Autowired
   private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @Test
   public void testInsertUpdateDeleteOperationsAgainstAuditTrailTable() {
@@ -31,16 +38,16 @@ public class AuditTrailTestIT {
     whenWeInsertSomeSampleDataIntoRegisterJobsTable("InitialJobName");
     thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(1);
     andThereShouldBeExactlyOneInsertActionLogged();
-    withNewDataLike(
-        "(1,RETROFIT_CSV_FROM_S3,InitialJobName,11111111-2222-3333-4444-555555555555,RUNNING,,CorrelationId,\"2019-08-14 00:00:00\",\"2019-08-14 00:00:00\")");
+    withNewDataLike("RETROFIT_CSV_FROM_S3", "InitialJobName",
+        "11111111-2222-3333-4444-555555555555", "RUNNING");
 
     // UPDATE case
     whenWeUpdateRegisterJobsTo("InitialJobName", "ModifiedJobName");
 
     thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(2);
     andThereShouldBeExactlyOneUpdateActionLogged();
-    withNewDataLike(
-        "(1,RETROFIT_CSV_FROM_S3,ModifiedJobName,11111111-2222-3333-4444-555555555555,RUNNING,,CorrelationId,\"2019-08-14 00:00:00\",\"2019-08-14 00:00:00\")");
+    withNewDataLike("RETROFIT_CSV_FROM_S3", "ModifiedJobName",
+        "11111111-2222-3333-4444-555555555555", "RUNNING");
 
     // DELETE case
     whenWeDeleteRowFromRegisterJobsTable("ModifiedJobName");
@@ -56,30 +63,28 @@ public class AuditTrailTestIT {
 
   private void whenWeInsertSomeSampleDataIntoRegisterJobsTable(String jobName) {
     jdbcTemplate.update(
-        "INSERT INTO t_md_register_jobs(REGISTER_JOB_ID, TRIGGER, JOB_NAME, UPLOADER_ID, STATUS, "
-            + "CORRELATION_ID, INSERT_TIMESTMP, LAST_MODIFIED_TIMESTMP) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        1, TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(), jobName,
-        TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, "RUNNING", TestObjects.TYPICAL_CORRELATION_ID,
-        DATE, DATE);
+        "INSERT INTO table_for_audit_test(TRIGGER, JOB_NAME, UPLOADER_ID, STATUS) "
+            + "VALUES (?, ?, ?, ?)", TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(),
+        jobName, TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, "RUNNING");
   }
 
   private void thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(
       int expectedNumberOfRows) {
     checkIfAuditTableContainsNumberOfRows(expectedNumberOfRows,
-        "TABLE_NAME = 't_md_register_jobs'");
+        "TABLE_NAME = 'table_for_audit_test'");
   }
 
   private void andThereShouldBeExactlyOneInsertActionLogged() {
     checkIfAuditTableContainsNumberOfRows(1, "action = 'I'");
   }
 
-  private void withNewDataLike(String expectedNewData) {
-    checkIfAuditTableContainsNumberOfRows(1, "new_data like '" + expectedNewData + "%'");
+  private void withNewDataLike(String trigger, String jobName, String uploaderId, String status) {
+    checkIfAuditTableContainsNumberOfRows(1,
+        "'" + toJson(trigger, jobName, uploaderId, status) + "'::jsonb @> new_data");
   }
 
   private void whenWeUpdateRegisterJobsTo(String oldJobName, String newJobName) {
-    jdbcTemplate.update("UPDATE t_md_register_jobs "
+    jdbcTemplate.update("UPDATE table_for_audit_test "
             + "set JOB_NAME = ? "
             + "where JOB_NAME = ?",
         newJobName, oldJobName
@@ -91,7 +96,7 @@ public class AuditTrailTestIT {
   }
 
   private void whenWeDeleteRowFromRegisterJobsTable(String jobName) {
-    jdbcTemplate.update("DELETE from t_md_register_jobs "
+    jdbcTemplate.update("DELETE from table_for_audit_test "
         + "where JOB_NAME = ?", jobName);
   }
 
@@ -121,6 +126,17 @@ public class AuditTrailTestIT {
                 + " table matching where clause '%s'",
             expectedNumberOfRowsInAuditTable, whereClause)
         .isEqualTo(expectedNumberOfRowsInAuditTable);
+  }
+
+  @SneakyThrows
+  private String toJson(String trigger, String jobName, String uploaderId,
+      String status) {
+    return objectMapper.writeValueAsString(ImmutableMap.of(
+        "trigger", trigger,
+        "job_name", jobName,
+        "uploader_id", uploaderId,
+        "status", status
+    ));
   }
 }
 
