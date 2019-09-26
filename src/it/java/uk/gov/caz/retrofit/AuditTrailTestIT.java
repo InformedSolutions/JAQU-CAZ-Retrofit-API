@@ -35,8 +35,8 @@ public class AuditTrailTestIT {
     atTheBeginningAuditLoggedActionsTableShouldBeEmpty();
 
     // INSERT case
-    whenWeInsertSomeSampleDataIntoRegisterJobsTable("InitialJobName");
-    thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(1);
+    whenWeInsertSomeSampleDataIntoTestTable("InitialJobName");
+    thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(1);
     andThereShouldBeExactlyOneInsertActionLogged();
     withNewDataLike("RETROFIT_CSV_FROM_S3", "InitialJobName",
         "11111111-2222-3333-4444-555555555555", "RUNNING");
@@ -44,7 +44,7 @@ public class AuditTrailTestIT {
     // UPDATE case
     whenWeUpdateRegisterJobsTo("InitialJobName", "ModifiedJobName");
 
-    thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(2);
+    thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(2);
     andThereShouldBeExactlyOneUpdateActionLogged();
     withNewDataLike("RETROFIT_CSV_FROM_S3", "ModifiedJobName",
         "11111111-2222-3333-4444-555555555555", "RUNNING");
@@ -52,7 +52,7 @@ public class AuditTrailTestIT {
     // DELETE case
     whenWeDeleteRowFromRegisterJobsTable("ModifiedJobName");
 
-    thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(3);
+    thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(3);
     andThereShouldBeExactlyOneDeleteActionLogged();
     withNewDataEqualToNull();
   }
@@ -61,14 +61,14 @@ public class AuditTrailTestIT {
     checkIfAuditTableContainsNumberOfRows(0);
   }
 
-  private void whenWeInsertSomeSampleDataIntoRegisterJobsTable(String jobName) {
+  private void whenWeInsertSomeSampleDataIntoTestTable(String jobName) {
     jdbcTemplate.update(
         "INSERT INTO table_for_audit_test(TRIGGER, JOB_NAME, UPLOADER_ID, STATUS) "
             + "VALUES (?, ?, ?, ?)", TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(),
         jobName, TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, "RUNNING");
   }
 
-  private void thenNumberOfRowsInAuditLoggedActionsTableForRegisterJobsShouldBe(
+  private void thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(
       int expectedNumberOfRows) {
     checkIfAuditTableContainsNumberOfRows(expectedNumberOfRows,
         "TABLE_NAME = 'table_for_audit_test'");
