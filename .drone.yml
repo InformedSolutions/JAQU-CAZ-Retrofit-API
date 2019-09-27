@@ -203,6 +203,59 @@ steps:
           - pull_request
       branch: release/*
 
+      # Build end to end tests docker image
+  - name: build end to end test image
+    image: docker:git
+    commands:
+      - mkdir ~/.ssh
+      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-QA-selenium.git
+      - cd JAQU-CAZ-QA-selenium
+      - docker build -t selenium-jaqu .
+    environment:
+      GIT_PRIVATE_SSH:
+        from_secret: github_private_key
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    # when:
+    #   event:
+    #     exclude:
+    #     - pull_request
+    #   branch: develop
+
+    # Run end to end tests
+  - name: run end to end tests
+    image: selenium-jaqu
+    pull: never
+    environment:
+      BS_USERNAME:
+        from_secret: browserstack_username
+      BS_AUTHKEY:
+        from_secret: browserstack_auth_key
+      BASEURL_RETRO: 'http://retrofit-alb-dev-1428410439.eu-west-2.elb.amazonaws.com/'
+      VALID_USERNAME: 'edmond.chhung@informed.com'
+      VALID_PASSWORD: 'Edc123.,'
+      BROWSER_SET: 'mid'
+      SCREENSHOT_TYPE: 'base'
+      VCCS_USER: 'vccsservice'
+      VCCS_PASSWORD: 'Password001!'
+      SPECTRE: false
+      LOCATION: browserstack
+    commands:
+      - export BUILD=RETRO-API-$DRONE_BUILD_NUMBER
+      - cd JAQU-CAZ-QA-selenium
+      - cucumber -t @RETRO --retry 3
+    # when:
+    #   event:
+    #     exclude:
+    #     - pull_request
+    #   branch: develop
+
 volumes:
 
   - name: docker_sock
@@ -280,3 +333,17 @@ name: nexus_password
 get:
   path: /secret/drone.global
   name: nexusPassword
+
+---
+kind: secret
+name: browserstack_auth_key
+get:
+  path: /secret/drone.global
+  name: browserStackAuthKey
+
+---
+kind: secret
+name: browserstack_username
+get:
+  path: /secret/drone.global
+  name: browserStackUsername
