@@ -240,7 +240,7 @@ steps:
       BASEURL_RETRO: 'http://retrofit-alb-dev-1428410439.eu-west-2.elb.amazonaws.com/'
       VALID_USERNAME: 'edmond.chhung@informed.com'
       VALID_PASSWORD: 'Edc123.,'
-      BROWSER_SET: 'mid'
+      BROWSER_SET: 'min'
       SCREENSHOT_TYPE: 'base'
       VCCS_USER: 'vccsservice'
       VCCS_PASSWORD: 'Password001!'
