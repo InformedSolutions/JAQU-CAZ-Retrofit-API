@@ -1,6 +1,5 @@
 package uk.gov.caz.retrofit.controller;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.caz.retrofit.controller.Constants.CORRELATION_ID_HEADER;
 
 import java.util.Optional;
@@ -8,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.caz.retrofit.dto.ErrorsResponse;
@@ -155,11 +153,5 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
         .status(HttpStatus.NOT_ACCEPTABLE)
         .body(ErrorsResponse
             .singleValidationErrorResponse("Previous retrofit register job has not finished yet"));
-  }
-
-  @ExceptionHandler(MissingRequestHeaderException.class)
-  ResponseEntity<String> handleMissingHeaderException(MissingRequestHeaderException e) {
-    log.error("Missing request header: ", e);
-    return ResponseEntity.status(BAD_REQUEST).body(e.getMessage());
   }
 }

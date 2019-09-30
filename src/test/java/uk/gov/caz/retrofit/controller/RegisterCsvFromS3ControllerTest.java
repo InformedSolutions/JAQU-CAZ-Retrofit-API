@@ -32,7 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import uk.gov.caz.GlobalExceptionHandlerConfiguration;
+import uk.gov.caz.correlationid.Configuration;
 import uk.gov.caz.retrofit.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobName;
@@ -45,7 +49,9 @@ import uk.gov.caz.retrofit.service.RegisterJobSupervisor;
 import uk.gov.caz.retrofit.service.RegisterJobSupervisor.StartParams;
 import uk.gov.caz.retrofit.service.exception.FatalErrorWithCsvFileMetadataException;
 
-@WebMvcTest(RegisterCsvFromS3Controller.class)
+@ContextConfiguration(classes = {GlobalExceptionHandlerConfiguration.class, Configuration.class,
+    RegisterCsvFromS3Controller.class})
+@WebMvcTest
 class RegisterCsvFromS3ControllerTest {
 
   private static final String S3_BUCKET = "s3Bucket";
@@ -174,8 +180,7 @@ class RegisterCsvFromS3ControllerTest {
             .content(objectMapper.writeValueAsString(cmd))
             .accept(MediaType.APPLICATION_JSON_UTF8_VALUE))
         .andExpect(status().isBadRequest())
-        .andExpect(content().string(
-            "Missing request header 'X-Correlation-ID' for method parameter of type String"));
+        .andExpect(jsonPath("$.message").value("Missing request header 'X-Correlation-ID'"));
   }
 
   private void mockSupervisor() {
