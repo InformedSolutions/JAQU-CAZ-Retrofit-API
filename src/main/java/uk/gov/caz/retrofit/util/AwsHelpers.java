@@ -6,7 +6,7 @@ import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.google.common.base.Splitter;
 import lombok.experimental.UtilityClass;
-import uk.gov.caz.retrofit.Application;
+import uk.gov.caz.Application;
 
 @UtilityClass
 public final class AwsHelpers {
