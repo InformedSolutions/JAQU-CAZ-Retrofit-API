@@ -19,12 +19,12 @@
 
     <artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-    <internal.libraries.version>1.3-SNAPSHOT</internal.libraries.version>
+    <internal.libraries.version>1.5-SNAPSHOT</internal.libraries.version>
 
     <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
     <sonar.coverage.exclusions>
-      **/configuration/**/*.java,**/Application.java,**/amazonaws/StreamLambdaHandler.java,
+      **/configuration/**/*.java,**/amazonaws/StreamLambdaHandler.java,
       **/amazonaws/RetrofitRegisterCsvFromS3Lambda.java,**/util/AwsHelpers.java,**/dto/*.java
     </sonar.coverage.exclusions>
     <sonar.coverage.jacoco.xmlReportPaths>
@@ -73,6 +73,11 @@
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>logger</artifactId>
+      <version>${internal.libraries.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>uk.gov.caz</groupId>
+      <artifactId>aws-lambda-base</artifactId>
       <version>${internal.libraries.version}</version>
     </dependency>
     <!-- Internal libraries : end -->
@@ -511,7 +516,6 @@
 
               <excludes>
                 <exclude>**/configuration/**/*.class</exclude>
-                <exclude>**/Application.class</exclude>
                 <exclude>**/amazonaws/StreamLambdaHandler.class</exclude>
                 <exclude>**/amazonaws/RetrofitRegisterCsvFromS3Lambda.class</exclude>
                 <exclude>**/util/AwsHelpers.class</exclude>

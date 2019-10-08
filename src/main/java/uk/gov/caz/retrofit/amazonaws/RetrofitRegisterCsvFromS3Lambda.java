@@ -10,7 +10,9 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import uk.gov.caz.correlationid.Constants;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 import uk.gov.caz.retrofit.util.AwsHelpers;
@@ -38,15 +40,28 @@ public class RetrofitRegisterCsvFromS3Lambda implements
     Stopwatch timer = Stopwatch.createStarted();
     initializeHandlerAndService();
     log.info("Handler initialization took {}", timer.elapsed(TimeUnit.MILLISECONDS));
-    String registerResult = String.valueOf(
-        sourceAwareRegisterService.register(
-            registerCsvFromS3LambdaInput.getS3Bucket(),
-            registerCsvFromS3LambdaInput.getFileName(),
-            registerCsvFromS3LambdaInput.getRegisterJobId(),
-            registerCsvFromS3LambdaInput.getCorrelationId())
-            .isSuccess());
-    log.info("Register method took {}", timer.stop().elapsed(TimeUnit.MILLISECONDS));
-    return registerResult;
+    try {
+      setCorrelationIdInMdc(registerCsvFromS3LambdaInput.getCorrelationId());
+      String registerResult = String.valueOf(
+          sourceAwareRegisterService.register(
+              registerCsvFromS3LambdaInput.getS3Bucket(),
+              registerCsvFromS3LambdaInput.getFileName(),
+              registerCsvFromS3LambdaInput.getRegisterJobId(),
+              registerCsvFromS3LambdaInput.getCorrelationId())
+              .isSuccess());
+      log.info("Register method took {}", timer.stop().elapsed(TimeUnit.MILLISECONDS));
+      return registerResult;
+    } finally {
+      removeCorrelationIdFromMdc();
+    }
+  }
+
+  private void setCorrelationIdInMdc(String correlationId) {
+    MDC.put(Constants.X_CORRELATION_ID_HEADER, correlationId);
+  }
+
+  private void removeCorrelationIdFromMdc() {
+    MDC.remove(Constants.X_CORRELATION_ID_HEADER);
   }
 
   private boolean isWarmerPing(RegisterCsvFromS3LambdaInput registerCsvFromS3LambdaInput) {
