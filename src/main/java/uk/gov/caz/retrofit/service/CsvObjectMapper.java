@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
@@ -124,7 +125,7 @@ public class CsvObjectMapper {
 
   private RetrofittedVehicleDto createRetrofittedVehicle(String[] fields, int lineNo) {
     return RetrofittedVehicleDto.builder()
-        .vrn(fields[0])
+        .vrn(StringUtils.deleteWhitespace(fields[0]))
         .vehicleCategory(Strings.emptyToNull(fields[1]))
         .model(Strings.emptyToNull(fields[2]))
         .dateOfRetrofitInstallation(fields[3])
