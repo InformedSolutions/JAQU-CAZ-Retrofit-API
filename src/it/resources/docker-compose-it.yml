@@ -12,7 +12,7 @@ services:
       POSTGRES_DB: caz_vcc
 
   localstack-it:
-    image: localstack/localstack
+    image: localstack/localstack:0.10.2
     ports:
       - "4572:4572"
     environment:

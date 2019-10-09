@@ -11,7 +11,7 @@ services:
     ports:
       - 5432
   - name: localstack
-    image: localstack/localstack
+    image: localstack/localstack:0.10.2
     environment:
       SERVICES: s3
     ports:
