@@ -15,7 +15,7 @@ public class ValidationError {
   private static final String VALUE_ERROR_TITLE = "Value error";
   private static final String MANDATORY_FIELD_MISSING_ERROR_TITLE = "Mandatory field missing";
   private static final String S3_ERROR_TITLE = "S3 error";
-
+  private static final String REQUEST_PROCESSING_ERROR_TITLE = "Request processing error";
   private static int EMPTY_LINE_NUMBER = 0;
 
   private static final ValidationError UNKNOWN_ERROR = new ValidationError(null, "Unknown error",
@@ -104,5 +104,16 @@ public class ValidationError {
 
   private static void checkLineNumberPrecondition(int lineNumber) {
     Preconditions.checkArgument(lineNumber > 0, "Line number must be positive");
+  }
+  
+  /**
+   * Creates {@link ValidationError} for a case of the request processing error.
+   *
+   * @param detail Detailed description of the error.
+   * @return {@link ValidationError} with proper data.
+   */
+  public static ValidationError requestProcessingError(String detail) {
+    return new ValidationError(null, REQUEST_PROCESSING_ERROR_TITLE, detail,
+        EMPTY_LINE_NUMBER);
   }
 }
