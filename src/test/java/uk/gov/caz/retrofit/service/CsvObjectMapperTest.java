@@ -112,6 +112,19 @@ class CsvObjectMapperTest {
   }
 
   @Test
+  public void shouldRemoveAllWhitespacesFromVrn() throws IOException {
+    // given
+    String csvLine = "Z   C 62   OMB,category-2,model-2,2019-05-17";
+
+    // when
+    CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
+
+    // then
+    then(result.getRetrofittedVehicles()).isNotEmpty();
+    then(result.getRetrofittedVehicles().get(0).getVrn()).isEqualTo("ZC62OMB");
+  }
+
+  @Test
   public void shouldIgnoreTooLongLines() throws IOException {
     // given
     String csvLine = "ZC62OMB,category-2,model-2,2019-05-17" + Strings.repeat("ab", 100);
