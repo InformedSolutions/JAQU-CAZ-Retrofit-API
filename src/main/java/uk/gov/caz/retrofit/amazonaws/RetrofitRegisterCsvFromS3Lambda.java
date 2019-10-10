@@ -5,6 +5,8 @@ import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
@@ -14,6 +16,7 @@ import org.slf4j.MDC;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.gov.caz.correlationid.Constants;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
+import uk.gov.caz.retrofit.service.RegisterResult;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 import uk.gov.caz.retrofit.util.AwsHelpers;
 
@@ -38,22 +41,30 @@ public class RetrofitRegisterCsvFromS3Lambda implements
         .checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getCorrelationId()),
             "Invalid input, 'correlationId' is blank or null");
     Stopwatch timer = Stopwatch.createStarted();
+    ObjectMapper obj = new ObjectMapper();
+    String registerResult = "false";
     initializeHandlerAndService();
     log.info("Handler initialization took {}", timer.elapsed(TimeUnit.MILLISECONDS));
     try {
       setCorrelationIdInMdc(registerCsvFromS3LambdaInput.getCorrelationId());
-      String registerResult = String.valueOf(
-          sourceAwareRegisterService.register(
-              registerCsvFromS3LambdaInput.getS3Bucket(),
-              registerCsvFromS3LambdaInput.getFileName(),
-              registerCsvFromS3LambdaInput.getRegisterJobId(),
-              registerCsvFromS3LambdaInput.getCorrelationId())
-              .isSuccess());
+      RegisterResult result = sourceAwareRegisterService.register(
+            registerCsvFromS3LambdaInput.getS3Bucket(),
+            registerCsvFromS3LambdaInput.getFileName(),
+            registerCsvFromS3LambdaInput.getRegisterJobId(),
+            registerCsvFromS3LambdaInput.getCorrelationId());
+      registerResult = String.valueOf(result.isSuccess());
       log.info("Register method took {}", timer.stop().elapsed(TimeUnit.MILLISECONDS));
-      return registerResult;
+    } catch (OutOfMemoryError error) {
+      try {
+        log.info("OutOfMemoryError RegisterCsvFromS3Lambda {}",
+            obj.writeValueAsString(registerCsvFromS3LambdaInput));
+      } catch (JsonProcessingException e) {
+        log.error("JsonProcessingException", e);
+      } 
     } finally {
       removeCorrelationIdFromMdc();
     }
+    return registerResult;
   }
 
   private void setCorrelationIdInMdc(String correlationId) {
