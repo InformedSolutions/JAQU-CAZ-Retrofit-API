@@ -1,5 +1,48 @@
+  ################################################### YAML Anchors ########################################################
+
+  # Note that these are used when common environment variables are present in a step to reduce repetition - see terraform steps
+
+global-variables:
+  environment: &shared_terraform_credentials
+    TF_VAR_access_key:
+      from_secret: aws_access_key_id
+    TF_VAR_secret_key:
+      from_secret: aws_secret_access_key
+    TF_VAR_account_id:
+      from_secret: aws_account_id
+    GIT_PRIVATE_SSH:
+      from_secret: github_private_key
+
+  ################################################# End YAML Anchors ########################################################
+
+
+
 kind: pipeline
-name: ci
+type: docker
+name: retrofit-api
+
+trigger:
+  branch:
+    - develop
+    - release/*
+    - staging
+    - master
+  event:
+    - pull_request
+    - push
+concurrency:
+  limit: 1
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+  - name: package_directory
+    temp: {}
+
+  - name: m2_repo
+    temp: {}
 
 services:
   - name: postgres
@@ -19,6 +62,8 @@ services:
 
 steps:
 
+  ################################################### DEV/SIT Steps ########################################################
+
   # Clean agent images and containers to prevent disk space overuse
   - name: clean agent
     image: docker
@@ -28,24 +73,6 @@ steps:
       - name: docker_sock
         path: /var/run/docker.sock
 
-  # Prepare configuration for Maven and Nexus
-  - name: prepare maven and nexus config
-    image: alpine
-    commands:
-      - sed -i 's|${env.JAQU_NEXUS_URL}|'"$JAQU_NEXUS_URL"'|g' ci-cd-resources/settings.ci.xml.template
-      - sed -i 's|${env.JAQU_NEXUS_USER}|'"$JAQU_NEXUS_USER"'|g' ci-cd-resources/settings.ci.xml.template
-      - sed -i 's|${env.JAQU_NEXUS_PASSWORD}|'"$JAQU_NEXUS_PASSWORD"'|g' ci-cd-resources/settings.ci.xml.template
-    volumes:
-      - name: docker_sock
-        path: /var/run/docker.sock
-    environment:
-      JAQU_NEXUS_URL:
-        from_secret: nexus_url
-      JAQU_NEXUS_USER:
-        from_secret: nexus_username
-      JAQU_NEXUS_PASSWORD:
-        from_secret: nexus_password
-
   # Build docker images
   - name: build docker maven base
     image: docker
@@ -54,6 +81,10 @@ steps:
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
+    when:
+      branch: 
+        - develop
+        - release/*
 
   # Unit test
   - name: unit test
@@ -66,7 +97,18 @@ steps:
     pull: never
     commands:
       - mvn test -P jacoco --no-transfer-progress
-
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+    when:
+      branch: 
+        - develop
+        - release/*
+        
   # IT test
   - name: IT test
     image: retrofit-api-base
@@ -77,11 +119,21 @@ steps:
         path: /root/.m2
     pull: never
     environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
       BUILD_ID: ${DRONE_BUILD_NUMBER}
       POSTGRES_URL: postgres:5432
       AWS_S3_URL: localstack:4572
     commands:
       - mvn verify -DskipUnitTests -P jacoco --no-transfer-progress
+    when:
+      branch: 
+        - develop
+        - release/*
 
   # Package
   - name: package deployable zip
@@ -92,10 +144,32 @@ steps:
       - name: m2_repo
         path: /root/.m2
     environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
       BUILD_ID: ${DRONE_BUILD_NUMBER}
     pull: never
     commands:
       - mvn package -DskipUnitTests --no-transfer-progress
+    when:
+      branch: 
+        - develop
+        - release/*
+
+  ################################################### End Dev/SIT Steps #######################################################
+  
+
+
+
+
+
+
+  ################################################### Development Only #######################################################
+
+
 
   # Scan with sonar
   - name: sonar scan
@@ -106,18 +180,27 @@ steps:
       - name: m2_repo
         path: /root/.m2
     environment:
-      sonar_host:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+      SONAR_HOST:
         from_secret: sonar_host
-      sonar_token:
+      SONAR_TOKEN:
         from_secret: sonar_token
     pull: never
     commands:
-      - mvn sonar:sonar -Dsonar.host.url=$sonar_host
+      - mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST
         -Dsonar.projectKey=${DRONE_REPO}
         -Dsonar.projectName=${DRONE_REPO}
-        -Dsonar.login=$sonar_token
+        -Dsonar.login=$SONAR_TOKEN
         -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
         -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
+    when:
+      branch: 
+        - develop
 
   # Invoke terraform apply for dev
   - name: deploy to dev
@@ -167,62 +250,13 @@ steps:
           - pull_request
       branch: develop
 
-  # Invoke terraform apply for sit
-  - name: deploy to sit
-    image: hashicorp/terraform:0.12.3
-    commands:
-      - mkdir /root/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > /root/.ssh/id_rsa
-      - chmod 600 /root/.ssh/id_rsa
-      - touch /root/.ssh/known_hosts
-      - chmod 600 /root/.ssh/known_hosts
-      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
-      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
-      - cd JAQU-CAZ-IAC/terraform/projects/retrofit-api/environments/sit
-      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
-      - terraform init
-      - terraform workspace select sit || terraform workspace new sit
-      - terraform init
-      - terraform apply -auto-approve
-    environment:
-      TF_VAR_access_key:
-        from_secret: aws_access_key_id
-      TF_VAR_secret_key:
-        from_secret: aws_secret_access_key
-      TF_VAR_db_user: vccsservice
-      TF_VAR_db_password:
-        from_secret: db_password
-      GIT_PRIVATE_SSH:
-        from_secret: github_private_key
-    volumes:
-      - name: package_directory
-        path: /opt/package
-    when:
-      event:
-        exclude:
-          - pull_request
-      branch: release/*
+  ################################################# End Development Only #######################################################
 
-volumes:
 
-  - name: docker_sock
-    host:
-      path: /var/run/docker.sock
 
-  - name: package_directory
-    temp: {}
 
-  - name: m2_repo
-    temp: {}
 
-# Triggers
-trigger:
-  branch:
-    - develop
-    - release/*
-  event:
-    - pull_request
-    - push
+  ################################################ Secrets #########################################################
 
 # Note the below values are pulled from AWS Secrets Manager via the aws-secrets Drone plugin
 ---
@@ -280,3 +314,5 @@ name: nexus_password
 get:
   path: /secret/drone.global
   name: nexusPassword
+  
+  ################################################ End Secrets #########################################################
