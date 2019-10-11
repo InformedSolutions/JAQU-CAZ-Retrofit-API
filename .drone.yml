@@ -82,7 +82,7 @@ steps:
       - name: docker_sock
         path: /var/run/docker.sock
     when:
-      branch: 
+      branch:
         - develop
         - release/*
 
@@ -105,10 +105,10 @@ steps:
       JAQU_NEXUS_PASSWORD:
         from_secret: nexus_password
     when:
-      branch: 
+      branch:
         - develop
         - release/*
-        
+
   # IT test
   - name: IT test
     image: retrofit-api-base
@@ -131,7 +131,7 @@ steps:
     commands:
       - mvn verify -DskipUnitTests -P jacoco --no-transfer-progress
     when:
-      branch: 
+      branch:
         - develop
         - release/*
 
@@ -155,22 +155,13 @@ steps:
     commands:
       - mvn package -DskipUnitTests --no-transfer-progress
     when:
-      branch: 
+      branch:
         - develop
         - release/*
 
   ################################################### End Dev/SIT Steps #######################################################
-  
-
-
-
-
-
 
   ################################################### Development Only #######################################################
-
-
-
   # Scan with sonar
   - name: sonar scan
     image: retrofit-api-base
@@ -199,7 +190,7 @@ steps:
         -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
         -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
     when:
-      branch: 
+      branch:
         - develop
 
   # Invoke terraform apply for dev
@@ -253,6 +244,57 @@ steps:
   ################################################# End Development Only #######################################################
 
 
+  ################################################### Sit Only steps #######################################################
+
+  # Invoke terraform scripts to deploy lambda function in SIT
+  - name: deploy to sit
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - apk update && apk add bash
+      - mkdir ~/.ssh
+      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - cd terraform/projects/retrofit/layers/00.global
+      - PATH=$PATH:../../../../bin/
+      - chmod +x ../../../../bin/tf
+      - tf init
+      - tf workspace select default
+      - tf apply -auto-approve
+      - cd ../01.networking
+      - tf init
+      - tf workspace select sit
+      - tf apply -auto-approve
+      - cd ../02.backends
+      - tf init
+      - tf workspace select sit
+      - tf apply -auto-approve
+      - cd ../03.api
+      - tf init
+      - tf workspace select sit
+      - tf apply -auto-approve
+    environment:
+      TF_VAR_access_key:
+        from_secret: aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: aws_secret_access_key
+      GIT_PRIVATE_SSH:
+        from_secret: github_private_key
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        exclude:
+          - pull_request
+      branch: release/*
+
+  ################################################# End Sit Only Steps #######################################################
 
 
 
@@ -265,21 +307,21 @@ name: aws_access_key_id
 get:
   path: /secret/drone.global
   name: awsAccessKeyId
-  
+
 ---
 kind: secret
 name: aws_secret_access_key
 get:
   path: /secret/drone.global
   name: awsSecretAccessKey
-  
+
 ---
 kind: secret
 name: sonar_host
 get:
   path: /secret/drone.global
   name: sonarHost
-  
+
 ---
 kind: secret
 name: sonar_token
@@ -314,5 +356,5 @@ name: nexus_password
 get:
   path: /secret/drone.global
   name: nexusPassword
-  
+
   ################################################ End Secrets #########################################################
