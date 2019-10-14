@@ -335,34 +335,6 @@ steps:
     commands:
       - mvn package -DskipUnitTests --no-transfer-progress
 
-  # Scan with sonar
-  - name: sonar scan
-    image: retrofit-api-base
-    volumes:
-      - name: package_directory
-        path: /drone/src/target
-      - name: m2_repo
-        path: /root/.m2
-    environment:
-      JAQU_NEXUS_URL:
-        from_secret: nexus_url
-      JAQU_NEXUS_USER:
-        from_secret: nexus_username
-      JAQU_NEXUS_PASSWORD:
-        from_secret: nexus_password
-      SONAR_HOST:
-        from_secret: sonar_host
-      SONAR_TOKEN:
-        from_secret: sonar_token
-    pull: never
-    commands:
-      - mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST
-        -Dsonar.projectKey=${DRONE_REPO}
-        -Dsonar.projectName=${DRONE_REPO}
-        -Dsonar.login=$SONAR_TOKEN
-        -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
-        -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
-
   - name: plan updates in sit
     image: hashicorp/terraform:0.12.3
     commands:
