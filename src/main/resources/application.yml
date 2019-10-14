@@ -27,8 +27,6 @@ registerjob:
     name: RetrofitRegisterCsvFromS3Function
 
 spring:
-  liquibase:
-    enabled: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/caz_vcc
