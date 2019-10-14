@@ -1,32 +1,12 @@
-  ################################################### YAML Anchors ########################################################
-
-  # Note that these are used when common environment variables are present in a step to reduce repetition - see terraform steps
-
-global-variables:
-  environment: &shared_terraform_credentials
-    TF_VAR_access_key:
-      from_secret: aws_access_key_id
-    TF_VAR_secret_key:
-      from_secret: aws_secret_access_key
-    TF_VAR_account_id:
-      from_secret: aws_account_id
-    GIT_PRIVATE_SSH:
-      from_secret: github_private_key
-
-  ################################################# End YAML Anchors ########################################################
-
-
+  ################################################### DEV Steps ########################################################
 
 kind: pipeline
 type: docker
-name: retrofit-api
+name: retrofit-api-dev
 
 trigger:
   branch:
     - develop
-    - release/*
-    - staging
-    - master
   event:
     - pull_request
     - push
@@ -62,8 +42,6 @@ services:
 
 steps:
 
-  ################################################### DEV/SIT Steps ########################################################
-
   # Clean agent images and containers to prevent disk space overuse
   - name: clean agent
     image: docker
@@ -81,10 +59,6 @@ steps:
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
-    when:
-      branch: 
-        - develop
-        - release/*
 
   # Unit test
   - name: unit test
@@ -104,11 +78,7 @@ steps:
         from_secret: nexus_username
       JAQU_NEXUS_PASSWORD:
         from_secret: nexus_password
-    when:
-      branch: 
-        - develop
-        - release/*
-        
+
   # IT test
   - name: IT test
     image: retrofit-api-base
@@ -130,10 +100,6 @@ steps:
       AWS_S3_URL: localstack:4572
     commands:
       - mvn verify -DskipUnitTests -P jacoco --no-transfer-progress
-    when:
-      branch: 
-        - develop
-        - release/*
 
   # Package
   - name: package deployable zip
@@ -154,22 +120,6 @@ steps:
     pull: never
     commands:
       - mvn package -DskipUnitTests --no-transfer-progress
-    when:
-      branch: 
-        - develop
-        - release/*
-
-  ################################################### End Dev/SIT Steps #######################################################
-  
-
-
-
-
-
-
-  ################################################### Development Only #######################################################
-
-
 
   # Scan with sonar
   - name: sonar scan
@@ -198,9 +148,6 @@ steps:
         -Dsonar.login=$SONAR_TOKEN
         -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
         -Dsonar.tests=src/test/java,src/it/java --no-transfer-progress
-    when:
-      branch: 
-        - develop
 
   # Invoke terraform apply for dev
   - name: deploy to dev
@@ -224,15 +171,15 @@ steps:
       - tf apply -auto-approve
       - cd ../01.networking
       - tf init
-      - tf workspace select dev
+      - tf workspace select dev  || tf workspace new dev
       - tf apply -auto-approve
       - cd ../02.backends
       - tf init
-      - tf workspace select dev
+      - tf workspace select dev  || tf workspace new dev
       - tf apply -auto-approve
       - cd ../03.api
       - tf init
-      - tf workspace select dev
+      - tf workspace select dev  || tf workspace new dev
       - tf apply -auto-approve
     environment:
       TF_VAR_access_key:
@@ -246,11 +193,251 @@ steps:
         path: /opt/package
     when:
       event:
-        exclude:
-          - pull_request
-      branch: develop
+        - push
 
   ################################################# End Development Only #######################################################
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ################################################### SIT Steps ########################################################
+
+kind: pipeline
+type: docker
+name: retrofit-api-sit
+
+trigger:
+  branch:
+    - release/*
+  event:
+    - pull_request
+    - push
+concurrency:
+  limit: 1
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+  - name: package_directory
+    temp: {}
+
+  - name: m2_repo
+    temp: {}
+
+services:
+  - name: postgres
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caz_vcc
+    ports:
+      - 5432
+  - name: localstack
+    image: localstack/localstack:0.10.2
+    environment:
+      SERVICES: s3
+    ports:
+      - 4572
+
+steps:
+
+  # Clean agent images and containers to prevent disk space overuse
+  - name: clean agent
+    image: docker
+    commands:
+      - docker system prune -f
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Build docker images
+  - name: build docker maven base
+    image: docker
+    commands:
+      - docker build -t retrofit-api-base -f ci-cd-resources/Dockerfile.ci.base .
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  # Unit test
+  - name: unit test
+    image: retrofit-api-base
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    pull: never
+    commands:
+      - mvn test -P jacoco --no-transfer-progress
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+
+  # IT test
+  - name: IT test
+    image: retrofit-api-base
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    pull: never
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+      BUILD_ID: ${DRONE_BUILD_NUMBER}
+      POSTGRES_URL: postgres:5432
+      AWS_S3_URL: localstack:4572
+    commands:
+      - mvn verify -DskipUnitTests -P jacoco --no-transfer-progress
+
+  # Package
+  - name: package deployable zip
+    image: retrofit-api-base
+    volumes:
+      - name: package_directory
+        path: /drone/src/target
+      - name: m2_repo
+        path: /root/.m2
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+      BUILD_ID: ${DRONE_BUILD_NUMBER}
+    pull: never
+    commands:
+      - mvn package -DskipUnitTests --no-transfer-progress
+
+  - name: plan updates in sit
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - apk update && apk add bash
+      - mkdir ~/.ssh
+      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - cd terraform/projects/retrofit/layers/00.global
+      - PATH=$PATH:../../../../bin/
+      - chmod +x ../../../../bin/tf
+      - tf init
+      - tf workspace select default
+      - tf plan
+      - cd ../01.networking
+      - tf init
+      - tf workspace select sit || tf workspace new sit
+      - tf plan
+      - cd ../02.backends
+      - tf init
+      - tf workspace select sit || tf workspace new sit
+      - tf plan
+      - cd ../03.api
+      - tf init
+      - tf workspace select sit || tf workspace new sit
+      - tf plan
+    environment:
+      TF_VAR_access_key:
+        from_secret: aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: aws_secret_access_key
+      GIT_PRIVATE_SSH:
+        from_secret: github_private_key
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        - pull_request
+        
+  - name: provisioning warning
+    image: docker:git
+    commands:
+      - echo "Pipeline failed. If a deployment is being made for the first time into an environment terraform backends will not yet exist which means this is to be expected. If not terraform related, please see logs for further details"
+    when:
+      status:
+        - failure
+
+  - name: deploy to sit
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - apk update && apk add bash
+      - mkdir ~/.ssh
+      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - cd terraform/projects/retrofit/layers/00.global
+      - PATH=$PATH:../../../../bin/
+      - chmod +x ../../../../bin/tf
+      - tf init
+      - tf workspace select default
+      - tf apply -auto-approve
+      - cd ../01.networking
+      - tf init
+      - tf workspace select sit || tf workspace new sit
+      - tf apply -auto-approve
+      - cd ../02.backends
+      - tf init
+      - tf workspace select sit || tf workspace new sit
+      - tf apply -auto-approve
+      - cd ../03.api
+      - tf init
+      - tf workspace select sit || tf workspace new sit
+      - tf apply -auto-approve
+    environment:
+      TF_VAR_access_key:
+        from_secret: aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: aws_secret_access_key
+      GIT_PRIVATE_SSH:
+        from_secret: github_private_key
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        - push
+
+  ################################################# End SIT Steps #######################################################
+
+
+
+
 
 
 
