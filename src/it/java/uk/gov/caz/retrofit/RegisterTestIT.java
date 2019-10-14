@@ -54,7 +54,7 @@ public class RegisterTestIT {
   private static final UUID FIRST_UPLOADER_ID = UUID.fromString("6314d1d6-706a-40ce-b392-a0e618ab45b8");
   private static final UUID SECOND_UPLOADER_ID = UUID.fromString("07447271-df3d-4217-9092-41f1252864b8");
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
-  private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 8;
+  private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 9;
 
   private static final String BUCKET_NAME = String.format(
       "retrofitted-vehicles-data-%d",
