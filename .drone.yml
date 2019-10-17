@@ -195,6 +195,29 @@ steps:
       event:
         - push
 
+  # shift traffic to new lambda version using codedeploy
+  - name: codedeploy api dev
+    image: alpine:latest
+    commands:
+      - apk add --update bash python python-dev py-pip build-base jq
+      - pip install awscli
+      - aws s3 cp s3://$LAMBDA_BUCKET/$PROJECT/$DEPLOY_ENVIRONMENT/CodeDeploy/deploy_jaqu_caz_function.sh .
+      - aws s3 cp s3://$LAMBDA_BUCKET/$PROJECT/$DEPLOY_ENVIRONMENT/CodeDeploy/deploy_register_csv_from_s3_function.sh .
+      - bash deploy_jaqu_caz_function.sh
+      - bash deploy_register_csv_from_s3_function.sh
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+      PROJECT: retrofit
+      DEPLOY_ENVIRONMENT: dev
+      LAMBDA_BUCKET: jaqu-projects-lambda-bucket
+    when:
+      event:
+        - push
+
   # subscribe to operational monitoring alert in api dev
   - name: subscribe to operational monitoring alert in api dev
     image: alpine:latest
@@ -450,7 +473,29 @@ steps:
     when:
       event:
         - push
-
+  
+  # shift traffic to new lambda version using codedeploy
+  - name: codedeploy api dev
+    image: alpine:latest
+    commands:
+      - apk add --update bash python python-dev py-pip build-base jq
+      - pip install awscli
+      - aws s3 cp s3://$LAMBDA_BUCKET/$PROJECT/$DEPLOY_ENVIRONMENT/CodeDeploy/deploy_jaqu_caz_function.sh .
+      - aws s3 cp s3://$LAMBDA_BUCKET/$PROJECT/$DEPLOY_ENVIRONMENT/CodeDeploy/deploy_register_csv_from_s3_function.sh .
+      - bash deploy_jaqu_caz_function.sh
+      - bash deploy_register_csv_from_s3_function.sh
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+      PROJECT: retrofit
+      DEPLOY_ENVIRONMENT: sit
+      LAMBDA_BUCKET: jaqu-projects-lambda-bucket
+    when:
+      event:
+        - push
   ################################################# End SIT Steps #######################################################
 
 
