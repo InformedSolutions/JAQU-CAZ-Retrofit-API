@@ -81,6 +81,11 @@
       <artifactId>aws-lambda-base</artifactId>
       <version>${internal.libraries.version}</version>
     </dependency>
+    <dependency>
+      <groupId>uk.gov.caz</groupId>
+      <artifactId>version-logger</artifactId>
+      <version>${internal.libraries.version}</version>
+    </dependency>
     <!-- Internal libraries : end -->
 
     <dependency>
@@ -513,6 +518,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.0.1</version>
+      </plugin>
+
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
       </plugin>
     </plugins>
   </reporting>
