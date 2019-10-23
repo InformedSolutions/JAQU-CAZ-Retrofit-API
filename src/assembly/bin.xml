@@ -11,9 +11,6 @@
         <fileSet>
             <directory>${project.build.directory}${file.separator}lib</directory>
             <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>tomcat-embed*</exclude>
-            </excludes>
         </fileSet>
         <!-- copy all classes -->
         <fileSet>

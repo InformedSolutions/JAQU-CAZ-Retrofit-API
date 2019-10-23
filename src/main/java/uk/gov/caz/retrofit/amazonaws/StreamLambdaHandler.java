@@ -36,7 +36,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       try {
         String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
         if (listOfActiveSpringProfiles != null) {
-          ContainerConfig.defaultConfig().setInitializationTimeout(50_000);
+          ContainerConfig.defaultConfig().setInitializationTimeout(20_000);
           handler = new SpringBootProxyHandlerBuilder()
               .defaultProxy()
               .asyncInit(startTime)
