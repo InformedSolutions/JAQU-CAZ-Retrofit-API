@@ -18,13 +18,11 @@ import uk.gov.caz.correlationid.Constants;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.RegisterResult;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
-import uk.gov.caz.retrofit.util.AwsHelpers;
 
 @Slf4j
-public class RetrofitRegisterCsvFromS3Lambda implements
+public class RetrofitRegisterCsvFromS3Lambda extends LambdaHandler implements
     RequestHandler<RegisterCsvFromS3LambdaInput, String> {
 
-  private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
   private SourceAwareRegisterService sourceAwareRegisterService;
 
   @Override
@@ -43,15 +41,15 @@ public class RetrofitRegisterCsvFromS3Lambda implements
     Stopwatch timer = Stopwatch.createStarted();
     ObjectMapper obj = new ObjectMapper();
     String registerResult = "false";
-    initializeHandlerAndService();
     log.info("Handler initialization took {}", timer.elapsed(TimeUnit.MILLISECONDS));
     try {
+      sourceAwareRegisterService = getBean(handler, SourceAwareRegisterService.class);
       setCorrelationIdInMdc(registerCsvFromS3LambdaInput.getCorrelationId());
       RegisterResult result = sourceAwareRegisterService.register(
-            registerCsvFromS3LambdaInput.getS3Bucket(),
-            registerCsvFromS3LambdaInput.getFileName(),
-            registerCsvFromS3LambdaInput.getRegisterJobId(),
-            registerCsvFromS3LambdaInput.getCorrelationId());
+          registerCsvFromS3LambdaInput.getS3Bucket(),
+          registerCsvFromS3LambdaInput.getFileName(),
+          registerCsvFromS3LambdaInput.getRegisterJobId(),
+          registerCsvFromS3LambdaInput.getCorrelationId());
       registerResult = String.valueOf(result.isSuccess());
       log.info("Register method took {}", timer.stop().elapsed(TimeUnit.MILLISECONDS));
     } catch (OutOfMemoryError error) {
@@ -60,7 +58,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
             obj.writeValueAsString(registerCsvFromS3LambdaInput));
       } catch (JsonProcessingException e) {
         log.error("JsonProcessingException", e);
-      } 
+      }
     } finally {
       removeCorrelationIdFromMdc();
     }
@@ -81,13 +79,6 @@ public class RetrofitRegisterCsvFromS3Lambda implements
       return false;
     }
     return action.equalsIgnoreCase("keep-warm");
-  }
-
-  private void initializeHandlerAndService() {
-    if (handler == null) {
-      handler = AwsHelpers.initSpringBootHandler();
-      sourceAwareRegisterService = getBean(handler, SourceAwareRegisterService.class);
-    }
   }
 
   private <T> T getBean(SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler,
