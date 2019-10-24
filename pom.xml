@@ -574,7 +574,6 @@
                 <exclude>**/Application.class</exclude>
                 <exclude>**/configuration/**/*.class</exclude>
                 <exclude>**/amazonaws/StreamLambdaHandler.class</exclude>
-                <exclude>**/amazonaws/LambdaHandler.class</exclude>
                 <exclude>**/amazonaws/RetrofitRegisterCsvFromS3Lambda.class</exclude>
                 <exclude>**/amazonaws/RuntimeExceptionHandlerLambda.class</exclude>
                 <exclude>**/util/AwsHelpers.class</exclude>
