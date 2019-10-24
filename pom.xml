@@ -24,8 +24,8 @@
     <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
     <sonar.coverage.exclusions>
-      **/configuration/**/*.java,**/amazonaws/StreamLambdaHandler.java,
-      **/amazonaws/RuntimeExceptionHandlerLambda.java,
+      **/configuration/**/*.java,**/amazonaws/StreamLambdaHandler.java,**/amazonaws/LambdaHandler.java,
+      **/amazonaws/RuntimeExceptionHandlerLambda.java,**/amazonaws/LambdaHandler.java,
       **/amazonaws/RetrofitRegisterCsvFromS3Lambda.java,**/util/AwsHelpers.java,**/dto/*.java,
       **/Application.java
     </sonar.coverage.exclusions>
@@ -574,6 +574,7 @@
                 <exclude>**/Application.class</exclude>
                 <exclude>**/configuration/**/*.class</exclude>
                 <exclude>**/amazonaws/StreamLambdaHandler.class</exclude>
+                <exclude>**/amazonaws/LambdaHandler.class</exclude>
                 <exclude>**/amazonaws/RetrofitRegisterCsvFromS3Lambda.class</exclude>
                 <exclude>**/amazonaws/RuntimeExceptionHandlerLambda.class</exclude>
                 <exclude>**/util/AwsHelpers.class</exclude>
