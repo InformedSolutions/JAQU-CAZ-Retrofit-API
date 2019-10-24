@@ -27,7 +27,7 @@ import uk.gov.caz.retrofit.service.RegisterResult;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 
 @Slf4j
-public class RetrofitRegisterCsvFromS3Lambda implements
+public class RetrofitRegisterCsvFromS3Lambda extends LambdaHandler implements
     RequestHandler<RegisterCsvFromS3LambdaInput, String> {
 
   private SourceAwareRegisterService sourceAwareRegisterService;
