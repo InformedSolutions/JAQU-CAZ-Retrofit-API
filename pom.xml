@@ -66,26 +66,56 @@
       <groupId>uk.gov.caz</groupId>
       <artifactId>global-exception-mapper</artifactId>
       <version>${internal.libraries.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws.serverless</groupId>
+          <artifactId>aws-serverless-java-container-spring</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>correlation-id</artifactId>
       <version>${internal.libraries.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws.serverless</groupId>
+          <artifactId>aws-serverless-java-container-spring</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>logger</artifactId>
       <version>${internal.libraries.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws.serverless</groupId>
+          <artifactId>aws-serverless-java-container-spring</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>aws-lambda-base</artifactId>
       <version>${internal.libraries.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws.serverless</groupId>
+          <artifactId>aws-serverless-java-container-spring</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>version-logger</artifactId>
       <version>${internal.libraries.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws.serverless</groupId>
+          <artifactId>aws-serverless-java-container-spring</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Internal libraries : end -->
 
