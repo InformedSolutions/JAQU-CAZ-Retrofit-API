@@ -1,8 +1,5 @@
 package uk.gov.caz.retrofit.amazonaws;
 
-import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
-import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
-import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -15,12 +12,9 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
-import uk.gov.caz.retrofit.util.AwsHelpers;
 
 @Slf4j
-public class StreamLambdaHandler implements RequestStreamHandler {
-
-  private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+public class StreamLambdaHandler extends LambdaHandler implements RequestStreamHandler {
 
   @Override
   public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
@@ -28,7 +22,6 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
     log.info("Incoming attributes: " + dump(new ByteArrayInputStream(input.getBytes())));
     log.info("Incoming context: " + dump(context));
-    initializeHandlerIfNull();
     handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
   }
 
@@ -50,11 +43,5 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     sb.append("IdentityId: ").append(ci.getIdentityId());
     sb.append("IdentityPoolId: ").append(ci.getIdentityPoolId());
     return sb.toString();
-  }
-
-  private void initializeHandlerIfNull() {
-    if (handler == null) {
-      handler = AwsHelpers.initSpringBootHandler();
-    }
   }
 }
