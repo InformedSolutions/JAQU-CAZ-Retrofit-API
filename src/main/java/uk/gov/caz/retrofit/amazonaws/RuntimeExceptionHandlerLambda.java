@@ -1,5 +1,8 @@
 package uk.gov.caz.retrofit.amazonaws;
 
+import static uk.gov.caz.awslambda.AwsHelpers.splitToArray;
+
+import com.amazonaws.serverless.exceptions.ContainerInitializationException;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
@@ -29,6 +32,7 @@ import java.util.zip.GZIPInputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import uk.gov.caz.retrofit.Application;
 import uk.gov.caz.retrofit.dto.CloudWatchDataMessage;
 import uk.gov.caz.retrofit.dto.CloudWatchDataMessage.LogEvent;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
@@ -41,14 +45,35 @@ import uk.gov.caz.retrofit.service.RegisterJobSupervisor;
  * Lambda function which handles Timeout and OutOfMemory error
  * that might occur during MOD csv import
  */
-public class RuntimeExceptionHandlerLambda extends LambdaHandler implements RequestStreamHandler  {
+public class RuntimeExceptionHandlerLambda implements RequestStreamHandler {
+
   private RegisterJobSupervisor registerJobSupervisor;
+
+  private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> excHandler;
+
+  /**
+   * Default constructor.
+   */
+  public RuntimeExceptionHandlerLambda() {
+    try {
+      String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
+      if (listOfActiveSpringProfiles != null) {
+        excHandler = SpringBootLambdaContainerHandler.getAwsProxyHandler(Application.class,
+            splitToArray(listOfActiveSpringProfiles));
+      } else {
+        excHandler = SpringBootLambdaContainerHandler.getAwsProxyHandler(Application.class);
+      }
+    } catch (ContainerInitializationException e) {
+      // if we fail here. We re-throw the exception to force another cold start
+      throw new RuntimeException("Could not initialize Spring Boot application", e);
+    }
+  }
 
   private final String errorMessage = "Fail to cancel dangling jobs,"
       + " please see the CloudWatch logs for more details";
 
   /**
-   * Lambda function handler.
+   * Lambda function csvHandler.
    */
   @Override
   public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
@@ -74,13 +99,14 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
    * Initialize the Application Context.
    */
   private void initializeService() {
-    if (handler == null) {
-      registerJobSupervisor = getBean(handler, RegisterJobSupervisor.class);
+    if (excHandler == null) {
+      registerJobSupervisor = getBean(excHandler, RegisterJobSupervisor.class);
     }
   }
 
   /**
    * Get a Bean instance.
+   *
    * @param handler The servlet context container.
    * @param beanClass the Bean Java class.
    * @return a Bean instance of parameterized Class.
@@ -95,6 +121,7 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
    * Lambda Timeout and OutOfMemory event processor.
    */
   public static class EventProcessor {
+
     private RegisterJobSupervisor registerJobSupervisor;
     public static final String LAMBDA_TIMEOUT_EXCEPTION = "Lambda timeout exception. "
         + "Please contact administrator to get assisstance.";
@@ -103,6 +130,7 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
 
     /**
      * Creates an {@link RuntimeExceptionHandlerLambda.EventProcessor}.
+     *
      * @param registerJobSupervisor a RegisterJobSupervisor instance.
      */
     public EventProcessor(RegisterJobSupervisor registerJobSupervisor) {
@@ -111,27 +139,29 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
 
     /**
      * Process event.
+     *
      * @param input The event.
      * @throws Exception If the function is unable to cancel the Job
      */
     public void process(String input) throws Exception {
       Object event;
       try {
-        event = convert(input,SNSEvent.class);
+        event = convert(input, SNSEvent.class);
       } catch (Exception e) {
-        event = convert(input,CloudWatchLogsEvent.class);
+        event = convert(input, CloudWatchLogsEvent.class);
       }
       if (event != null) {
         if (event instanceof SNSEvent) {
-          processSnsEvent((SNSEvent)event);
+          processSnsEvent((SNSEvent) event);
         } else if (event instanceof CloudWatchLogsEvent) {
-          processCloudWatchLogsEvent((CloudWatchLogsEvent)event);
+          processCloudWatchLogsEvent((CloudWatchLogsEvent) event);
         }
       }
     }
 
     /**
      * Process OutOfMemrory CloudWatch Log Event.
+     *
      * @param event A CloudWatch Log Event.
      */
     private void processCloudWatchLogsEvent(CloudWatchLogsEvent event) throws Exception {
@@ -150,6 +180,7 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
 
     /**
      * Process Lambda Timeout SNS Event.
+     *
      * @param event A SNS Event.
      */
     private void processSnsEvent(SNSEvent event) throws Exception {
@@ -163,6 +194,7 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
 
     /**
      * Cancel the dangling job.
+     *
      * @param jobId The job Id.
      */
     private void cancelJob(int jobId, String reason) throws Exception {
@@ -173,6 +205,7 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
 
     /**
      * Deserialize Json content into Java object.
+     *
      * @param input The Json content.
      * @param eventClass A Java class.
      * @return A Java instance of the parameterized Class.
@@ -187,6 +220,7 @@ public class RuntimeExceptionHandlerLambda extends LambdaHandler implements Requ
 
     /**
      * Decompress GZip data.
+     *
      * @param bytes A byte array of data compressed in GZIP format.
      * @return A String represent the decompressed data.
      */
