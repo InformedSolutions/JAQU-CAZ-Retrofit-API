@@ -4,6 +4,8 @@ spring:
   datasource:
     url: jdbc:postgresql://${postgres.url:localhost:9999}/caz_vcc
 #    url: jdbc:postgresql://${postgres.url:localhost:5432}/caz_vcc
+    hikari:
+      maximum-pool-size: 10
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master-test.yaml
