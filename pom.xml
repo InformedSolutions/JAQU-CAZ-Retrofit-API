@@ -19,7 +19,7 @@
 
     <artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-    <internal.libraries.version>1.6-SNAPSHOT</internal.libraries.version>
+    <internal.libraries.version>1.6.1-SNAPSHOT</internal.libraries.version>
 
     <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
