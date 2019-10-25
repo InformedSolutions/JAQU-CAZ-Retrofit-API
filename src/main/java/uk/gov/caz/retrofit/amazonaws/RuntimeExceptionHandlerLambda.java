@@ -81,7 +81,7 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler {
 
     String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
     Stopwatch timer = Stopwatch.createStarted();
-    initializeService();
+    registerJobSupervisor = getBean(excHandler, RegisterJobSupervisor.class);
     log.info("Handler initialization took {}ms", timer.elapsed(TimeUnit.MILLISECONDS));
     try {
       EventProcessor eventProcessor = new EventProcessor(registerJobSupervisor);
@@ -93,15 +93,6 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler {
       throw new IOException(errorMessage);
     }
     log.info("Jobs cancelling took {}ms", timer.stop().elapsed(TimeUnit.MILLISECONDS));
-  }
-
-  /**
-   * Initialize the Application Context.
-   */
-  private void initializeService() {
-    if (excHandler == null) {
-      registerJobSupervisor = getBean(excHandler, RegisterJobSupervisor.class);
-    }
   }
 
   /**
