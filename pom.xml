@@ -19,14 +19,14 @@
 
     <artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-    <internal.libraries.version>1.5.1-SNAPSHOT</internal.libraries.version>
+    <internal.libraries.version>1.6-SNAPSHOT</internal.libraries.version>
 
     <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
     <sonar.coverage.exclusions>
-      **/configuration/**/*.java,**/amazonaws/StreamLambdaHandler.java,**/amazonaws/LambdaHandler.java,
+      **/configuration/**/*.java,**/amazonaws/StreamLambdaHandler.java,
       **/amazonaws/RuntimeExceptionHandlerLambda.java,**/amazonaws/LambdaHandler.java,
-      **/amazonaws/RetrofitRegisterCsvFromS3Lambda.java,**/util/AwsHelpers.java,**/dto/*.java,
+      **/amazonaws/RetrofitRegisterCsvFromS3Lambda.java,**/dto/*.java,
       **/Application.java
     </sonar.coverage.exclusions>
     <sonar.coverage.jacoco.xmlReportPaths>
@@ -66,56 +66,26 @@
       <groupId>uk.gov.caz</groupId>
       <artifactId>global-exception-mapper</artifactId>
       <version>${internal.libraries.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.amazonaws.serverless</groupId>
-          <artifactId>aws-serverless-java-container-spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>correlation-id</artifactId>
       <version>${internal.libraries.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.amazonaws.serverless</groupId>
-          <artifactId>aws-serverless-java-container-spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>logger</artifactId>
       <version>${internal.libraries.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.amazonaws.serverless</groupId>
-          <artifactId>aws-serverless-java-container-spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>aws-lambda-base</artifactId>
       <version>${internal.libraries.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.amazonaws.serverless</groupId>
-          <artifactId>aws-serverless-java-container-spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>uk.gov.caz</groupId>
       <artifactId>version-logger</artifactId>
       <version>${internal.libraries.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.amazonaws.serverless</groupId>
-          <artifactId>aws-serverless-java-container-spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <!-- Internal libraries : end -->
 
@@ -574,10 +544,8 @@
                 <exclude>**/Application.class</exclude>
                 <exclude>**/configuration/**/*.class</exclude>
                 <exclude>**/amazonaws/StreamLambdaHandler.class</exclude>
-                <exclude>**/amazonaws/LambdaHandler.class</exclude>
                 <exclude>**/amazonaws/RetrofitRegisterCsvFromS3Lambda.class</exclude>
                 <exclude>**/amazonaws/RuntimeExceptionHandlerLambda.class</exclude>
-                <exclude>**/util/AwsHelpers.class</exclude>
                 <exclude>**/dto/*.class</exclude>
               </excludes>
               <rules>

@@ -1,5 +1,8 @@
 package uk.gov.caz.retrofit.amazonaws;
 
+import static uk.gov.caz.awslambda.AwsHelpers.splitToArray;
+
+import com.amazonaws.serverless.exceptions.ContainerInitializationException;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
@@ -15,15 +18,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.gov.caz.correlationid.Constants;
+import uk.gov.caz.retrofit.Application;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.RegisterResult;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 
 @Slf4j
-public class RetrofitRegisterCsvFromS3Lambda extends LambdaHandler implements
+public class RetrofitRegisterCsvFromS3Lambda implements
     RequestHandler<RegisterCsvFromS3LambdaInput, String> {
 
   private SourceAwareRegisterService sourceAwareRegisterService;
+
+  private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> csvHandler;
+
+  /**
+   * Default constructor.
+   */
+  public RetrofitRegisterCsvFromS3Lambda() {
+    try {
+      String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
+      if (listOfActiveSpringProfiles != null) {
+        csvHandler = SpringBootLambdaContainerHandler.getAwsProxyHandler(Application.class,
+            splitToArray(listOfActiveSpringProfiles));
+      } else {
+        csvHandler = SpringBootLambdaContainerHandler.getAwsProxyHandler(Application.class);
+      }
+    } catch (ContainerInitializationException e) {
+      // if we fail here. We re-throw the exception to force another cold start
+      throw new RuntimeException("Could not initialize Spring Boot application", e);
+    }
+  }
 
   @Override
   public String handleRequest(RegisterCsvFromS3LambdaInput registerCsvFromS3LambdaInput,
@@ -43,7 +67,7 @@ public class RetrofitRegisterCsvFromS3Lambda extends LambdaHandler implements
     String registerResult = "false";
     log.info("Handler initialization took {}", timer.elapsed(TimeUnit.MILLISECONDS));
     try {
-      sourceAwareRegisterService = getBean(handler, SourceAwareRegisterService.class);
+      sourceAwareRegisterService = getBean(csvHandler, SourceAwareRegisterService.class);
       setCorrelationIdInMdc(registerCsvFromS3LambdaInput.getCorrelationId());
       RegisterResult result = sourceAwareRegisterService.register(
           registerCsvFromS3LambdaInput.getS3Bucket(),
