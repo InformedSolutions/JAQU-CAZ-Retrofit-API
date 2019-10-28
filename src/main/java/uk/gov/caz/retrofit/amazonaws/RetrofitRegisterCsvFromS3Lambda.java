@@ -14,11 +14,12 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import uk.gov.caz.awslambda.AwsHelpers;
 import uk.gov.caz.correlationid.Constants;
+import uk.gov.caz.retrofit.Application;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.RegisterResult;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
-import uk.gov.caz.retrofit.util.AwsHelpers;
 
 @Slf4j
 public class RetrofitRegisterCsvFromS3Lambda implements
@@ -48,10 +49,10 @@ public class RetrofitRegisterCsvFromS3Lambda implements
     try {
       setCorrelationIdInMdc(registerCsvFromS3LambdaInput.getCorrelationId());
       RegisterResult result = sourceAwareRegisterService.register(
-            registerCsvFromS3LambdaInput.getS3Bucket(),
-            registerCsvFromS3LambdaInput.getFileName(),
-            registerCsvFromS3LambdaInput.getRegisterJobId(),
-            registerCsvFromS3LambdaInput.getCorrelationId());
+          registerCsvFromS3LambdaInput.getS3Bucket(),
+          registerCsvFromS3LambdaInput.getFileName(),
+          registerCsvFromS3LambdaInput.getRegisterJobId(),
+          registerCsvFromS3LambdaInput.getCorrelationId());
       registerResult = String.valueOf(result.isSuccess());
       log.info("Register method took {}", timer.stop().elapsed(TimeUnit.MILLISECONDS));
     } catch (OutOfMemoryError error) {
@@ -60,7 +61,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
             obj.writeValueAsString(registerCsvFromS3LambdaInput));
       } catch (JsonProcessingException e) {
         log.error("JsonProcessingException", e);
-      } 
+      }
     } finally {
       removeCorrelationIdFromMdc();
     }
@@ -85,7 +86,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
 
   private void initializeHandlerAndService() {
     if (handler == null) {
-      handler = AwsHelpers.initSpringBootHandler();
+      handler = AwsHelpers.initSpringBootHandler(Application.class);
       sourceAwareRegisterService = getBean(handler, SourceAwareRegisterService.class);
     }
   }

@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.gov.caz.awslambda.AwsHelpers;
+import uk.gov.caz.retrofit.Application;
 import uk.gov.caz.retrofit.dto.CloudWatchDataMessage;
 import uk.gov.caz.retrofit.dto.CloudWatchDataMessage.LogEvent;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
@@ -40,22 +41,22 @@ import uk.gov.caz.retrofit.service.RegisterJobSupervisor;
 @Slf4j
 /**
  * Lambda function which handles Timeout and OutOfMemory error
- * that might occur during MOD csv import 
+ * that might occur during MOD csv import
  */
 public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
   private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
   private RegisterJobSupervisor registerJobSupervisor;
- 
+
   private final String errorMessage = "Fail to cancel dangling jobs,"
       + " please see the CloudWatch logs for more details";
-  
+
   /**
    * Lambda function handler.
    */
   @Override
   public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
       throws IOException {
-    
+
     String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
     Stopwatch timer = Stopwatch.createStarted();
     initializeHandlerAndService();
@@ -71,17 +72,17 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
     }
     log.info("Jobs cancelling took {}ms", timer.stop().elapsed(TimeUnit.MILLISECONDS));
   }
-  
+
   /**
    * Initialize the Application Context.
    */
   private void initializeHandlerAndService() {
     if (handler == null) {
-      handler = AwsHelpers.initSpringBootHandler();
+      handler = AwsHelpers.initSpringBootHandler(Application.class);
       registerJobSupervisor = getBean(handler, RegisterJobSupervisor.class);
     }
   }
-  
+
   /**
    * Get a Bean instance.
    * @param handler The servlet context container.
@@ -93,17 +94,17 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
     return WebApplicationContextUtils
         .getWebApplicationContext(handler.getServletContext()).getBean(beanClass);
   }
-  
+
   /**
    * Lambda Timeout and OutOfMemory event processor.
    */
   public static class EventProcessor {
     private RegisterJobSupervisor registerJobSupervisor;
     public static final String LAMBDA_TIMEOUT_EXCEPTION = "Lambda timeout exception. "
-        + "Please contact administrator to get assisstance.";
+        + "Please contact administrator to get assistance.";
     public static final String LAMBDA_OUTOFMEMORY_EXCEPTION = "OutOfMemory exception. "
-        + "Please contact administrator to get assisstance.";
-    
+        + "Please contact administrator to get assistance.";
+
     /**
      * Creates an {@link RuntimeExceptionHandlerLambda.EventProcessor}.
      * @param registerJobSupervisor a RegisterJobSupervisor instance.
@@ -111,7 +112,7 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
     public EventProcessor(RegisterJobSupervisor registerJobSupervisor) {
       this.registerJobSupervisor = registerJobSupervisor;
     }
-    
+
     /**
      * Process event.
      * @param input The event.
@@ -132,7 +133,7 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
         }
       }
     }
-    
+
     /**
      * Process OutOfMemrory CloudWatch Log Event.
      * @param event A CloudWatch Log Event.
@@ -140,8 +141,8 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
     private void processCloudWatchLogsEvent(CloudWatchLogsEvent event) throws Exception {
       byte[] decodedBytes = Base64.getDecoder().decode(event.getAwsLogs().getData());
       String decodedString = decompressByteArray(decodedBytes);
-      CloudWatchDataMessage cloudWatchDataMessage = convert(decodedString, 
-                                                            CloudWatchDataMessage.class);
+      CloudWatchDataMessage cloudWatchDataMessage = convert(decodedString,
+          CloudWatchDataMessage.class);
       for (LogEvent logEvent : cloudWatchDataMessage.getLogEvents()) {
         String message = logEvent.getMessage();
         String input = message.substring(message.indexOf("{"));
@@ -156,14 +157,14 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
      * @param event A SNS Event.
      */
     private void processSnsEvent(SNSEvent event) throws Exception {
-      
+
       for (SNSRecord record : event.getRecords()) {
         RegisterCsvFromS3LambdaInput originalInput = convert(record.getSNS().getMessage(),
             RegisterCsvFromS3LambdaInput.class);
         cancelJob(originalInput.getRegisterJobId(), EventProcessor.LAMBDA_TIMEOUT_EXCEPTION);
       }
     }
-    
+
     /**
      * Cancel the dangling job.
      * @param jobId The job Id.
@@ -173,7 +174,7 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
           RegisterJobStatus.ABORTED,
           Arrays.asList(ValidationError.requestProcessingError(reason)));
     }
-    
+
     /**
      * Deserialize Json content into Java object.
      * @param input The Json content.
@@ -187,7 +188,7 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
       obj.registerModule(new JodaModule());
       return obj.readValue(input, eventClass);
     }
-    
+
     /**
      * Decompress GZip data.
      * @param bytes A byte array of data compressed in GZIP format.

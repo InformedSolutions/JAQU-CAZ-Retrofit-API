@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.LambdaClientBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
-import uk.gov.caz.retrofit.util.AwsHelpers;
+import uk.gov.caz.awslambda.AwsHelpers;
 
 @Configuration
 @Slf4j
