@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.JsonParseException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -215,7 +217,7 @@ public class RegisterJobRepository {
     try {
       return errors.isEmpty() ? null : objectMapper.writeValueAsString(errors);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new JsonParseException(e);
     }
   }
 
@@ -248,7 +250,7 @@ public class RegisterJobRepository {
         });
       } catch (IOException e) {
         log.error("Cannot convert list of job errors.", e);
-        throw new RuntimeException(e);
+        throw new UncheckedIOException(e);
       }
     }
   }

@@ -20,13 +20,14 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.json.JsonParseException;
 import org.springframework.util.StreamUtils;
 import uk.gov.caz.retrofit.Application;
 
 @Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
 
-  private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+  private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
   /**
    * Default constructor.
@@ -53,8 +54,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       }
     } catch (ContainerInitializationException e) {
       // if we fail here. We re-throw the exception to force another cold start
-      e.printStackTrace();
-      throw new RuntimeException("Could not initialize Spring Boot application", e);
+      throw new IllegalStateException("Could not initialize Spring Boot application", e);
     }
   }
 
@@ -74,7 +74,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       return node.toString();
     } catch (Exception e) {
       log.error("Error: ", e);
-      throw new RuntimeException(e);
+      throw new JsonParseException(e);
     }
   }
 

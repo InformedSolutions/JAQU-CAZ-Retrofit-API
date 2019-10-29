@@ -19,7 +19,7 @@
 
     <artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-    <internal.libraries.version>1.6.1-SNAPSHOT</internal.libraries.version>
+    <internal.libraries.version>1.6.2-SNAPSHOT</internal.libraries.version>
 
     <codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
     <codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
@@ -32,6 +32,46 @@
     <sonar.coverage.jacoco.xmlReportPaths>
       ./target/site/jacoco-aggregate/jacoco.xml
     </sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.exclusions>
+      **/Application.java
+    </sonar.exclusions>
+    <sonar.issue.ignore.multicriteria>j1,j2,j3,j4,j5,j6</sonar.issue.ignore.multicriteria>
+    <sonar.issue.ignore.multicriteria.j1.ruleKey>
+      squid:S1075
+    </sonar.issue.ignore.multicriteria.j1.ruleKey>
+    <sonar.issue.ignore.multicriteria.j1.resourceKey>
+      **/*.java
+    </sonar.issue.ignore.multicriteria.j1.resourceKey>
+    <sonar.issue.ignore.multicriteria.j2.ruleKey>
+      squid:S2699
+    </sonar.issue.ignore.multicriteria.j2.ruleKey>
+    <sonar.issue.ignore.multicriteria.j2.resourceKey>
+      **/*.java
+    </sonar.issue.ignore.multicriteria.j2.resourceKey>
+    <sonar.issue.ignore.multicriteria.j3.ruleKey>
+      squid:S135
+    </sonar.issue.ignore.multicriteria.j3.ruleKey>
+    <sonar.issue.ignore.multicriteria.j3.resourceKey>
+      **/VehicleEntrantsService.java
+    </sonar.issue.ignore.multicriteria.j3.resourceKey>
+    <sonar.issue.ignore.multicriteria.j4.ruleKey>
+      squid:S5304
+    </sonar.issue.ignore.multicriteria.j4.ruleKey>
+    <sonar.issue.ignore.multicriteria.j4.resourceKey>
+      **/*.java
+    </sonar.issue.ignore.multicriteria.j4.resourceKey>
+    <sonar.issue.ignore.multicriteria.j5.ruleKey>
+      squid:S4784
+    </sonar.issue.ignore.multicriteria.j5.ruleKey>
+    <sonar.issue.ignore.multicriteria.j5.resourceKey>
+      **/*.java
+    </sonar.issue.ignore.multicriteria.j5.resourceKey>
+    <sonar.issue.ignore.multicriteria.j6.ruleKey>
+      squid:S2077
+    </sonar.issue.ignore.multicriteria.j6.ruleKey>
+    <sonar.issue.ignore.multicriteria.j6.resourceKey>
+      **/*.java
+    </sonar.issue.ignore.multicriteria.j6.resourceKey>
 
     <!-- to enable running only integration tests without unit tests -->
     <skipUnitTests>${skipTests}</skipUnitTests>

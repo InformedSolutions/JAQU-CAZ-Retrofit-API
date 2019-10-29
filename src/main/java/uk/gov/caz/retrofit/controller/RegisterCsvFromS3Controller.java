@@ -70,8 +70,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
         .body(new RegisterCsvFromS3JobHandle(registerJobName.getValue()));
   }
 
-  private CsvMetadata getCsvMetadata(StartRegisterCsvFromS3JobCommand startCommand)
-      throws FatalErrorWithCsvFileMetadataException {
+  private CsvMetadata getCsvMetadata(StartRegisterCsvFromS3JobCommand startCommand) {
     return metadataExtractor
         .getRequiredMetadata(startCommand.getS3Bucket(), startCommand.getFilename());
   }

@@ -54,8 +54,7 @@ public class CsvFileOnS3MetadataExtractor {
    * @throws FatalErrorWithCsvFileMetadataException if CSV file is unreachable, or has no
    *     metadata or metadata has invalid format.
    */
-  public CsvMetadata getRequiredMetadata(String s3Bucket, String filename)
-      throws FatalErrorWithCsvFileMetadataException {
+  public CsvMetadata getRequiredMetadata(String s3Bucket, String filename) {
     try {
       HeadObjectResponse headObjectResponse = getFileMetadata(s3Bucket, filename);
       return new CsvMetadata(getUploaderId(headObjectResponse),
@@ -69,8 +68,7 @@ public class CsvFileOnS3MetadataExtractor {
     }
   }
 
-  private HeadObjectResponse getFileMetadata(String s3Bucket, String filename)
-      throws NoSuchKeyException {
+  private HeadObjectResponse getFileMetadata(String s3Bucket, String filename) {
     HeadObjectRequest request = HeadObjectRequest.builder()
         .bucket(s3Bucket)
         .key(filename)
@@ -78,8 +76,7 @@ public class CsvFileOnS3MetadataExtractor {
     return validateMetadata(s3Client.headObject(request));
   }
 
-  private HeadObjectResponse validateMetadata(HeadObjectResponse fileMetadata)
-      throws FatalErrorWithCsvFileMetadataException {
+  private HeadObjectResponse validateMetadata(HeadObjectResponse fileMetadata) {
     if (!fileMetadata.metadata().containsKey(UPLOADER_ID_METADATA_KEY)) {
       throw new FatalErrorWithCsvFileMetadataException(
           "The file does not contain required metadata key: " + UPLOADER_ID_METADATA_KEY);
@@ -91,7 +88,7 @@ public class CsvFileOnS3MetadataExtractor {
     return fileMetadata;
   }
 
-  private UUID getUploaderId(HeadObjectResponse fileMetadata) throws IllegalArgumentException {
+  private UUID getUploaderId(HeadObjectResponse fileMetadata) {
     String unparsedUploaderId = fileMetadata.metadata().get(UPLOADER_ID_METADATA_KEY);
     try {
       return UUID.fromString(unparsedUploaderId);
