@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -77,7 +78,7 @@ public class RetrofittedVehicleDtoCsvRepository {
           result.getValidationErrors());
     } catch (IOException e) {
       log.error("IOException while reading file {}/{}", bucket, filename);
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 

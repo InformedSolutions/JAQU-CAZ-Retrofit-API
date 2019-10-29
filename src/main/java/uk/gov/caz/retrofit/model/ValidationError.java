@@ -16,7 +16,7 @@ public class ValidationError {
   private static final String MANDATORY_FIELD_MISSING_ERROR_TITLE = "Mandatory field missing";
   private static final String S3_ERROR_TITLE = "S3 error";
   private static final String REQUEST_PROCESSING_ERROR_TITLE = "Request processing error";
-  private static int EMPTY_LINE_NUMBER = 0;
+  private static final int EMPTY_LINE_NUMBER = 0;
 
   private static final ValidationError UNKNOWN_ERROR = new ValidationError(null, "Unknown error",
       "Unknown error occurred while processing registration", EMPTY_LINE_NUMBER);
@@ -35,7 +35,7 @@ public class ValidationError {
   }
 
   public String getDetail() {
-    return getLineNumber().map(lineNumber -> "Line " + lineNumber + ": " + detail).orElse(detail);
+    return getLineNumber().map(line -> "Line " + line + ": " + detail).orElse(detail);
   }
 
   public String getRawDetail() {
