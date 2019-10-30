@@ -98,10 +98,14 @@ public class RuntimeExceptionHandlerLambda implements RequestStreamHandler  {
    */
   public static class EventProcessor {
     private RegisterJobSupervisor registerJobSupervisor;
-    public static final String LAMBDA_TIMEOUT_EXCEPTION = "Lambda timeout exception. "
-        + "Please contact administrator to get assistance.";
-    public static final String LAMBDA_OUTOFMEMORY_EXCEPTION = "OutOfMemory exception. "
-        + "Please contact administrator to get assistance.";
+    public static final String LAMBDA_TIMEOUT_EXCEPTION = "The upload was unsuccessful "
+        + "please try again. If the problem persist please contact us at "
+        + "<a href=\"mailto:TaxiandPHVCentralised.Database@defra.gov.uk\">"
+        + "TaxiandPHVCentralised.Database@defra.gov.uk</a>";
+    public static final String LAMBDA_OUTOFMEMORY_EXCEPTION = "The upload was unsuccessful "
+        + "please try again. If the problem persist please contact us at "
+        + "<a href=\"mailto:TaxiandPHVCentralised.Database@defra.gov.uk\">"
+        + "TaxiandPHVCentralised.Database@defra.gov.uk</a>";
 
     /**
      * Creates an {@link RuntimeExceptionHandlerLambda.EventProcessor}.
