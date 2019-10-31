@@ -750,7 +750,7 @@ steps:
       - chmod 600 ~/.ssh/known_hosts
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - LAMBDA_FUNCTION=retrofit-csv-from-s3-lambda-preprod
-      - ENV=p
+      - ENV=preprod
       - SIGNED_URL=`aws lambda get-function --function-name $LAMBDA_FUNCTION --qualifier $ENV| jq --raw-output '.Code.Location'`
       - VERSION=`aws lambda get-function --function-name $LAMBDA_FUNCTION --qualifier $ENV| jq --raw-output '.Configuration.Version'`
       - wget -O /opt/package/$LAMBDA_FUNCTION-$VERSION.zip $SIGNED_URL
