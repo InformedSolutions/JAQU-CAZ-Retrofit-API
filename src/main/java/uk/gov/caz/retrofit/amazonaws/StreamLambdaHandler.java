@@ -3,9 +3,9 @@ package uk.gov.caz.retrofit.amazonaws;
 import static uk.gov.caz.awslambda.AwsHelpers.splitToArray;
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;
+import com.amazonaws.serverless.proxy.internal.LambdaContainerHandler;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
-import com.amazonaws.serverless.proxy.model.ContainerConfig;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.serverless.proxy.spring.SpringBootProxyHandlerBuilder;
 import com.amazonaws.services.lambda.runtime.CognitoIdentity;
@@ -37,7 +37,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     try {
       // For applications that take longer than 10 seconds to start, use the async builder:
       String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
-      ContainerConfig.defaultConfig().setInitializationTimeout(20_000);
+      LambdaContainerHandler.getContainerConfig().setInitializationTimeout(30_000);
       if (listOfActiveSpringProfiles != null) {
         handler = new SpringBootProxyHandlerBuilder()
             .defaultProxy()

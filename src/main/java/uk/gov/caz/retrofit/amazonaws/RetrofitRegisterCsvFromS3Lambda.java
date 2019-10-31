@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -17,6 +19,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import uk.gov.caz.awslambda.AwsHelpers;
 import uk.gov.caz.correlationid.Constants;
 import uk.gov.caz.retrofit.Application;
+import uk.gov.caz.retrofit.dto.LambdaContainerStats;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3LambdaInput;
 import uk.gov.caz.retrofit.service.RegisterResult;
 import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
@@ -24,7 +27,7 @@ import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 @Slf4j
 public class RetrofitRegisterCsvFromS3Lambda implements
     RequestHandler<RegisterCsvFromS3LambdaInput, String> {
-
+  
   private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
   private SourceAwareRegisterService sourceAwareRegisterService;
 
@@ -32,8 +35,9 @@ public class RetrofitRegisterCsvFromS3Lambda implements
   public String handleRequest(RegisterCsvFromS3LambdaInput registerCsvFromS3LambdaInput,
       Context context) {
     if (isWarmerPing(registerCsvFromS3LambdaInput)) {
-      return "OK";
+      return LambdaContainerStats.getStats();
     }
+    LambdaContainerStats.setRequestTime(LocalDateTime.now());
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getS3Bucket()),
         "Invalid input, 's3Bucket' is blank or null");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getFileName()),
