@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.ValidationError;
@@ -22,6 +23,7 @@ import uk.gov.caz.retrofit.repository.RegisterJobRepository;
  * interface.
  */
 @Service
+@Slf4j
 public class RegisterJobSupervisor {
 
   @FunctionalInterface
@@ -88,10 +90,11 @@ public class RegisterJobSupervisor {
     RegisterJob registerJob = createNewRegisterJob(params.registerJobTrigger, params.correlationId,
         jobName, params.uploaderId);
 
-    // TODO: handle insert errors (DB problem, unique jobName violation etc).
     int registerJobId = registerJobRepository.insert(registerJob);
     registerJob.setId(registerJobId);
-    // TODO: logs
+
+    log.info("About to invoke register job with id '{}' and name '{}'", registerJobId,
+        jobName.getValue());
     params.registerJobInvoker.invoke(registerJobId);
     return jobName;
   }
