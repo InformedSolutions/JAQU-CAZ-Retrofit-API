@@ -13,10 +13,14 @@ import java.util.UUID;
  * Contain information about the lambda container.
  */
 public class LambdaContainerStats {
-  private static final String instanceId = UUID.randomUUID().toString();
+  private static final String INSTANCE_ID = UUID.randomUUID().toString();
   private static final DateTimeFormatter formatter = 
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
   private static LocalDateTime latestRequestTime;
+  
+  private LambdaContainerStats() {
+    throw new IllegalStateException("Utility class");
+  }
   
   /**
    * Set the time that the container serves a request.
@@ -35,13 +39,13 @@ public class LambdaContainerStats {
     try {
       ObjectMapper obj = new ObjectMapper();
       Map<String, String> retVal = new HashMap<>();
-      retVal.put("instanceId", instanceId);
+      retVal.put("instanceId", INSTANCE_ID);
       if (latestRequestTime != null) {
         retVal.put("latestRequestTime",latestRequestTime.format(formatter));
       }
       return obj.writeValueAsString(retVal);
     } catch (JsonProcessingException ex) {
-      return String.format("\"instanceId\": \"%s\"", instanceId);
+      return String.format("\"instanceId\": \"%s\"", INSTANCE_ID);
     }
   }
 }

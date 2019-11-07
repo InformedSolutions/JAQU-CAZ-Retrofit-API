@@ -1,6 +1,8 @@
 package uk.gov.caz.retrofit.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.caz.retrofit.controller.Constants.CORRELATION_ID_HEADER;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
@@ -33,6 +35,8 @@ public class WarmupControllerTest {
             .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
             .header(CORRELATION_ID_HEADER, TYPICAL_CORRELATION_ID)
             .accept(MediaType.APPLICATION_JSON_UTF8_VALUE))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(header().string(CORRELATION_ID_HEADER, TYPICAL_CORRELATION_ID))
+        .andExpect(jsonPath("$.instanceId").exists());
   }
 }

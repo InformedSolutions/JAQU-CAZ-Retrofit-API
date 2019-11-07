@@ -1,6 +1,5 @@
 package uk.gov.caz.retrofit.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
@@ -14,5 +13,5 @@ public interface WarmupControllerApiSpec {
    *         that the container last serve a request.
    */
   @GetMapping(WarmupController.PATH)
-  String warmup() throws JsonProcessingException;
+  String warmup();
 }
