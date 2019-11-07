@@ -104,3 +104,6 @@ local-services-down: local-db-down localstack-down
 
 localstack-run:
 	SPRING_PROFILES_ACTIVE='localstack,development' AWS_PROFILE='localstack' AWS_REGION='eu-west-2' ./mvnw spring-boot:run
+
+dependency-security-check:
+	./mvnw org.owasp:dependency-check-maven:check -P security
