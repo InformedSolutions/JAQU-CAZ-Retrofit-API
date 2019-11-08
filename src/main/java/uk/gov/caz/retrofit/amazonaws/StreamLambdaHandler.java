@@ -13,16 +13,22 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.time.LocalDateTime;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.util.StreamUtils;
 import uk.gov.caz.retrofit.Application;
+import uk.gov.caz.retrofit.controller.WarmupController;
+import uk.gov.caz.retrofit.dto.LambdaContainerStats;
 
 @Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
@@ -64,6 +70,9 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
     log.info("Incoming attributes: " + dump(new ByteArrayInputStream(input.getBytes())));
     log.info("Incoming context: " + dump(context));
+    if (!isWarmupRequest(input)) {
+      LambdaContainerStats.setRequestTime(LocalDateTime.now());
+    }
     handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
   }
 
@@ -85,5 +94,18 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     sb.append("IdentityId: ").append(ci.getIdentityId());
     sb.append("IdentityPoolId: ").append(ci.getIdentityPoolId());
     return sb.toString();
+  }
+  
+  private boolean isWarmupRequest(String input) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode node;
+    try {
+      node = objectMapper.readTree(input);
+      JsonNode path = node.get("path");
+      Preconditions.checkNotNull(path);
+      return WarmupController.PATH.equalsIgnoreCase(path.textValue());
+    } catch (IOException e) {
+      return false;
+    }
   }
 }
