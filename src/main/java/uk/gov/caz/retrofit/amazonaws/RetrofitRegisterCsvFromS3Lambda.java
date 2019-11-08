@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,7 @@ import uk.gov.caz.retrofit.service.SourceAwareRegisterService;
 @Slf4j
 public class RetrofitRegisterCsvFromS3Lambda implements
     RequestHandler<RegisterCsvFromS3LambdaInput, String> {
-  
+
   private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
   private SourceAwareRegisterService sourceAwareRegisterService;
 

@@ -3,14 +3,12 @@ package uk.gov.caz.retrofit.controller;
 import static uk.gov.caz.retrofit.controller.Constants.CORRELATION_ID_HEADER;
 
 import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
-
 import uk.gov.caz.retrofit.dto.ErrorsResponse;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3JobHandle;
 import uk.gov.caz.retrofit.dto.RegisterJobStatusDto;
@@ -33,7 +31,7 @@ import uk.gov.caz.retrofit.service.exception.FatalErrorWithCsvFileMetadataExcept
 public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerApiSpec {
 
   public static final String PATH = "/v1/retrofit/register-csv-from-s3/jobs";
-  
+
   private final AsyncBackgroundJobStarter asyncBackgroundJobStarter;
   private final RegisterJobSupervisor registerJobSupervisor;
   private final CsvFileOnS3MetadataExtractor metadataExtractor;
@@ -59,7 +57,6 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
   @Override
   public ResponseEntity<RegisterCsvFromS3JobHandle> startRegisterJob(
       String correlationId, StartRegisterCsvFromS3JobCommand startCommand) {
-    
     CsvMetadata csvMetadata = getCsvMetadata(startCommand);
 
     checkPreconditions(csvMetadata.getCsvContentType());
@@ -104,7 +101,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
   @Override
   public ResponseEntity<StatusOfRegisterCsvFromS3JobQueryResult> queryForStatusOfRegisterJob(
       String correlationId, String registerJobName) {
-    
+
     Optional<RegisterJob> registerJobOptional = registerJobSupervisor
         .findJobWithName(new RegisterJobName(registerJobName));
     return registerJobOptional
