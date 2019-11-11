@@ -13,24 +13,27 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.util.StreamUtils;
 import uk.gov.caz.retrofit.Application;
-import uk.gov.caz.retrofit.controller.WarmupController;
 import uk.gov.caz.retrofit.dto.LambdaContainerStats;
 
 @Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
 
+  private static final String KEEP_WARM_ACTION = "keep-warm";
   private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
   /**
@@ -68,10 +71,26 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());
     log.info("Incoming attributes: " + dump(new ByteArrayInputStream(input.getBytes())));
     log.info("Incoming context: " + dump(context));
-    if (!isWarmupRequest(input)) {
-      LambdaContainerStats.setRequestTime(LocalDateTime.now());
+    if (isWarmupRequest(input)) {
+      if (LambdaContainerStats.getLatestRequestTime() == null) {
+        try {
+          //delay lambda response so that the subsequent keep-warm requests
+          //will be routed to a different lambda function instances.
+          Thread.sleep(Integer.parseInt(
+              Optional.ofNullable(
+                  System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
+              .orElse("100")));
+        } catch (Exception e) {
+          throw new IOException(e);
+        }
+      }
+      try (Writer osw = new OutputStreamWriter(outputStream)) {
+        osw.write(LambdaContainerStats.getStats());
+      }
+    } else {
+      LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
+      handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
     }
-    handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
   }
 
   private String dump(InputStream inputStream) {
@@ -94,16 +113,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     return sb.toString();
   }
   
-  private boolean isWarmupRequest(String input) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode node;
-    try {
-      node = objectMapper.readTree(input);
-      JsonNode path = node.get("path");
-      Preconditions.checkNotNull(path);
-      return WarmupController.PATH.equalsIgnoreCase(path.textValue());
-    } catch (IOException e) {
-      return false;
-    }
+  private boolean isWarmupRequest(String action) {
+    return action.indexOf(KEEP_WARM_ACTION) >= 0;
   }
 }

@@ -25,10 +25,17 @@ public class LambdaContainerStats {
   /**
    * Set the time that the container serves a request.
    */
-  public static void setRequestTime(LocalDateTime dt) {
+  public static void setLatestRequestTime(LocalDateTime dt) {
     latestRequestTime = dt;
   }
   
+  /**
+   * Get the time that the container last served a request.
+   */
+  public static LocalDateTime getLatestRequestTime() {
+    return latestRequestTime;
+  }
+
   /**
    * Get the container stats.
    * 

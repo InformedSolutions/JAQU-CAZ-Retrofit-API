@@ -36,7 +36,7 @@ public class RetrofitRegisterCsvFromS3Lambda implements
     if (isWarmerPing(registerCsvFromS3LambdaInput)) {
       return LambdaContainerStats.getStats();
     }
-    LambdaContainerStats.setRequestTime(LocalDateTime.now());
+    LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getS3Bucket()),
         "Invalid input, 's3Bucket' is blank or null");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerCsvFromS3LambdaInput.getFileName()),
