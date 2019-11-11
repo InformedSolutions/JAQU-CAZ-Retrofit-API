@@ -72,24 +72,29 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     log.info("Incoming attributes: " + dump(new ByteArrayInputStream(input.getBytes())));
     log.info("Incoming context: " + dump(context));
     if (isWarmupRequest(input)) {
-      if (LambdaContainerStats.getLatestRequestTime() == null) {
-        try {
-          //delay lambda response so that the subsequent keep-warm requests
-          //will be routed to a different lambda function instances.
-          Thread.sleep(Integer.parseInt(
-              Optional.ofNullable(
-                  System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
-              .orElse("100")));
-        } catch (Exception e) {
-          throw new IOException(e);
-        }
-      }
+      delayToAllowAnotherLambdaInstanceWarming();
       try (Writer osw = new OutputStreamWriter(outputStream)) {
         osw.write(LambdaContainerStats.getStats());
       }
     } else {
       LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
       handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
+    }
+  }
+
+  /**
+   * Delay lambda response to allow subsequent keep-warm requests
+   * to be routed to a different lambda container.
+   * @throws IOException when it is impossible to pause the thread
+   */
+  private void delayToAllowAnotherLambdaInstanceWarming() throws IOException {
+    try {
+      Thread.sleep(Integer.parseInt(
+          Optional.ofNullable(
+              System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
+          .orElse("100")));
+    } catch (Exception e) {
+      throw new IOException(e);
     }
   }
 
@@ -113,6 +118,13 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     return sb.toString();
   }
   
+  /**
+   * Determine if the incoming request is a keep-warm one.
+   *
+   * @param action the request under examination.
+   * @return true if the incoming request is a keep-warm one
+   *         otherwise false.
+   */
   private boolean isWarmupRequest(String action) {
     return action.indexOf(KEEP_WARM_ACTION) >= 0;
   }
