@@ -10,24 +10,29 @@ import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.serverless.proxy.spring.SpringBootProxyHandlerBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.util.StreamUtils;
+
 import uk.gov.caz.retrofit.Application;
 import uk.gov.caz.retrofit.dto.LambdaContainerStats;
 
+@Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
 
-  private static final String KEEP_WARM_ACTION = "keep-warm";
+  private static final String KEEP_WARM_ACTION = "warmup";
+  
   /*
    * This field is `static` to avoid being garbage collected and in turn it prevents the application
    * from being initialized more than once within one Lambda deployment
@@ -63,37 +68,18 @@ public class StreamLambdaHandler implements RequestStreamHandler {
   @Override
   public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
       throws IOException {
-    byte[] inputBytes = StreamUtils.copyToByteArray(inputStream);
-    if (isWarmupRequest(toString(inputBytes))) {
+
+    String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());    
+    
+    if (isWarmupRequest(input)) {
       delayToAllowAnotherLambdaInstanceWarming();
       try (Writer osw = new OutputStreamWriter(outputStream)) {
         osw.write(LambdaContainerStats.getStats());
       }
     } else {
       LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
-      handler.proxyStream(toInputStream(inputBytes), outputStream, context);
+      handler.proxyStream(inputStream, outputStream, context);
     }
-  }
-
-  /**
-   * Converts byte array to {@link InputStream}.
-   *
-   * @param inputBytes Input byte array.
-   * @return {@link InputStream} over byte array.
-   * @throws IOException When unable to convert.
-   */
-  @NotNull
-  private InputStream toInputStream(byte[] inputBytes) throws IOException {
-    try (InputStream inputStream = new ByteArrayInputStream(inputBytes)) {
-      return inputStream;
-    }
-  }
-
-  /**
-   * Converts {@code inputBytes} to an UTF-8 encoded string.
-   */
-  private String toString(byte[] inputBytes) {
-    return new String(inputBytes, StandardCharsets.UTF_8);
   }
 
   /**
@@ -120,6 +106,12 @@ public class StreamLambdaHandler implements RequestStreamHandler {
    * @return true if the incoming request is a keep-warm one otherwise false.
    */
   private boolean isWarmupRequest(String action) {
-    return action.contains(KEEP_WARM_ACTION);
+    boolean isWarmupRequest = action.contains(KEEP_WARM_ACTION);
+
+    if (isWarmupRequest) {
+      log.info("Received lambda warmup request");
+    }
+    
+    return isWarmupRequest;
   }
 }
