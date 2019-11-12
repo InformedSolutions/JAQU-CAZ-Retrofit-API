@@ -35,7 +35,7 @@
 		<sonar.exclusions>
 			**/Application.java
 		</sonar.exclusions>
-		<sonar.issue.ignore.multicriteria>j1,j2,j3,j4,j5,j6</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria>j1,j2,j3,j4,j5,j6,j7</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.j1.ruleKey>
 			squid:S1075
 		</sonar.issue.ignore.multicriteria.j1.ruleKey>
@@ -72,6 +72,12 @@
 		<sonar.issue.ignore.multicriteria.j6.resourceKey>
 			**/*.java
 		</sonar.issue.ignore.multicriteria.j6.resourceKey>
+		<sonar.issue.ignore.multicriteria.j7.ruleKey>
+			squid:S00112
+		</sonar.issue.ignore.multicriteria.j7.ruleKey>
+		<sonar.issue.ignore.multicriteria.j7.resourceKey>
+			**/StreamLambdaHandler.java
+		</sonar.issue.ignore.multicriteria.j7.resourceKey>
 
 		<!-- to enable running only integration tests without unit tests -->
 		<skipUnitTests>${skipTests}</skipUnitTests>
