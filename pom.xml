@@ -19,7 +19,7 @@
 
 		<artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-		<internal.libraries.version>1.6.2-SNAPSHOT</internal.libraries.version>
+		<internal.libraries.version>1.8.0-SNAPSHOT</internal.libraries.version>
 
 		<codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
 		<codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
@@ -27,6 +27,7 @@
 			**/configuration/**/*.java,**/amazonaws/StreamLambdaHandler.java,
 			**/amazonaws/RuntimeExceptionHandlerLambda.java,**/amazonaws/LambdaHandler.java,
 			**/amazonaws/RetrofitRegisterCsvFromS3Lambda.java,**/dto/*.java,
+			**/amazonaws/CleanupOldAuditDataLambdaHandler.java
 			**/Application.java
 		</sonar.coverage.exclusions>
 		<sonar.coverage.jacoco.xmlReportPaths>
@@ -120,6 +121,11 @@
 		<dependency>
 			<groupId>uk.gov.caz</groupId>
 			<artifactId>aws-lambda-base</artifactId>
+			<version>${internal.libraries.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.gov.caz</groupId>
+			<artifactId>aws-lambda-audit-cleaner</artifactId>
 			<version>${internal.libraries.version}</version>
 		</dependency>
 		<dependency>
@@ -586,6 +592,7 @@
 								<exclude>**/amazonaws/StreamLambdaHandler.class</exclude>
 								<exclude>**/amazonaws/RetrofitRegisterCsvFromS3Lambda.class</exclude>
 								<exclude>**/amazonaws/RuntimeExceptionHandlerLambda.class</exclude>
+								<exclude>**/amazonaws/CleanupOldAuditDataLambdaHandler.class</exclude>
 								<exclude>**/dto/*.class</exclude>
 							</excludes>
 							<rules>
