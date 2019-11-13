@@ -1,6 +1,7 @@
 package uk.gov.caz.retrofit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static uk.gov.caz.retrofit.controller.Constants.CORRELATION_ID_HEADER;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +31,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketCannedACL;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import uk.gov.caz.retrofit.annotation.FullyRunningServerIntegrationTest;
 import uk.gov.caz.retrofit.dto.RegisterCsvFromS3JobHandle;
 import uk.gov.caz.retrofit.dto.RegisterJobStatusDto;
@@ -104,6 +107,7 @@ public class RegisterTestIT {
 
     whenVehiclesAreRegisteredBySecondUploader();
     thenNoVehiclesShouldBeRegisteredBySecondUploader();
+    andAllFailedFilesShouldBeRemovedFromS3();
     andJobShouldFinishWithFailureStatus();
     andThereShouldBeMaxValidationErrors();
   }
@@ -123,6 +127,19 @@ public class RegisterTestIT {
 
   private void whenVehiclesAreRegisteredBySecondUploader() {
     registerVehiclesFrom("second-uploader-max-validation-errors-exceeded.csv");
+  }
+
+  void andAllFailedFilesShouldBeRemovedFromS3() {
+    Arrays.stream(UPLOADER_TO_FILES.get(SECOND_UPLOADER_ID.toString())).forEach(file -> {
+      GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+          .bucket(BUCKET_NAME)
+          .key(file)
+          .build();
+
+      Throwable throwable = catchThrowable(() -> s3Client.getObject(getObjectRequest));
+
+      assertThat(throwable).isInstanceOf(NoSuchKeyException.class);
+    });
   }
 
   private void andThereShouldBeNoErrors() {

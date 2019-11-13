@@ -34,6 +34,8 @@ import uk.gov.caz.testutils.TestObjects;
 class RegisterFromCsvCommandTest {
 
   private static final int ANY_MAX_ERRORS_COUNT = 10;
+  public static final String BUCKET = "bucket";
+  public static final String FILENAME = "filename";
 
   @Mock
   private RetrofittedVehicleDtoCsvRepository csvRepository;
@@ -56,7 +58,8 @@ class RegisterFromCsvCommandTest {
   public void setup() {
     RegisterServicesContext context = new RegisterServicesContext(registerService,
         exceptionResolver, jobSupervisor, converter, csvRepository, ANY_MAX_ERRORS_COUNT);
-    registerFromCsvCommand = new RegisterFromCsvCommand(context, S3_REGISTER_JOB_ID, TYPICAL_CORRELATION_ID, "bucket", "filename");
+    registerFromCsvCommand = new RegisterFromCsvCommand(context, S3_REGISTER_JOB_ID, TYPICAL_CORRELATION_ID,
+        BUCKET, FILENAME);
   }
 
   @Test
@@ -99,6 +102,7 @@ class RegisterFromCsvCommandTest {
     RuntimeException exception = new RuntimeException();
     given(csvRepository.findAll(any(), any())).willThrow(exception);
     given(exceptionResolver.resolve(exception)).willReturn(RegisterResult.failure(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
     RegisterResult result = registerFromCsvCommand.execute();
@@ -118,6 +122,7 @@ class RegisterFromCsvCommandTest {
     );
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
     given(converter.convert(eq(vehicles), anyInt())).willReturn(ConversionResults.from(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
     RegisterResult result = registerFromCsvCommand.execute();
@@ -136,6 +141,7 @@ class RegisterFromCsvCommandTest {
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
     given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
     given(registerService.register(conversionResults.getRetrofittedVehicles())).willReturn(RegisterResult.failure(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
     RegisterResult result = registerFromCsvCommand.execute();

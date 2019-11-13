@@ -47,6 +47,16 @@ public abstract class AbstractRegisterCommand {
   abstract List<ValidationError> getParseValidationErrors();
 
   /**
+   * Returns a boolean indicating whether the job should be marked as failed.
+   */
+  abstract boolean shouldMarkJobFailed();
+
+  /**
+   * Method hook before marking job as failed.
+   */
+  abstract void onBeforeMarkJobFailed();
+
+  /**
    * Method that executes logic common for all providers eg. S3 or REST API.
    *
    * @return {@link RegisterResult} register result of given rows.
@@ -116,13 +126,17 @@ public abstract class AbstractRegisterCommand {
 
   private void markJobFailed(
       RegisterJobStatus jobStatus, List<ValidationError> validationErrors) {
-    registerJobSupervisor.markFailureWithValidationErrors(
-        getRegisterJobId(),
-        jobStatus,
-        validationErrors
-    );
-    log.warn("Marked job '{}' as failed with status '{}', the number of validation errors: {}",
-        getRegisterJobId(), jobStatus, validationErrors.size());
+    onBeforeMarkJobFailed();
+
+    if (shouldMarkJobFailed()) {
+      registerJobSupervisor.markFailureWithValidationErrors(
+          getRegisterJobId(),
+          jobStatus,
+          validationErrors
+      );
+      log.warn("Marked job '{}' as failed with status '{}', the number of validation errors: {}",
+          getRegisterJobId(), jobStatus, validationErrors.size());
+    }
   }
 
   private void markJobRunning() {
