@@ -11,6 +11,7 @@ import com.amazonaws.serverless.proxy.spring.SpringBootProxyHandlerBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +32,7 @@ import uk.gov.caz.retrofit.dto.LambdaContainerStats;
 @Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
 
-  private static final String KEEP_WARM_ACTION = "warmup";
+  private static final String KEEP_WARM_ACTION = "keep-warm";
   
   /*
    * This field is `static` to avoid being garbage collected and in turn it prevents the application
@@ -70,7 +71,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       throws IOException {
 
     String input = StreamUtils.copyToString(inputStream, Charset.defaultCharset());    
-    
+    log.info("Input received: " + input);
     if (isWarmupRequest(input)) {
       delayToAllowAnotherLambdaInstanceWarming();
       try (Writer osw = new OutputStreamWriter(outputStream)) {
@@ -78,7 +79,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       }
     } else {
       LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
-      handler.proxyStream(inputStream, outputStream, context);
+      handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
     }
   }
 
