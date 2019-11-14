@@ -3,6 +3,18 @@ package uk.gov.caz.retrofit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static uk.gov.caz.retrofit.controller.Constants.CORRELATION_ID_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.CACHE_CONTROL_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.CACHE_CONTROL_VALUE;
+import static uk.gov.caz.security.SecurityHeadersInjector.CONTENT_SECURITY_POLICY_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.CONTENT_SECURITY_POLICY_VALUE;
+import static uk.gov.caz.security.SecurityHeadersInjector.PRAGMA_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.PRAGMA_HEADER_VALUE;
+import static uk.gov.caz.security.SecurityHeadersInjector.STRICT_TRANSPORT_SECURITY_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.STRICT_TRANSPORT_SECURITY_VALUE;
+import static uk.gov.caz.security.SecurityHeadersInjector.X_CONTENT_TYPE_OPTIONS_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.X_CONTENT_TYPE_OPTIONS_VALUE;
+import static uk.gov.caz.security.SecurityHeadersInjector.X_FRAME_OPTIONS_HEADER;
+import static uk.gov.caz.security.SecurityHeadersInjector.X_FRAME_OPTIONS_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -54,8 +66,10 @@ import uk.gov.caz.retrofit.service.CsvFileOnS3MetadataExtractor;
 @Slf4j
 public class RegisterTestIT {
 
-  private static final UUID FIRST_UPLOADER_ID = UUID.fromString("6314d1d6-706a-40ce-b392-a0e618ab45b8");
-  private static final UUID SECOND_UPLOADER_ID = UUID.fromString("07447271-df3d-4217-9092-41f1252864b8");
+  private static final UUID FIRST_UPLOADER_ID = UUID
+      .fromString("6314d1d6-706a-40ce-b392-a0e618ab45b8");
+  private static final UUID SECOND_UPLOADER_ID = UUID
+      .fromString("07447271-df3d-4217-9092-41f1252864b8");
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
   private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 9;
 
@@ -66,7 +80,8 @@ public class RegisterTestIT {
 
   private static final Map<String, String[]> UPLOADER_TO_FILES = ImmutableMap.of(
       FIRST_UPLOADER_ID.toString(), new String[]{"first-uploader-records-all.csv"},
-      SECOND_UPLOADER_ID.toString(), new String[]{"second-uploader-max-validation-errors-exceeded.csv"}
+      SECOND_UPLOADER_ID.toString(),
+      new String[]{"second-uploader-max-validation-errors-exceeded.csv"}
   );
 
   @LocalServerPort
@@ -187,6 +202,12 @@ public class RegisterTestIT {
         .then()
         .statusCode(HttpStatus.CREATED.value())
         .header(CORRELATION_ID_HEADER, correlationId)
+        .header(STRICT_TRANSPORT_SECURITY_HEADER, STRICT_TRANSPORT_SECURITY_VALUE)
+        .header(PRAGMA_HEADER, PRAGMA_HEADER_VALUE)
+        .header(X_CONTENT_TYPE_OPTIONS_HEADER, X_CONTENT_TYPE_OPTIONS_VALUE)
+        .header(X_FRAME_OPTIONS_HEADER, X_FRAME_OPTIONS_VALUE)
+        .header(CONTENT_SECURITY_POLICY_HEADER, CONTENT_SECURITY_POLICY_VALUE)
+        .header(CACHE_CONTROL_HEADER, CACHE_CONTROL_VALUE)
         .extract().as(RegisterCsvFromS3JobHandle.class);
   }
 
@@ -238,7 +259,8 @@ public class RegisterTestIT {
                 .metadata(
                     ImmutableMap.of(
                         RetrofittedVehicleDtoCsvRepository.UPLOADER_ID_METADATA_KEY, uploaderId,
-                        CsvFileOnS3MetadataExtractor.CSV_CONTENT_TYPE_METADATA_KEY, CsvContentType.RETROFIT_LIST.toString()
+                        CsvFileOnS3MetadataExtractor.CSV_CONTENT_TYPE_METADATA_KEY,
+                        CsvContentType.RETROFIT_LIST.toString()
                     )
                 ),
             FILE_BASE_PATH.resolve(filename));
