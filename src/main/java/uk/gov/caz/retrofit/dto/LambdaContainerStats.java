@@ -37,6 +37,13 @@ public class LambdaContainerStats {
   }
 
   /**
+   * Get container instanceId.
+   */
+  public static String getInstanceId() {
+    return INSTANCE_ID;
+  }
+
+  /**
    * Get the container stats.
    * 
    * @return a string that contains lambda container Id and (optionally) the time

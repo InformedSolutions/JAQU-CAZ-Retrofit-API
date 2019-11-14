@@ -84,17 +84,22 @@ public class StreamLambdaHandler implements RequestStreamHandler {
   }
 
   /**
-   * Delay lambda response to allow subsequent keep-warm requests to be routed to a different lambda
-   * container.
+   * Delay lambda response if the container is new and cold
+   * to allow subsequent keep-warm requests to be routed to a different lambda container.
    *
    * @throws IOException when it is impossible to pause the thread
    */
   private void delayToAllowAnotherLambdaInstanceWarming() throws IOException {
     try {
-      Thread.sleep(Integer.parseInt(
-          Optional.ofNullable(
-              System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
-              .orElse("100")));
+      if (LambdaContainerStats.getLatestRequestTime() == null) {
+        int sleepDuration = Integer.parseInt(Optional.ofNullable(
+                                  System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
+                                  .orElse("100"));
+        log.info(String.format("Container %s go to sleep for %f seconds",
+            LambdaContainerStats.getInstanceId(),
+            (double)sleepDuration / 1000));
+        Thread.sleep(sleepDuration);
+      }
     } catch (Exception e) {
       throw new IOException(e);
     }
