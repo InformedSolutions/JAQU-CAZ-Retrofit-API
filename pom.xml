@@ -133,6 +133,11 @@
 			<artifactId>version-logger</artifactId>
 			<version>${internal.libraries.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>uk.gov.caz</groupId>
+			<artifactId>security</artifactId>
+			<version>${internal.libraries.version}</version>
+		</dependency>
 		<!-- Internal libraries : end -->
 
 		<dependency>
