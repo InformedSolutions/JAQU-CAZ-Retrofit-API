@@ -236,6 +236,8 @@ steps:
     when:
       event:
         - push
+        
+        
   ################################################# End Development Only #######################################################
 
 ---
@@ -498,6 +500,15 @@ steps:
     when:
       event:
         - push
+        
+  # subscribe to operational monitoring alert in api sit
+  - name: subscribe to operational monitoring alert in api sit
+    image: alpine:latest
+    commands:
+      - apk add --update bash python python-dev py-pip build-base
+      - pip install awscli
+      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
+        
   ################################################# End SIT Steps #######################################################
 ---
 
