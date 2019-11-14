@@ -45,7 +45,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     try {
       // For applications that take longer than 10 seconds to start, use the async builder:
       String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
-      LambdaContainerHandler.getContainerConfig().setInitializationTimeout(60_000);
+      LambdaContainerHandler.getContainerConfig().setInitializationTimeout(50_000);
       if (listOfActiveSpringProfiles != null) {
         handler = new SpringBootProxyHandlerBuilder()
             .defaultProxy()

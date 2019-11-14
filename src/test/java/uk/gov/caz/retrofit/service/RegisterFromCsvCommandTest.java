@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.caz.testutils.TestObjects.MODIFIED_REGISTER_JOB_VALIDATION_ERRORS;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
@@ -34,6 +35,8 @@ import uk.gov.caz.testutils.TestObjects;
 class RegisterFromCsvCommandTest {
 
   private static final int ANY_MAX_ERRORS_COUNT = 10;
+  public static final String BUCKET = "bucket";
+  public static final String FILENAME = "filename";
 
   @Mock
   private RetrofittedVehicleDtoCsvRepository csvRepository;
@@ -56,7 +59,8 @@ class RegisterFromCsvCommandTest {
   public void setup() {
     RegisterServicesContext context = new RegisterServicesContext(registerService,
         exceptionResolver, jobSupervisor, converter, csvRepository, ANY_MAX_ERRORS_COUNT);
-    registerFromCsvCommand = new RegisterFromCsvCommand(context, S3_REGISTER_JOB_ID, TYPICAL_CORRELATION_ID, "bucket", "filename");
+    registerFromCsvCommand = new RegisterFromCsvCommand(context, S3_REGISTER_JOB_ID, TYPICAL_CORRELATION_ID,
+        BUCKET, FILENAME);
   }
 
   @Test
@@ -99,6 +103,7 @@ class RegisterFromCsvCommandTest {
     RuntimeException exception = new RuntimeException();
     given(csvRepository.findAll(any(), any())).willThrow(exception);
     given(exceptionResolver.resolve(exception)).willReturn(RegisterResult.failure(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
     RegisterResult result = registerFromCsvCommand.execute();
@@ -118,6 +123,7 @@ class RegisterFromCsvCommandTest {
     );
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
     given(converter.convert(eq(vehicles), anyInt())).willReturn(ConversionResults.from(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
     RegisterResult result = registerFromCsvCommand.execute();
@@ -136,6 +142,7 @@ class RegisterFromCsvCommandTest {
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
     given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
     given(registerService.register(conversionResults.getRetrofittedVehicles())).willReturn(RegisterResult.failure(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
     RegisterResult result = registerFromCsvCommand.execute();
@@ -143,5 +150,26 @@ class RegisterFromCsvCommandTest {
     // then
     BDDAssertions.then(result.isSuccess()).isFalse();
     verify(jobSupervisor).markFailureWithValidationErrors(anyInt(), eq(RegisterJobStatus.FINISHED_FAILURE_VALIDATION_ERRORS), anyList());
+  }
+
+  @Test
+  public void shouldNotSetJobStatusIfFileWasntDeletedFromS3() {
+    // given
+    List<RetrofittedVehicleDto> vehicles = Collections.singletonList(RetrofittedVehicleDto.builder().vrn("abc").build());
+    CsvFindResult csvFindResult = new CsvFindResult(TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID,
+        vehicles, Collections.emptyList());
+    ConversionResults conversionResults = ConversionResults.from(Collections.emptyList());
+    given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
+    given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
+    given(registerService.register(conversionResults.getRetrofittedVehicles()))
+        .willReturn(RegisterResult.failure(Collections.emptyList()));
+    given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(false);
+
+    // when
+    RegisterResult result = registerFromCsvCommand.execute();
+
+    // then
+    BDDAssertions.then(result.isSuccess()).isFalse();
+    verify(jobSupervisor, never()).markFailureWithValidationErrors(anyInt(), any(), anyList());
   }
 }
