@@ -1,3 +1,54 @@
+  #################################################### Nightly Steps ############################################################
+kind: pipeline
+type: docker
+name: retrofit-api-nightly
+trigger:
+  event:
+    - cron
+concurrency:
+  limit: 1
+volumes:
+- name: docker_sock
+  host:
+    path: /var/run/docker.sock
+
+services:
+  - name: zap
+    image: owasp/zap2docker-stable
+    commands:
+      - zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config api.disablekey=true
+    ports:
+      - 8080
+
+steps:
+
+  # Build docker images
+  - name: build docker maven base
+    image: docker
+    commands:
+      - docker build -t retrofit-api-base -f ci-cd-resources/Dockerfile.ci.base .
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+  - name: owasp dependency scan
+    image: retrofit-api-base
+    pull: never
+    commands:
+      - mvn org.owasp:dependency-check-maven:check -P security
+    environment:
+      JAQU_NEXUS_URL:
+        from_secret: nexus_url
+      JAQU_NEXUS_USER:
+        from_secret: nexus_username
+      JAQU_NEXUS_PASSWORD:
+        from_secret: nexus_password
+
+---
+
+
+
+
   ################################################### DEV Steps ########################################################
 
 kind: pipeline
