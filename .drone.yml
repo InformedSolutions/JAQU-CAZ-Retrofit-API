@@ -12,14 +12,6 @@ volumes:
   host:
     path: /var/run/docker.sock
 
-services:
-  - name: zap
-    image: owasp/zap2docker-stable
-    commands:
-      - zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config api.disablekey=true
-    ports:
-      - 8080
-
 steps:
 
   # Build docker images
@@ -44,6 +36,8 @@ steps:
       JAQU_NEXUS_PASSWORD:
         from_secret: nexus_password
 
+
+  ################################################# End Nightly Steps #######################################################
 ---
 
 
