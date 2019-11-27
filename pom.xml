@@ -19,7 +19,7 @@
 
 		<artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-		<internal.libraries.version>2.0-SNAPSHOT</internal.libraries.version>
+		<internal.libraries.version>2.5-SNAPSHOT</internal.libraries.version>
 
 		<codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
 		<codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
@@ -243,6 +243,14 @@
 				<exclusion>
 					<groupId>junit</groupId>
 					<artifactId>junit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
