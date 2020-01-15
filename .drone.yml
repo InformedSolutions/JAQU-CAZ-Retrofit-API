@@ -964,7 +964,6 @@ steps:
       - pip install awscli
       - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter --email ISSupport-CAZ@informed.com
     environment:
-    environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
       AWS_SECRET_ACCESS_KEY:
