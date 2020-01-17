@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
@@ -79,6 +80,26 @@ public class RetrofittedVehicleDtoCsvRepository {
     } catch (IOException e) {
       log.error("IOException while reading file {}/{}", bucket, filename);
       throw new UncheckedIOException(e);
+    }
+  }
+
+  /**
+   * Deletes file from S3 and reports status to the caller.
+   */
+  public boolean purgeFile(String bucket, String filename) {
+    try {
+      log.info("Deleting file {}/{} from S3", bucket, filename);
+
+      DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+          .bucket(bucket)
+          .key(filename)
+          .build();
+      s3Client.deleteObject(deleteObjectRequest);
+
+      return true;
+    } catch (Exception e) {
+      log.warn("Cannot delete file from S3", e);
+      return false;
     }
   }
 

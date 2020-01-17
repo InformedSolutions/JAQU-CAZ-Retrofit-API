@@ -19,7 +19,7 @@
 
 		<artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-		<internal.libraries.version>1.6.2-SNAPSHOT</internal.libraries.version>
+		<internal.libraries.version>2.5-SNAPSHOT</internal.libraries.version>
 
 		<codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
 		<codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
@@ -35,7 +35,7 @@
 		<sonar.exclusions>
 			**/Application.java
 		</sonar.exclusions>
-		<sonar.issue.ignore.multicriteria>j1,j2,j3,j4,j5,j6</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria>j1,j2,j3,j4,j5,j6,j7</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.j1.ruleKey>
 			squid:S1075
 		</sonar.issue.ignore.multicriteria.j1.ruleKey>
@@ -72,6 +72,12 @@
 		<sonar.issue.ignore.multicriteria.j6.resourceKey>
 			**/*.java
 		</sonar.issue.ignore.multicriteria.j6.resourceKey>
+		<sonar.issue.ignore.multicriteria.j7.ruleKey>
+			squid:S00112
+		</sonar.issue.ignore.multicriteria.j7.ruleKey>
+		<sonar.issue.ignore.multicriteria.j7.resourceKey>
+			**/StreamLambdaHandler.java
+		</sonar.issue.ignore.multicriteria.j7.resourceKey>
 
 		<!-- to enable running only integration tests without unit tests -->
 		<skipUnitTests>${skipTests}</skipUnitTests>
@@ -125,6 +131,11 @@
 		<dependency>
 			<groupId>uk.gov.caz</groupId>
 			<artifactId>version-logger</artifactId>
+			<version>${internal.libraries.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.gov.caz</groupId>
+			<artifactId>security</artifactId>
 			<version>${internal.libraries.version}</version>
 		</dependency>
 		<!-- Internal libraries : end -->
@@ -232,6 +243,14 @@
 				<exclusion>
 					<groupId>junit</groupId>
 					<artifactId>junit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

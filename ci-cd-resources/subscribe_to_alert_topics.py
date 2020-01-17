@@ -20,7 +20,7 @@ def list_topics_subscribed_by(email):
         with open('subscriptions.json','r') as f:
                 _list = json.load(f)
         for _subscription in _list['Subscriptions']:
-                if _subscription['SubscriptionArn'].startswith('arn:aws:sns') \
+                if (_subscription['SubscriptionArn'].startswith('arn:aws:sns') or _subscription['SubscriptionArn'] == 'PendingConfirmation') \
                         and _subscription['Protocol'].lower() == 'email' \
                         and _subscription['Endpoint'].lower() == str(email).lower():
                         subscribed_topics.append(_subscription['TopicArn'])

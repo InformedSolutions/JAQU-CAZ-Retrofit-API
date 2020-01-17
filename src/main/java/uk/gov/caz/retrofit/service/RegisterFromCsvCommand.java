@@ -19,6 +19,8 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
 
   private CsvFindResult csvFindResult;
 
+  private boolean shouldPurgeFileFromS3;
+
   /**
    * Creates an instance of {@link RegisterFromCsvCommand}.
    */
@@ -45,6 +47,16 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
   List<ValidationError> getParseValidationErrors() {
     checkCsvParseResultsPresentPrecondition();
     return csvFindResult.getValidationErrors();
+  }
+
+  @Override
+  boolean shouldMarkJobFailed() {
+    return shouldPurgeFileFromS3;
+  }
+
+  @Override
+  void onBeforeMarkJobFailed() {
+    shouldPurgeFileFromS3 = csvRepository.purgeFile(bucket, filename);
   }
 
   private void checkCsvParseResultsPresentPrecondition() {

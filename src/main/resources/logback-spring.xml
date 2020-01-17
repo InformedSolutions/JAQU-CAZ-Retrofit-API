@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <include resource="uk/gov/caz/logger/base.xml"/>
-  <logger name="org.springframework" level="WARN"/>
-  <logger name="uk.gov.caz.retrofit" level="TRACE"/>
+  <logger name="org.springframework" level="INFO"/>
 </configuration>

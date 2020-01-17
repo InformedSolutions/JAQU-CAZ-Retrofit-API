@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
@@ -178,6 +179,33 @@ class RetrofittedVehicleDtoCsvRepositoryTest {
 
     assertThat(csvRepository.findAll(ANY_BUCKET, ANY_FILE).getVehicles())
         .containsExactlyElementsOf(vehicles);
+  }
+
+  @Test
+  public void shouldReturnDeleteStatusAsFalseIfAnyExceptionWasThrownDuringDeletingObject() {
+    mockExceptionWhenDeletingS3Object(new RuntimeException());
+
+    assertThat(csvRepository.purgeFile(ANY_BUCKET, ANY_FILE)).isFalse();
+  }
+
+  @Test
+  public void shouldDeleteFromS3WithGivenBucketAndFile() {
+    mockS3DeleteCallForSuccess();
+
+    assertThat(csvRepository.purgeFile(ANY_BUCKET, ANY_FILE)).isTrue();
+  }
+
+  private void mockExceptionWhenDeletingS3Object(Exception e) {
+    when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
+        .thenAnswer(answer -> {
+          throw e;
+        });
+  }
+
+  private void mockS3DeleteCallForSuccess() {
+    when(s3Client
+        .deleteObject(DeleteObjectRequest.builder().bucket(ANY_BUCKET).key(ANY_FILE).build()))
+        .thenReturn(null);
   }
 
   private void mockS3HeadObjectResponseWithContentSize(Long fileSize) {
