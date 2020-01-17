@@ -962,7 +962,7 @@ steps:
     commands:
       - apk add --update bash python python-dev py-pip build-base
       - pip install awscli
-      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
+      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter --email ISSupport-CAZ@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
