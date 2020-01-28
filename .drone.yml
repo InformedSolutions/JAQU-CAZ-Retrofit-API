@@ -306,7 +306,7 @@ name: retrofit-api-st
 
 trigger:
   branch:
-    - release/*
+    - release-candidate/*
   event:
     - pull_request
     - push
