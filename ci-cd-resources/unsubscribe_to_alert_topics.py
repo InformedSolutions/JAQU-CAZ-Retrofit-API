@@ -32,7 +32,7 @@ def list_topics_subscribed_by(email, includes, excludes):
                   and _subscription['Protocol'].lower() == 'email' \
                   and _subscription['Endpoint'].lower() == str(email).lower() \
                   and (len(includes.strip()) == 0 or include_keywords(topicName, includes)) and (len(excludes.strip()) == 0 or not(exclude_keywords(topicName, excludes))):
-                  subscription_arns.append(_subscription['TopicArn'])
+                  subscription_arns.append(_subscription['SubscriptionArn'])
 	os.system('rm subscriptions.json')
 
 # read commandline arguments
