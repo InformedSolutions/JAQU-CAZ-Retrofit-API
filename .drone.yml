@@ -267,9 +267,9 @@ steps:
   - name: subscribe to operational monitoring alert in api dev
     image: alpine:latest
     commands:
-      - apk add --update bash python python-dev py-pip build-base
-      - pip install awscli
-      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
+      - apk add --update python3 groff
+      - pip3 install awscli
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i dev -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
@@ -548,9 +548,9 @@ steps:
   - name: subscribe to operational monitoring alert in api st
     image: alpine:latest
     commands:
-      - apk add --update bash python python-dev py-pip build-base
-      - pip install awscli
-      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
+      - apk add --update python3 groff
+      - pip3 install awscli
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i st -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
@@ -827,9 +827,9 @@ steps:
   - name: subscribe to operational monitoring alert in api sit
     image: alpine:latest
     commands:
-      - apk add --update bash python python-dev py-pip build-base
-      - pip install awscli
-      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
+      - apk add --update python3 groff
+      - pip3 install awscli
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i sit -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
@@ -1032,9 +1032,9 @@ steps:
   - name: subscribe to operational monitoring alert in api preprod
     image: alpine:latest
     commands:
-      - apk add --update bash python python-dev py-pip build-base
-      - pip install awscli
-      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
+      - apk add --update python3 groff
+      - pip3 install awscli
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i preprod -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
@@ -1237,9 +1237,9 @@ steps:
   - name: subscribe to operational monitoring alert in api prod
     image: alpine:latest
     commands:
-      - apk add --update bash python python-dev py-pip build-base
-      - pip install awscli
-      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter --email ISSupport-CAZ@informed.com
+      - apk add --update python3 groff
+      - pip3 install awscli
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i="-prod" -i retrofit ISSupport-CAZ@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id

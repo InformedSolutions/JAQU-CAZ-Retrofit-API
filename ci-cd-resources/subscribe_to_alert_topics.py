@@ -1,98 +1,122 @@
-import os, getopt, sys, json
+#!/usr/bin/python3
 
-subscribed_topics = []
-dryrun = False
-email = 'JAQU-CAZ-OPERATIONALMONITORING@informed.com'
-includes = ''
-excludes = ''
-
-def include_keywords(topic, keywords):
-	for keyword in keywords.split(','):
-		if topic.find(keyword) == -1:
-			return False
-	return True
-
-def exclude_keywords(topic, keywords):
-	for keyword in keywords.split(','):
-		if topic.find(keyword) >= 0:
-			return True
-	return False
-
-def list_topics_subscribed_by(email):
-        global subscribed_topics
-        listSubscriptionsCmd = 'aws sns list-subscriptions > subscriptions.json'
-        os.system(listSubscriptionsCmd)
-
-        with open('subscriptions.json','r') as f:
-                _list = json.load(f)
-        for _subscription in _list['Subscriptions']:
-                if (_subscription['SubscriptionArn'].startswith('arn:aws:sns') or _subscription['SubscriptionArn'] == 'PendingConfirmation') \
-                        and _subscription['Protocol'].lower() == 'email' \
-                        and _subscription['Endpoint'].lower() == str(email).lower():
-                        subscribed_topics.append(_subscription['TopicArn'])
-	os.system('rm subscriptions.json')
-
-# read commandline arguments
-fullCmdArguments = sys.argv
-
-# - further arguments
-argumentList = fullCmdArguments[1:]
+import sys
+import argparse
+import json
+import subprocess
 
 
-unixOptions = "i:x:e:dh"
-gnuOptions = ["include=", "exclude=", "email=", "dryrun", "help"]
+def run_aws_command(args):
+    cmd = ['aws'] + args
+    print(' '.join(cmd))
+    try:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE)
+        result.check_returncode()
+        return json.loads(result.stdout)
+    except subprocess.CalledProcessError:
+        sys.exit(result.returncode)
 
-try:
-    arguments, values = getopt.getopt(argumentList, unixOptions, gnuOptions)
-except getopt.error as err:
-    # output error, and return with an error code
-    print (str(err))
-    sys.exit(2)
 
-# evaluate given options
-for currentArgument, currentValue in arguments:
-	if currentArgument in ("-i", "--include"):
-    		includes = currentValue
-	elif currentArgument in ("-x", "--exclude"):
-		excludes = currentValue
-	elif currentArgument in ("-e", "--email"):
-        	email = currentValue
-        elif currentArgument in ("-d", "--dryrun"):
-                dryrun = True
-        elif currentArgument in ("-h", "--help"):
-                print 'Usage:\n    python subscribe_to_alert_topic.py --include <topic name keyword> --exclude <topic name keyword> --email <recipient> --dryrun\n' \
-			'For example:\n' \
-			'  1.To subscribe to all RDS related alert topic in dev environment\n' \
-			'    python subscribe_to_alert_topic.py --include rds,dev\n' \
-			'  2.To subscribe to all alert topics in dev environment but exclude the dead letter queue\n' \
-			'    python subscribe_to_alert_topic.py --exclude dead,letter\n' \
-			'  3.To perform a dry run\n' \
-			'    python subscribe_to_alert_topic.py --include function,dev --exclude dead,letter --dryrun\n' \
+def subscribe(topic, email):
+    return run_aws_command([
+        'sns', 'subscribe',
+        '--topic-arn', topic,
+        '--protocol', 'email',
+        '--notification-endpoint', email])
 
-		sys.exit(0)
-# get list of topics subscribed by the email
-list_topics_subscribed_by(email)
 
-# query list of sns topics
-listTopicsCmd = 'aws sns list-topics > topics.json'
-os.system(listTopicsCmd)
+def unsubscribe(subscription):
+    try:
+        result = subprocess.run([
+            'aws', 'sns', 'unsubscribe',
+            '--subscription-arn', subscription], stdout=subprocess.PIPE)
+        result.check_returncode()
+    except subprocess.CalledProcessError:
+        sys.exit(result.returncode)
 
-with open('topics.json','r') as f:
-	topics = json.load(f)
 
-count = 0
-for topic in topics['Topics']:
- 	topicArn = topic['TopicArn']
-	topicName = topicArn[slice(topicArn.rfind(':')+1,len(topicArn))]
-	if (len(includes.strip()) == 0 or include_keywords(topicName, includes)) and (len(excludes.strip()) == 0 or not(exclude_keywords(topicName, excludes))):
-		subscribeToTopicsCmd =  'aws sns subscribe --topic-arn {} --protocol email --notification-endpoint {}'.format(topicArn,email)
-		if topicArn not in subscribed_topics:
-			count += 1
-	                if dryrun:
-				print subscribeToTopicsCmd
-			else:
-				os.system(subscribeToTopicsCmd)
+def get_subscribed_topics(topics, email, ignore_pending):
+    for sub in run_aws_command(['sns', 'list-subscriptions'])['Subscriptions']:
+        arn = sub['SubscriptionArn']
+        topic_arn = sub['TopicArn']
+        if (
+                topic_arn in topics and 
+                sub['Protocol'].lower() == 'email' and
+                sub['Endpoint'].lower() == email.lower() and (
+                    arn.startswith('arn:aws:sns') or (
+                        not ignore_pending and arn == 'PendingConfirmation'
+                    )
+                )):
+            yield topic_arn, arn
 
-#clean up
-os.system('rm topics.json')
-print '{} topics subscribed'.format(count) 
+
+def get_topics(includes, excludes):
+    for topic in run_aws_command(['sns', 'list-topics'])['Topics']:
+        arn = topic['TopicArn']
+        is_included = True
+        for include in includes or []:
+            if include not in arn:
+                is_included = False 
+        for exclude in excludes or []:
+            if exclude in arn:
+                is_included = False
+        if is_included:
+            print('Topic found:', arn)
+            yield arn
+
+
+def main(args):
+    email = args.email[0]
+    topics = set(get_topics(args.include, args.exclude))
+    print()
+
+    subscriptions = get_subscribed_topics(topics, email, args.ignore_pending)
+
+    if args.unsubscribe: # unsubscribe
+        len_subscriptions = 0
+        for topic, subscription in subscriptions:
+            len_subscriptions += 1
+            print('Unsubscribed from', topic)
+            if not args.dryrun:
+                unsubscribe(subscription)
+
+        print()
+        print('found', len(topics), 'included topics')
+        print('unsubscribed from', len_subscriptions, 'subscribed topics')
+
+    else: # subscribe
+        subscribed_topics = set(t for t, s in subscriptions)
+        unsubscribed_topics = topics - subscribed_topics
+        for topic in unsubscribed_topics:
+            print('Subscribed to', topic)
+            if not args.dryrun:
+                subscribe(topic, email)
+
+        print()
+        print('found', len(topics), 'included topics')
+        print('found', len(subscribed_topics), 'subscribed topics')
+        print('subscribed to', len(unsubscribed_topics), 'unsubscribed topics')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Subscribe to AWS alert topics.')
+    parser.add_argument(
+            'email', metavar='<email>', type=str, nargs=1,
+            help='Email address to subscribe topics to')
+    parser.add_argument(
+            '--include', '-i', metavar='<keyword>', type=str, action='append',
+            help='Include topics containing all of these keywords')
+    parser.add_argument(
+            '--exclude', '-e', metavar='<keyword>', type=str, action='append',
+            help='Exclude topics containing any of these keywords')
+    parser.add_argument(
+            '--dryrun', action='store_true',
+            help='Test run command without actually subscribing')
+    parser.add_argument(
+            '--ignore-pending', action='store_true',
+            help='Consider subscriptions pending confirmation as subscribed')
+    parser.add_argument(
+            '--unsubscribe', action='store_true',
+            help='Unsubscribe from subscribed topics found')
+    args = parser.parse_args()
+    main(args)
