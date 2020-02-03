@@ -12,6 +12,12 @@ def include_keywords(topic, keywords):
 			return False
 	return True
 
+def exclude_keywords(topic, keywords):
+	for keyword in keywords.split(','):
+		if topic.find(keyword) >= 0:
+			return True
+	return False
+
 def list_topics_subscribed_by(email):
         global subscribed_topics
         listSubscriptionsCmd = 'aws sns list-subscriptions > subscriptions.json'
@@ -59,9 +65,9 @@ for currentArgument, currentValue in arguments:
 			'  1.To subscribe to all RDS related alert topic in dev environment\n' \
 			'    python subscribe_to_alert_topic.py --include rds,dev\n' \
 			'  2.To subscribe to all alert topics in dev environment but exclude the dead letter queue\n' \
-                        '    python subscribe_to_alert_topic.py --exclude dead,letter\n' \
-  			'  3.To perform a dry run\n' \
-                        '    python subscribe_to_alert_topic.py --include function,dev --exclude dead,letter --dryrun\n' \
+			'    python subscribe_to_alert_topic.py --exclude dead,letter\n' \
+			'  3.To perform a dry run\n' \
+			'    python subscribe_to_alert_topic.py --include function,dev --exclude dead,letter --dryrun\n' \
 
 		sys.exit(0)
 # get list of topics subscribed by the email
@@ -78,7 +84,7 @@ count = 0
 for topic in topics['Topics']:
  	topicArn = topic['TopicArn']
 	topicName = topicArn[slice(topicArn.rfind(':')+1,len(topicArn))]
-	if (len(includes.strip()) == 0 or include_keywords(topicName, includes)) and (len(excludes.strip()) == 0 or not(include_keywords(topicName, excludes))):
+	if (len(includes.strip()) == 0 or include_keywords(topicName, includes)) and (len(excludes.strip()) == 0 or not(exclude_keywords(topicName, excludes))):
 		subscribeToTopicsCmd =  'aws sns subscribe --topic-arn {} --protocol email --notification-endpoint {}'.format(topicArn,email)
 		if topicArn not in subscribed_topics:
 			count += 1
