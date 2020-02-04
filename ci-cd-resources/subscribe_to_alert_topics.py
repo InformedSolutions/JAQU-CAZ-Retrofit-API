@@ -119,4 +119,6 @@ if __name__ == '__main__':
             '--unsubscribe', action='store_true',
             help='Unsubscribe from subscribed topics found')
     args = parser.parse_args()
+    if args.unsubscribe:
+        args.ignore_pending = True
     main(args)
