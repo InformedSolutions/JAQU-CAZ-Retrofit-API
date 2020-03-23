@@ -70,7 +70,7 @@ public class CsvObjectMapper {
       } else {
         RetrofittedVehicleDto retrofittedVehicleDto = createRetrofittedVehicle(fields, lineNo);
         vehiclesBuilder.add(retrofittedVehicleDto);
-        log.debug("Retrofitted vehicle read: {}", retrofittedVehicleDto);
+        log.debug("Retrofitted vehicle read");
       }
       lineNo += 1;
     }
