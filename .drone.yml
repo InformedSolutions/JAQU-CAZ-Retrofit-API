@@ -831,7 +831,7 @@ steps:
     commands:
       - apk add --update python3 groff
       - pip3 install awscli
-      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i uat -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
+      - python ./ci-cd-resources/subscribe_to_alert_topics.py --include $PROJECT,$DEPLOY_ENVIRONMENT --exclude dead,letter
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: aws_access_key_id
