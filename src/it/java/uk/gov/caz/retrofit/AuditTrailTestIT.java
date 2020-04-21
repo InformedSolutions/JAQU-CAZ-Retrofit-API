@@ -2,17 +2,21 @@ package uk.gov.caz.retrofit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.jdbc.JdbcTestUtils;
+import org.springframework.test.annotation.Commit;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
 import uk.gov.caz.testutils.TestObjects;
+
 
 @IntegrationTest
 @Sql(scripts = {
@@ -31,28 +35,30 @@ public class AuditTrailTestIT {
   private ObjectMapper objectMapper;
 
   @Test
+  //@Transactional	
+  //@Commit
   public void testInsertUpdateDeleteOperationsAgainstAuditTrailTable() {
     atTheBeginningAuditLoggedActionsTableShouldBeEmpty();
+
 
     // INSERT case
     whenWeInsertSomeSampleDataIntoTestTable("InitialJobName");
     thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(1);
+    andAllRowsArePopulatedWithModifierId(1);
     andThereShouldBeExactlyOneInsertActionLogged();
-    withNewDataLike("RETROFIT_CSV_FROM_S3", "InitialJobName",
-        "11111111-2222-3333-4444-555555555555", "RUNNING");
+    withRowsOfNotNullNewData(1);
 
     // UPDATE case
     whenWeUpdateRegisterJobsTo("InitialJobName", "ModifiedJobName");
-
     thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(2);
+    andAllRowsArePopulatedWithModifierId(2);
     andThereShouldBeExactlyOneUpdateActionLogged();
-    withNewDataLike("RETROFIT_CSV_FROM_S3", "ModifiedJobName",
-        "11111111-2222-3333-4444-555555555555", "RUNNING");
+    withRowsOfNotNullNewData(2);
 
     // DELETE case
     whenWeDeleteRowFromRegisterJobsTable("ModifiedJobName");
-
     thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(3);
+    andAllRowsArePopulatedWithModifierId(3);
     andThereShouldBeExactlyOneDeleteActionLogged();
     withNewDataEqualToNull();
   }
@@ -62,25 +68,31 @@ public class AuditTrailTestIT {
   }
 
   private void whenWeInsertSomeSampleDataIntoTestTable(String jobName) {
+	jdbcTemplate.update(
+		"INSERT INTO audit.transaction_to_modifier(modifier_id) VALUES (?)",
+		        UUID.randomUUID().toString());
     jdbcTemplate.update(
         "INSERT INTO table_for_audit_test(TRIGGER, JOB_NAME, UPLOADER_ID, STATUS) "
             + "VALUES (?, ?, ?, ?)", TestObjects.S3_RETROFIT_REGISTER_JOB_TRIGGER.name(),
         jobName, TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, "RUNNING");
   }
-
+  
+  private void andAllRowsArePopulatedWithModifierId(int expectedNumberOfRows) {
+	    checkIfAuditTableContainsNumberOfRows(expectedNumberOfRows,
+	        "modifier_id is not null");
+	  }
+  
   private void thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(
       int expectedNumberOfRows) {
-    checkIfAuditTableContainsNumberOfRows(expectedNumberOfRows,
-        "TABLE_NAME = 'table_for_audit_test'");
+    checkIfAuditTableContainsNumberOfRows(expectedNumberOfRows, "TABLE_NAME = 'table_for_audit_test'");
   }
 
   private void andThereShouldBeExactlyOneInsertActionLogged() {
     checkIfAuditTableContainsNumberOfRows(1, "action = 'I'");
   }
 
-  private void withNewDataLike(String trigger, String jobName, String uploaderId, String status) {
-    checkIfAuditTableContainsNumberOfRows(1,
-        "'" + toJson(trigger, jobName, uploaderId, status) + "'::jsonb @> new_data");
+  private void withRowsOfNotNullNewData(int expectedCountOfRowsWithNotNullNewData) {
+    checkIfAuditTableContainsNumberOfRows(expectedCountOfRowsWithNotNullNewData, "new_data is not null");
   }
 
   private void whenWeUpdateRegisterJobsTo(String oldJobName, String newJobName) {
@@ -101,7 +113,8 @@ public class AuditTrailTestIT {
   }
 
   private void andThereShouldBeExactlyOneDeleteActionLogged() {
-    checkIfAuditTableContainsNumberOfRows(1, "action = 'D'");
+	  checkIfAuditTableContainsNumberOfRows(1,
+		        "action = 'D' and modifier_id is not null");
   }
 
   private void withNewDataEqualToNull() {

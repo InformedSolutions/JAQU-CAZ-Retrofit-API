@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0004-retrofit-1.0
+      author: daniel.thornton
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: audit
+              tableName: transaction_to_modifier
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0004-retrofit-1.0-create_audit_transaction_to_modifier.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
