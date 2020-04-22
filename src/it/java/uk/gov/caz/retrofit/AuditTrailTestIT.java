@@ -35,8 +35,8 @@ public class AuditTrailTestIT {
   private ObjectMapper objectMapper;
 
   @Test
-  //@Transactional	
-  //@Commit
+  @Transactional
+  @Commit
   public void testInsertUpdateDeleteOperationsAgainstAuditTrailTable() {
     atTheBeginningAuditLoggedActionsTableShouldBeEmpty();
 
