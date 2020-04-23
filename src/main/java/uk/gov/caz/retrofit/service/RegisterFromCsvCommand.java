@@ -2,6 +2,8 @@ package uk.gov.caz.retrofit.service;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.UUID;
+
 import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 import uk.gov.caz.retrofit.model.CsvFindResult;
 import uk.gov.caz.retrofit.model.ValidationError;
@@ -61,5 +63,10 @@ public class RegisterFromCsvCommand extends AbstractRegisterCommand {
 
   private void checkCsvParseResultsPresentPrecondition() {
     Preconditions.checkState(csvFindResult != null, "CSV parse results need to obtained first");
+  }
+  
+  @Override
+  UUID getUploaderId() {
+    return csvFindResult.getUploaderId();
   }
 }

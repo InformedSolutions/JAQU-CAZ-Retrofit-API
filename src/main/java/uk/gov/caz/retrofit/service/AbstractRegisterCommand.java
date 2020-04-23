@@ -2,6 +2,7 @@ package uk.gov.caz.retrofit.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,13 @@ public abstract class AbstractRegisterCommand {
     this.registerJobId = registerJobId;
     this.correlationId = correlationId;
   }
+
+  /**
+   * Gets {@code uploader-id}.
+   *
+   * @return {@link UUID} which represents the uploader.
+   */
+  abstract UUID getUploaderId();
 
   abstract void beforeExecute();
 
@@ -83,7 +91,10 @@ public abstract class AbstractRegisterCommand {
         return RegisterResult.failure(errors);
       }
 
-      RegisterResult result = registerService.register(conversionResults.getRetrofittedVehicles());
+      RegisterResult result = registerService.register(
+          conversionResults.getRetrofittedVehicles(),
+          getUploaderId()
+      );
 
       postProcessRegistrationResult(result);
 
