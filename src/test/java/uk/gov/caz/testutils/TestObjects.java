@@ -42,7 +42,7 @@ public class TestObjects {
   public static final RegisterJobStatus TYPICAL_STARTING_REGISTER_JOB_STATUS = RegisterJobStatus.STARTING;
   public static final UUID TYPICAL_REGISTER_JOB_UPLOADER_ID = UUID
       .fromString("11111111-2222-3333-4444-555555555555");
-  public static final String TYPICAL_CORRELATION_ID = "CorrelationId";
+  public static final String TYPICAL_CORRELATION_ID = "f09c6856-9746-4d48-813f-3a31f25f96a2";
 
   public static final RegisterJob S3_RUNNING_REGISTER_JOB = RegisterJob.builder()
       .id(S3_REGISTER_JOB_ID)
