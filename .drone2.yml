@@ -227,7 +227,7 @@ steps:
     image: alpine:latest
     commands:
       - apk add --update python3 groff
-      - pip install awscli
+      - pip3 install awscli
       - mkdir ~/.aws
       - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
       - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i dev -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
