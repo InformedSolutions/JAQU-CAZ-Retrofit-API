@@ -200,7 +200,7 @@ steps:
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
@@ -428,7 +428,7 @@ steps:
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
@@ -482,7 +482,7 @@ steps:
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
@@ -608,7 +608,7 @@ steps:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
@@ -676,7 +676,7 @@ steps:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
@@ -813,7 +813,7 @@ steps:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
@@ -881,7 +881,7 @@ steps:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
       - mkdir ~/.ssh
-      - echo -n "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - touch ~/.ssh/known_hosts
       - chmod 600 ~/.ssh/known_hosts
