@@ -143,7 +143,7 @@ steps:
         from_secret: jaqu_lower_sonar_token
     pull: never
     commands:
-      - mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST        
+      - mvn sonar:sonar -Dsonar.host.url=$SONAR_HOST
         -Dsonar.projectName=${DRONE_REPO}
         -Dsonar.login=$SONAR_TOKEN
         -Dsonar.coverage.jacoco.xmlReportPaths=/drone/src/target/site/jacoco-aggregate/jacoco.xml
@@ -186,6 +186,7 @@ steps:
       AWS_SECRET_ACCESS_KEY:
         from_secret: jaqu_lower_aws_secret_access_key
       AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_NAME: jaqu-lower
       GIT_PRIVATE_SSH:
         from_secret: jaqu_lower_github_private_key
     volumes:
@@ -255,14 +256,14 @@ kind: secret
 name: jaqu_lower_aws_access_key_id
 get:
   path: /build-tools/drone
-  name: awsAccessKeyId
+  name: awsLowerAccessKeyId
 
 ---
 kind: secret
 name: jaqu_lower_aws_secret_access_key
 get:
   path: /build-tools/drone
-  name: awsSecretAccessKey
+  name: awsLowerSecretAccessKey
 
 ---
 kind: secret
