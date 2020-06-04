@@ -249,7 +249,7 @@ steps:
 
 kind: pipeline
 type: docker
-name: retrofit-api-dev
+name: retrofit-api-st
 
 trigger:
   branch:
