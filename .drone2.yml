@@ -502,9 +502,9 @@ steps:
       - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i st -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
-        from_secret: jaqu_lower_aws_access_key_id
+        from_secret: jaqu_controlled_aws_access_key_id
       AWS_SECRET_ACCESS_KEY:
-        from_secret: jaqu_lower_aws_secret_access_key
+        from_secret: jaqu_controlled_aws_secret_access_key
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-controlledServiceRole
       PROJECT: retrofit
