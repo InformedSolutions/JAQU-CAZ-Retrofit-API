@@ -179,8 +179,6 @@ steps:
         from_secret: jaqu_master_aws_access_key_id
       TF_VAR_master_secret_key:
         from_secret: jaqu_master_aws_secret_access_key
-      TF_VAR_account_id:
-        from_secret: jaqu_lower_aws_account_id
       AWS_ACCESS_KEY_ID:
         from_secret: jaqu_lower_aws_access_key_id
       AWS_SECRET_ACCESS_KEY:
@@ -399,8 +397,6 @@ steps:
         from_secret: jaqu_master_aws_access_key_id
       TF_VAR_master_secret_key:
         from_secret: jaqu_master_aws_secret_access_key
-      TF_VAR_account_id:
-        from_secret: jaqu_controlled_aws_account_id
       AWS_ACCESS_KEY_ID:
         from_secret: jaqu_controlled_aws_access_key_id
       AWS_SECRET_ACCESS_KEY:
@@ -454,8 +450,6 @@ steps:
         from_secret: jaqu_master_aws_access_key_id
       TF_VAR_master_secret_key:
         from_secret: jaqu_master_aws_secret_access_key
-      TF_VAR_account_id:
-        from_secret: jaqu_controlled_aws_account_id
       AWS_ACCESS_KEY_ID:
         from_secret: jaqu_controlled_aws_access_key_id
       AWS_SECRET_ACCESS_KEY:
@@ -491,30 +485,30 @@ steps:
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-controlledServiceRole
       PROJECT: retrofit
-      DEPLOY_ENVIRONMENT: dev
+      DEPLOY_ENVIRONMENT: st
       LAMBDA_BUCKET: jaqu-shared-project-lambda-bucket
     when:
       event:
         - push
 
   # subscribe to operational monitoring alert in api dev
-  - name: subscribe to operational monitoring alert in api dev
+  - name: subscribe to operational monitoring alert in api st
     image: alpine:3.11.6
     commands:
       - apk add --update python3 groff
       - pip3 install awscli
       - mkdir ~/.aws
       - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
-      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i dev -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i st -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: jaqu_lower_aws_access_key_id
       AWS_SECRET_ACCESS_KEY:
         from_secret: jaqu_lower_aws_secret_access_key
       AWS_DEFAULT_REGION: eu-west-2
-      AWS_ACCOUNT_ROLE: arn:aws:iam::311075478274:role/jaqu-lowerServiceRole
+      AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-controlledServiceRole
       PROJECT: retrofit
-      DEPLOY_ENVIRONMENT: dev
+      DEPLOY_ENVIRONMENT: st
     when:
       event:
         - push
@@ -539,6 +533,21 @@ name: jaqu_lower_aws_secret_access_key
 get:
   path: /build-tools/drone
   name: awsLowerSecretAccessKey
+
+---
+kind: secret
+name: jaqu_controlled_aws_access_key_id
+get:
+  path: /build-tools/drone
+  name: awsControlledAccessKeyId
+
+---
+kind: secret
+name: jaqu_controlled_aws_secret_access_key
+get:
+  path: /build-tools/drone
+  name: awsControlledSecretAccessKey
+
 
 ---
 kind: secret
