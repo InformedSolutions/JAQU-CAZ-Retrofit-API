@@ -8,13 +8,16 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
+import uk.gov.caz.retrofit.repository.AuditingRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterServiceTest {
@@ -44,10 +47,16 @@ class RegisterServiceTest {
 
   private RegisterService registerService;
 
+  private static final UUID ANY_UPLOADER_ID = UUID
+      .fromString("c5052136-46b9-4a07-8051-7da01b5c84c5");
+
+  @Mock
+  private AuditingRepository auditingRepository;
+
   @BeforeEach
   void setup() {
     retrofittedRepository = new InMemoryRetrofittedRepository();
-    registerService = new RegisterService(retrofittedRepository);
+    registerService = new RegisterService(retrofittedRepository, auditingRepository);
   }
 
   @Test
@@ -57,7 +66,7 @@ class RegisterServiceTest {
 
     //then
     assertThatExceptionOfType(NullPointerException.class)
-        .isThrownBy(() -> registerService.register(vehiclesToPersist))
+        .isThrownBy(() -> registerService.register(vehiclesToPersist, ANY_UPLOADER_ID))
         .withMessage("retrofittedVehicles cannot be null");
   }
 
@@ -68,7 +77,7 @@ class RegisterServiceTest {
         .newHashSet(MILITARY_VEHICLE_1, NORMAL_VEHICLE_1);
 
     //when
-    registerService.register(vehiclesToPersist);
+    registerService.register(vehiclesToPersist, ANY_UPLOADER_ID);
 
     //then
     assertThat(retrofittedRepository.findAll())
@@ -83,8 +92,8 @@ class RegisterServiceTest {
     Set<RetrofittedVehicle> vehiclesToPersistInSecondJob = Sets.newHashSet(NORMAL_VEHICLE_2);
 
     //when
-    registerService.register(vehiclesToPersistInFirstJob);
-    registerService.register(vehiclesToPersistInSecondJob);
+    registerService.register(vehiclesToPersistInFirstJob, ANY_UPLOADER_ID);
+    registerService.register(vehiclesToPersistInSecondJob, ANY_UPLOADER_ID);
 
     //then
     assertThat(retrofittedRepository.retrofittedVehicles)

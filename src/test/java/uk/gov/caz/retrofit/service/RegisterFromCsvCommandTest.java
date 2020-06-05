@@ -28,6 +28,7 @@ import uk.gov.caz.retrofit.model.ConversionResults;
 import uk.gov.caz.retrofit.model.CsvFindResult;
 import uk.gov.caz.retrofit.model.ValidationError;
 import uk.gov.caz.retrofit.model.registerjob.RegisterJobStatus;
+import uk.gov.caz.retrofit.repository.AuditingRepository;
 import uk.gov.caz.retrofit.repository.RetrofittedVehicleDtoCsvRepository;
 import uk.gov.caz.testutils.TestObjects;
 
@@ -40,6 +41,9 @@ class RegisterFromCsvCommandTest {
 
   @Mock
   private RetrofittedVehicleDtoCsvRepository csvRepository;
+
+  @Mock
+  private AuditingRepository auditingRepository;
 
   @Mock
   private RegisterService registerService;
@@ -141,7 +145,7 @@ class RegisterFromCsvCommandTest {
     ConversionResults conversionResults = ConversionResults.from(Collections.emptyList());
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
     given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
-    given(registerService.register(conversionResults.getRetrofittedVehicles())).willReturn(RegisterResult.failure(Collections.emptyList()));
+    given(registerService.register(conversionResults.getRetrofittedVehicles(), TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID)).willReturn(RegisterResult.failure(Collections.emptyList()));
     given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
@@ -161,7 +165,7 @@ class RegisterFromCsvCommandTest {
     ConversionResults conversionResults = ConversionResults.from(Collections.emptyList());
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
     given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
-    given(registerService.register(conversionResults.getRetrofittedVehicles()))
+    given(registerService.register(conversionResults.getRetrofittedVehicles(), TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID))
         .willReturn(RegisterResult.failure(Collections.emptyList()));
     given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(false);
 
