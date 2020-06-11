@@ -564,7 +564,7 @@ steps:
       - PATH=$PATH:../../../../bin/
       - chmod +x ../../../../bin/tf
       - tf init
-      - tf workspace select st  || tf workspace new st
+      - tf workspace select sit  || tf workspace new sit
       - tf plan
     environment:
       TF_VAR_access_key:
@@ -600,7 +600,7 @@ steps:
         - failure
 
   # Invoke terraform apply for dev
-  - name: deploy to st
+  - name: deploy to sit
     image: hashicorp/terraform:0.12.3
     commands:
       - apk add --update bash python python-dev py-pip build-base jq wget
@@ -626,7 +626,7 @@ steps:
       - PATH=$PATH:../../../../bin/
       - chmod +x ../../../../bin/tf
       - tf init
-      - tf workspace select st  || tf workspace new st
+      - tf workspace select sit  || tf workspace new sit
       - tf apply -auto-approve
     environment:
       TF_VAR_access_key:
