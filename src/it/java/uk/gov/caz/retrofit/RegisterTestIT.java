@@ -52,6 +52,9 @@ import uk.gov.caz.retrofit.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.retrofit.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 import uk.gov.caz.retrofit.model.CsvContentType;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJob;
+import uk.gov.caz.retrofit.model.registerjob.RegisterJobError;
+import uk.gov.caz.retrofit.repository.RegisterJobRepository;
 import uk.gov.caz.retrofit.repository.RetrofittedVehicleDtoCsvRepository;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 import uk.gov.caz.retrofit.service.CsvFileOnS3MetadataExtractor;
@@ -70,6 +73,8 @@ public class RegisterTestIT {
       .fromString("6314d1d6-706a-40ce-b392-a0e618ab45b8");
   private static final UUID SECOND_UPLOADER_ID = UUID
       .fromString("07447271-df3d-4217-9092-41f1252864b8");
+  private static final UUID THIRD_UPLOADER_ID = UUID
+      .fromString("dca415da-852e-455b-8b19-6195e5569653");
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
   private static final int FIRST_UPLOADER_TOTAL_VEHICLES_COUNT = 9;
 
@@ -81,7 +86,8 @@ public class RegisterTestIT {
   private static final Map<String, String[]> UPLOADER_TO_FILES = ImmutableMap.of(
       FIRST_UPLOADER_ID.toString(), new String[]{"first-uploader-records-all.csv"},
       SECOND_UPLOADER_ID.toString(),
-      new String[]{"second-uploader-max-validation-errors-exceeded.csv"}
+      new String[]{"second-uploader-max-validation-errors-exceeded.csv"},
+      THIRD_UPLOADER_ID.toString(), new String[]{"second-uploader-mixed-business-parse-errors.csv"}
   );
 
   @LocalServerPort
@@ -100,6 +106,11 @@ public class RegisterTestIT {
   private RetrofittedVehiclePostgresRepository retrofittedVehiclePostgresRepository;
 
   private StatusOfRegisterCsvFromS3JobQueryResult queryResult;
+
+  private RegisterCsvFromS3JobHandle jobHandle;
+
+  @Autowired
+  private RegisterJobRepository registerJobRepository;
 
   @BeforeEach
   private void setUp() {
@@ -120,11 +131,46 @@ public class RegisterTestIT {
     thenAllShouldBeInserted();
     andThereShouldBeNoErrors();
 
-    whenVehiclesAreRegisteredBySecondUploader();
+    whenVehiclesAreRegisteredBySecondUploader("second-uploader-max-validation-errors-exceeded.csv");
     thenNoVehiclesShouldBeRegisteredBySecondUploader();
     andAllFailedFilesShouldBeRemovedFromS3();
     andJobShouldFinishWithFailureStatus();
     andThereShouldBeMaxValidationErrors();
+
+    whenVehiclesAreRegisteredBySecondUploader("second-uploader-mixed-business-parse-errors.csv");
+    thenNoVehiclesShouldBeRegisteredBySecondUploader();
+    andJobContainsMixedParseAndBusinessValidationErrors();
+    andAllFailedFilesShouldBeRemovedFromS3();
+    andJobShouldFinishWithFailureStatus();
+    andThereShouldBeMaxValidationErrors();
+
+  }
+
+  private void andJobContainsMixedParseAndBusinessValidationErrors() {
+    List<String> errors = getJobErrorsByJobName(jobHandle.getJobName());
+    assertThat(errors).containsExactly(
+        "Line 1: VRN should have from 1 to 7 characters instead of 11. Please make sure you have not included a header row.",
+        "Line 2: VRN should have from 1 to 7 characters instead of 11.",
+        "Line 3: Line contains invalid character(s), is empty or has trailing comma character.",
+        "Line 4: Line contains invalid character(s), is empty or has trailing comma character.",
+        "Line 5: VRN should have from 1 to 7 characters instead of 11.",
+        "Line 6: VRN should have from 1 to 7 characters instead of 11.",
+        "Line 7: VRN should have from 1 to 7 characters instead of 11.",
+        "Line 8: VRN should have from 1 to 7 characters instead of 11.",
+        "Line 9: Line contains invalid character(s), is empty or has trailing comma character.",
+        "Line 10: VRN should have from 1 to 7 characters instead of 11."
+    );
+  }
+
+  private List<String> getJobErrorsByJobName(String jobName) {
+    return registerJobRepository
+        .findByName(jobName)
+        .map(RegisterJob::getErrors)
+        .map(registerJobErrors -> registerJobErrors.stream()
+            .map(RegisterJobError::getDetail)
+            .collect(Collectors.toList()))
+        .orElseThrow(() -> new IllegalStateException("Can't find the job"));
+
   }
 
   private void andJobShouldFinishWithFailureStatus() {
@@ -140,8 +186,8 @@ public class RegisterTestIT {
     allVehiclesInDatabaseAreInsertedByFirstUploader();
   }
 
-  private void whenVehiclesAreRegisteredBySecondUploader() {
-    registerVehiclesFrom("second-uploader-max-validation-errors-exceeded.csv");
+  private void whenVehiclesAreRegisteredBySecondUploader(String filepath) {
+    registerVehiclesFrom(filepath);
   }
 
   void andAllFailedFilesShouldBeRemovedFromS3() {
@@ -180,13 +226,14 @@ public class RegisterTestIT {
     assertThat(vehicles).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
   }
 
-  private void registerVehiclesFrom(String filename) {
-    RegisterCsvFromS3JobHandle jobHandle = startJob(filename);
+  private RegisterCsvFromS3JobHandle registerVehiclesFrom(String filename) {
+    jobHandle = startJob(filename);
     Awaitility.with()
         .pollInterval(250, TimeUnit.MILLISECONDS)
         .await("Waiting for Register Job to finish")
         .atMost(3, TimeUnit.SECONDS)
         .until(() -> jobHasFinished(jobHandle));
+    return jobHandle;
   }
 
   private RegisterCsvFromS3JobHandle startJob(String filename) {
