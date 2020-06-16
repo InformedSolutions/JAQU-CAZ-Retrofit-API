@@ -107,7 +107,7 @@ public class RegisterTestIT {
 
   private StatusOfRegisterCsvFromS3JobQueryResult queryResult;
 
-  private RegisterCsvFromS3JobHandle jobHandle;
+  private volatile RegisterCsvFromS3JobHandle jobHandle;
 
   @Autowired
   private RegisterJobRepository registerJobRepository;
