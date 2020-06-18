@@ -811,7 +811,7 @@ name: retrofit-api-preprod
 
 trigger:
   branch:
-    - iac-restructure-controlled-preprod
+    - iac-restructure-staging-preprod
   event:
     - pull_request
     - push
