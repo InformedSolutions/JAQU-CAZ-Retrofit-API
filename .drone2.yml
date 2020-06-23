@@ -738,7 +738,6 @@ steps:
         from_secret: jaqu_controlled_aws_secret_access_key
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCOUNT_NAME: jaqu-controlled
-      AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-controlledServiceRole
       GIT_PRIVATE_SSH:
         from_secret: jaqu_lower_github_private_key
     volumes:
@@ -804,7 +803,6 @@ steps:
 
 
 ################################################### Preprod Environment Steps ########################################################
-
 kind: pipeline
 type: docker
 name: retrofit-api-preprod
@@ -932,7 +930,6 @@ steps:
       SRC_AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-controlledServiceRole
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCOUNT_NAME: jaqu-staging
-      AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-stagingServiceRole
       GIT_PRIVATE_SSH:
         from_secret: jaqu_lower_github_private_key
     volumes:
@@ -996,6 +993,198 @@ steps:
 
 
 
+---
+
+################################################### Prod Environment Steps ########################################################
+kind: pipeline
+type: docker
+name: retrofit-api-prod
+
+trigger:
+  branch:
+    - iac-restructure-prod
+  event:
+    - pull_request
+    - push
+concurrency:
+  limit: 1
+
+volumes:
+  - name: package_directory
+    temp: {}
+
+steps:
+
+  - name: plan terraform updates into prod
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - apk add --update bash python python-dev py-pip build-base jq wget
+      - pip install awscli
+      - mkdir ~/.ssh
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - mkdir ~/.aws
+      - echo -e "[profile target_acc]\nrole_arn = $SRC_AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
+      - LAMBDA_FUNCTION=retrofit-csv-from-s3-lambda-prepprod
+      - ENV=preprod
+      - SIGNED_URL=`aws lambda get-function --profile target_acc --function-name $LAMBDA_FUNCTION --qualifier $ENV| jq --raw-output '.Code.Location'`
+      - VERSION=`aws lambda get-function --profile target_acc --function-name $LAMBDA_FUNCTION --qualifier $ENV| jq --raw-output '.Configuration.Version'`
+      - wget -O /opt/package/$LAMBDA_FUNCTION-$VERSION.zip $SIGNED_URL
+      - export TF_VAR_lambda_file=/opt/package/$LAMBDA_FUNCTION-$VERSION.zip
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC
+      - git checkout iac_restructure_prepro
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - cd terraform-iac/projects/retrofit/layers/01.api
+      - PATH=$PATH:../../../../bin/
+      - chmod +x ../../../../bin/tf
+      - tf init
+      - tf workspace select prod  || tf workspace new prod
+      - tf plan
+    environment:
+      TF_VAR_access_key:
+        from_secret: jaqu_prod_aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: jaqu_prod_aws_secret_access_key
+      TF_VAR_master_access_key:
+        from_secret: jaqu_master_aws_access_key_id
+      TF_VAR_master_secret_key:
+        from_secret: jaqu_master_aws_secret_access_key
+      AWS_ACCESS_KEY_ID:
+        from_secret: jaqu_prod_aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: jaqu_prod_aws_secret_access_key
+      SRC_AWS_ACCOUNT_ROLE: arn:aws:iam::360470905865:role/jaqu-stagingServiceRole
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_NAME: jaqu-prod
+      GIT_PRIVATE_SSH:
+        from_secret: jaqu_lower_github_private_key
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        - pull_request
+
+  - name: provisioning warning
+    image: docker:git
+    commands:
+      - echo "Pipeline failed. If a deployment is being made for the first time into an environment terraform backends will not yet exist which means this is to be expected. If not terraform related, please see logs for further details"
+    when:
+      status:
+        - failure
+
+  # Invoke terraform apply for dev
+  - name: deploy to prod
+    image: hashicorp/terraform:0.12.3
+    commands:
+      - apk add --update bash python python-dev py-pip build-base jq wget
+      - pip install awscli
+      - mkdir ~/.ssh
+      - echo -e "$GIT_PRIVATE_SSH" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - touch ~/.ssh/known_hosts
+      - chmod 600 ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - mkdir ~/.aws
+      - echo -e "[profile target_acc]\nrole_arn = $SRC_AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
+      - LAMBDA_FUNCTION=retrofit-csv-from-s3-lambda-preprod
+      - ENV=preprod
+      - SIGNED_URL=`aws lambda get-function --profile target_acc --function-name $LAMBDA_FUNCTION --qualifier $ENV| jq --raw-output '.Code.Location'`
+      - VERSION=`aws lambda get-function --profile target_acc --function-name $LAMBDA_FUNCTION --qualifier $ENV| jq --raw-output '.Configuration.Version'`
+      - wget -O /opt/package/$LAMBDA_FUNCTION-$VERSION.zip $SIGNED_URL
+      - export TF_VAR_lambda_file=/opt/package/$LAMBDA_FUNCTION-$VERSION.zip
+      - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
+      - cd JAQU-CAZ-IAC
+      - git checkout iac_restructure_prod
+      - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
+      - cd terraform-iac/projects/retrofit/layers/01.api
+      - PATH=$PATH:../../../../bin/
+      - chmod +x ../../../../bin/tf
+      - tf init
+      - tf workspace select prod  || tf workspace new prod
+      - tf apply -auto-approve
+    environment:
+      TF_VAR_access_key:
+        from_secret: jaqu_prod_aws_access_key_id
+      TF_VAR_secret_key:
+        from_secret: jaqu_prod_aws_secret_access_key
+      TF_VAR_master_access_key:
+        from_secret: jaqu_master_aws_access_key_id
+      TF_VAR_master_secret_key:
+        from_secret: jaqu_master_aws_secret_access_key
+      AWS_ACCESS_KEY_ID:
+        from_secret: jaqu_prod_aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: jaqu_prod_aws_secret_access_key
+      SRC_AWS_ACCOUNT_ROLE: arn:aws:iam::360470905865:role/jaqu-stagingServiceRole
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_NAME: jaqu-prod
+      GIT_PRIVATE_SSH:
+        from_secret: jaqu_lower_github_private_key
+    volumes:
+      - name: package_directory
+        path: /opt/package
+    when:
+      event:
+        - push
+
+  # shift traffic to new lambda version using codedeploy
+  - name: codedeploy api prod
+    image: alpine:3.11.6
+    commands:
+      - apk add --update bash python python-dev py-pip build-base jq
+      - pip install awscli
+      - mkdir ~/.aws
+      - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
+      - aws s3 cp s3://$LAMBDA_BUCKET/$PROJECT/$DEPLOY_ENVIRONMENT/CodeDeploy/deploy_jaqu_caz_function.sh . --profile target_acc
+      - aws s3 cp s3://$LAMBDA_BUCKET/$PROJECT/$DEPLOY_ENVIRONMENT/CodeDeploy/deploy_register_csv_from_s3_function.sh . --profile target_acc
+      - bash deploy_jaqu_caz_function.sh
+      - bash deploy_register_csv_from_s3_function.sh
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: jaqu_prod_aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: jaqu_prod_aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_ROLE: arn:aws:iam::286199435714:role/jaqu-prodServiceRole
+      PROJECT: retrofit
+      DEPLOY_ENVIRONMENT: prod
+      LAMBDA_BUCKET: jaqu-shared-project-lambda-bucket
+    when:
+      event:
+        - push
+
+  # subscribe to operational monitoring alert in api dev
+  - name: subscribe to operational monitoring alert in api prod
+    image: alpine:3.11.6
+    commands:
+      - apk add --update python3 groff
+      - pip3 install awscli
+      - mkdir ~/.aws
+      - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
+      - python3 ./ci-cd-resources/subscribe_to_alert_topics.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i prod -i retrofit JAQU-CAZ-OPERATIONALMONITORING@informed.com
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: jaqu_prod_aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: jaqu_prod_aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_ROLE: arn:aws:iam::286199435714:role/jaqu-prodServiceRole
+      PROJECT: retrofit
+      DEPLOY_ENVIRONMENT: prod
+    when:
+      event:
+        - push
+
+
+  ################################################# End of Prod Steps #######################################################
+
+
+
 
 
 
@@ -1047,6 +1236,21 @@ name: jaqu_staging_aws_secret_access_key
 get:
   path: /build-tools/drone
   name: awsStagingSecretAccessKey
+
+
+---
+kind: secret
+name: jaqu_prod_aws_access_key_id
+get:
+  path: /build-tools/drone
+  name: awsProdAccessKeyId
+
+---
+kind: secret
+name: jaqu_prod_aws_secret_access_key
+get:
+  path: /build-tools/drone
+  name: awsProdSecretAccessKey
 
 
 ---
