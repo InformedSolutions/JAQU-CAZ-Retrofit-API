@@ -107,3 +107,10 @@ localstack-run:
 
 dependency-security-check:
 	./mvnw org.owasp:dependency-check-maven:check -P security
+
+local-integration-up:
+	docker-compose -f src/it/resources/docker-compose-it.yml up -d
+
+local-integration-down:
+	docker-compose -f src/it/resources/docker-compose-it.yml down
+
