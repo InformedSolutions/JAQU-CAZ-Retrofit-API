@@ -126,7 +126,7 @@ class RegisterFromCsvCommandTest {
         TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, vehicles, Collections.singletonList(parseValidationError)
     );
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
-    given(converter.convert(eq(vehicles), anyInt())).willReturn(ConversionResults.from(Collections.emptyList()));
+    given(converter.convert(eq(vehicles))).willReturn(ConversionResults.from(Collections.emptyList()));
     given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
     // when
@@ -144,7 +144,7 @@ class RegisterFromCsvCommandTest {
     CsvFindResult csvFindResult = new CsvFindResult(TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID, vehicles, Collections.emptyList());
     ConversionResults conversionResults = ConversionResults.from(Collections.emptyList());
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
-    given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
+    given(converter.convert(eq(vehicles))).willReturn(conversionResults);
     given(registerService.register(conversionResults.getRetrofittedVehicles(), TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID)).willReturn(RegisterResult.failure(Collections.emptyList()));
     given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(true);
 
@@ -164,7 +164,7 @@ class RegisterFromCsvCommandTest {
         vehicles, Collections.emptyList());
     ConversionResults conversionResults = ConversionResults.from(Collections.emptyList());
     given(csvRepository.findAll(any(), any())).willReturn(csvFindResult);
-    given(converter.convert(eq(vehicles), anyInt())).willReturn(conversionResults);
+    given(converter.convert(eq(vehicles))).willReturn(conversionResults);
     given(registerService.register(conversionResults.getRetrofittedVehicles(), TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID))
         .willReturn(RegisterResult.failure(Collections.emptyList()));
     given(csvRepository.purgeFile(BUCKET, FILENAME)).willReturn(false);
