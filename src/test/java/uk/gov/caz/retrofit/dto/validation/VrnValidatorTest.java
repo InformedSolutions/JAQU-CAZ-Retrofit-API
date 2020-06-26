@@ -11,6 +11,7 @@ import uk.gov.caz.retrofit.dto.RetrofittedVehicleDto;
 import uk.gov.caz.retrofit.model.ValidationError;
 
 class VrnValidatorTest {
+
   private VrnValidator validator = new VrnValidator();
 
   @Nested
@@ -18,12 +19,14 @@ class VrnValidatorTest {
 
     @Nested
     class WithLineNumber {
+
       @Test
       public void shouldReturnMissingFieldErrorWhenVrnIsNull() {
         // given
         int lineNumber = 91;
         String vrn = null;
-        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(vrn, lineNumber);
+        RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicleWithLineNumber(vrn,
+            lineNumber);
 
         // when
         List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
@@ -41,6 +44,7 @@ class VrnValidatorTest {
 
     @Nested
     class WithoutLineNumber {
+
       @Test
       public void shouldReturnMissingFieldErrorWhenVrnIsNull() {
         // given
@@ -66,6 +70,7 @@ class VrnValidatorTest {
 
     @Nested
     class WithLineNumber {
+
       @ParameterizedTest
       @ValueSource(strings = {"", "tooLongVrn"})
       public void shouldReturnValueErrorWhenVrnIsBlankOrTooLong(String vrn) {
@@ -103,13 +108,15 @@ class VrnValidatorTest {
 
         // then
         then(validationErrors).containsExactly(
-            ValidationError.valueError(invalidVrn, VrnValidator.INVALID_VRN_FORMAT_MESSAGE, lineNumber)
+            ValidationError
+                .valueError(invalidVrn, VrnValidator.INVALID_VRN_FORMAT_MESSAGE, lineNumber)
         );
       }
     }
 
     @Nested
     class WithoutLineNumber {
+
       @ParameterizedTest
       @ValueSource(strings = {"", "tooLongVrn"})
       public void shouldReturnValueErrorWhenVrnIsBlankOrTooLong(String vrn) {
@@ -164,7 +171,7 @@ class VrnValidatorTest {
           "9AAA999", "A99AA9A", "A9A99", "AAAA9", "A9AA9A9", "9AA999A", "9AA9999", "9AAA9A",
           "9AAA9A9", "A99AAAA", "9A99A9A", "A9AA9", "9A9AAAA", "AAAAA9A", "AAA99AA", "AAAAAAA",
           "9A999", "ab53ab%", "C111999", "AB", "45", "ABG", "452", "TABG", "4521", "TAFBG",
-          "45921", "AHTDSE", "A123B5", "4111929", "C1119C9"
+          "45921", "AHTDSE", "A123B5", "4111929", "C1119C9", "0880V"
       })
       public void shouldRejectVrnsWithInvalidFormat(String invalidVrn) {
         // given
@@ -200,7 +207,32 @@ class VrnValidatorTest {
       // then
       then(validationErrors).isEmpty();
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "007 2CN", "030-NRF", "011-BEV", "0QXE 67", "003-340", "039-HHV", "094-MSR", "018WMO",
+        "0EBR 59", "072-CQR", "000 3RR", "0888 XT", "010 0UX", "006-YZG", "06AA659", "068 OIF",
+        "08-II36", "0EZ 478", "0XM6622", "0FU 350", "0EI A37", "069 WQD", "068A6", "0RS76",
+        "058 IVR", "036 JJQ", "0-6841N", "08O•604", "041-YXR", "0-W4523", "025KA", "052 DPJ",
+        "079TX", "003KCJ", "0284", "0BR2836", "084 RWH", "07-DT54", "07F 231", "019 UGR", "028 RXI",
+        "0628 EZ", "0K085", "0-B7773", "02Q J42", "0BY 944", "039 WON", "0T976", "0-5996Z", "0651",
+        "09F•492", "0GYV 72", "020-BWX", "020-568", "039 DG6", "0PGQ 42", "028 HQH"
+    })
+    public void shouldPreventUploadWithZeroes(String zeroLeadingVrn) {
+      // given
+      RetrofittedVehicleDto retrofittedVehicle = createRetrofittedVehicle(zeroLeadingVrn);
+
+      // when
+      List<ValidationError> validationErrors = validator.validate(retrofittedVehicle);
+
+      // then
+      then(validationErrors).containsExactly(
+          ValidationError.valueError(zeroLeadingVrn, VrnValidator.INVALID_VRN_FORMAT_MESSAGE)
+      );
+
+    }
   }
+
 
   private RetrofittedVehicleDto createRetrofittedVehicle(String vrn) {
     return RetrofittedVehicleDto.builder()
