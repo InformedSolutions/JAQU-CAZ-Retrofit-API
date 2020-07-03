@@ -21,7 +21,7 @@ public class VrnValidator implements RetrofittedVehicleValidator {
       + "instead of %d.";
 
   @VisibleForTesting
-  static final String INVALID_VRN_FORMAT_MESSAGE = "Invalid format of VRN (regex validation).";
+  static final String INVALID_VRN_FORMAT_MESSAGE = "Invalid format of VRN.";
 
   public static final String REGEX = "^"
       + "([A-Za-z]{3}[0-9]{1,4})"
@@ -29,7 +29,7 @@ public class VrnValidator implements RetrofittedVehicleValidator {
       + "|([A-Za-z]{3}[0-9]{1,3}[A-Za-z])"
       + "|([A-Za-z]{2}[0-9]{2}[A-Za-z]{3})"
       + "|([A-Za-z]{1,3}[0-9]{1,3})"
-      + "|([0-9]{1,4}[A-Za-z]{1,3})"
+      + "|([1-9][0-9]{0,3}[A-Za-z]{1,3})"
       + "|([A-Za-z]{1,2}[0-9]{1,4})"
       + "$";
 

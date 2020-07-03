@@ -192,7 +192,7 @@ where:
 | Missing field                                                                                | N/A (there will be a parse error)                                                                         | 
 | Empty VRN                                                                                    | Line {}: VRN should have from 1 to 7 characters instead of 0.                                             | 
 | Too long VRN                                                                                 | Line {}: VRN should have from 1 to 7 characters instead of {}.                                            | 
-| Invalid format of VRN                                                                        | Line {}: Invalid format of VRN (regex validation).                                                        | 
+| Invalid format of VRN                                                                        | Line {}: Invalid format of VRN.                                                                           | 
 | Invalid format of category                                                                   | Line {}: 'vehicleCategory' should have from 1 to 40 characters instead of {}.                             | 
 | Invalid format of model                                                                      | Line {}: 'model' should have from 1 to 30 characters instead of {}.                                       | 
 | Invalid format of date of retrofit installation                                              | Line {}: Invalid format of date of retrofit installation, should be ISO 8601.                             | 
