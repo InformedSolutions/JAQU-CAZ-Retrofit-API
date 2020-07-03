@@ -158,7 +158,7 @@ public class RegisterTestIT {
         "Line 7: VRN should have from 1 to 7 characters instead of 11.",
         "Line 8: VRN should have from 1 to 7 characters instead of 11.",
         "Line 9: Line contains invalid character(s), is empty or has trailing comma character.",
-        "Line 10: Invalid format of VRN (regex validation)."
+        "Line 10: Invalid format of VRN."
     );
   }
 
