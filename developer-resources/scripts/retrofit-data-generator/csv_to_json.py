@@ -5,7 +5,7 @@ import json
 
 def items_from_csv(path):
     with open(path, 'r') as f:
-        reader = csv.DictReader(f, fieldnames=["vrn", "vehicle_category", "model", "date_of_retrofit"])
+        reader = csv.DictReader(f, fieldnames=["vrn", "vehicleCategory", "model", "dateOfRetrofitInstallation"])
         for row in reader:
             yield row
 
