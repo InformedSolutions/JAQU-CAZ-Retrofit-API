@@ -20,6 +20,9 @@ public class RetrofittedVehiclePostgresRepository {
 
   private static final String FIND_ALL_SQL = "SELECT * FROM t_vehicle_retrofit";
 
+  private static final String COUNT_BY_VRN =
+      "SELECT count(*) FROM t_vehicle_retrofit WHERE vrn = ?";
+
   @VisibleForTesting
   static final String DELETE_ALL_SQL = "DELETE FROM t_vehicle_retrofit";
 
@@ -61,6 +64,13 @@ public class RetrofittedVehiclePostgresRepository {
   public void deleteAll() {
     log.info("Deleting all retrofitted vehicles.");
     jdbcTemplate.update(DELETE_ALL_SQL);
+  }
+
+  /**
+   * Finds whether vehicle for given vrn exists in DB.
+   */
+  public boolean existsByVrn(String vrn) {
+    return jdbcTemplate.queryForObject(COUNT_BY_VRN, new Object[] {vrn}, Integer.class) > 0;
   }
 
   /**
