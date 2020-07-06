@@ -10,10 +10,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
@@ -23,18 +20,23 @@ import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 
 @Profile("dev | sit | st | integration-tests")
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 public class TestFixturesLoader {
 
-  @Autowired
-  private RetrofittedVehiclePostgresRepository repository;
+  TestFixturesLoader(
+      RetrofittedVehiclePostgresRepository repository,
+      @Value("${application.test-fixtures-location}") String fixturesLocation,
+      ObjectMapper objectMapper) {
+    this.repository = repository;
+    this.fixturesLocation = fixturesLocation;
+    this.objectMapper = createEnhancedObjectMapper(objectMapper);
+  }
 
-  @Value("${application.test-fixtures-location}")
-  private String fixturesLocation;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  private final RetrofittedVehiclePostgresRepository repository;
+
+  private final String fixturesLocation;
+
+  private final ObjectMapper objectMapper;
 
   /**
    * Deletes all vehicles from the database and imports predefined from a JSON file.
@@ -57,10 +59,7 @@ public class TestFixturesLoader {
   private Set<RetrofittedVehicle> testVehiclesFromFile() {
     File vehicleDetailsJson = new ClassPathResource(this.fixturesLocation).getFile();
 
-    ObjectMapper mapper = getObjectMapper();
-
-    List<RetrofittedVehicle> vehiclesArray = mapper
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    List<RetrofittedVehicle> vehiclesArray = objectMapper
         .readValue(vehicleDetailsJson, new TypeReference<List<RetrofittedVehicle>>(){});
 
     return Sets.newHashSet(vehiclesArray);
@@ -69,11 +68,12 @@ public class TestFixturesLoader {
   /**
    * Provides enhanced instance of {@link ObjectMapper} which can handle LocalDate field.
    */
-  private ObjectMapper getObjectMapper() {
-    ObjectMapper mapper = this.objectMapper;
+  private ObjectMapper createEnhancedObjectMapper(ObjectMapper objectMapper) {
+    ObjectMapper mapper = objectMapper.copy();
     JavaTimeModule module = new JavaTimeModule();
     module.addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE);
     mapper.registerModule(module);
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     return mapper;
   }
 

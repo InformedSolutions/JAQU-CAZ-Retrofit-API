@@ -13,7 +13,7 @@ public class TestFixturesController implements TestFixturesControllerApiSpec {
 
   public static final String PATH = "/v1/load-test-data";
 
-  private TestFixturesLoader testDataService;
+  private final TestFixturesLoader testDataService;
 
   @Override
   public ResponseEntity<Void> fixturesPostEndpoint() {

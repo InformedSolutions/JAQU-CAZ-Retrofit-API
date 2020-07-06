@@ -1,4 +1,4 @@
-package uk.gov.caz.retrofit;
+package uk.gov.caz.retrofit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -18,7 +18,6 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
-import uk.gov.caz.retrofit.service.TestFixturesLoader;
 
 @IntegrationTest
 @Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)

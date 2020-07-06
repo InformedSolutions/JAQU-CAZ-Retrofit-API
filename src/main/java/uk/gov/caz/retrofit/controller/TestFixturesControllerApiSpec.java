@@ -7,8 +7,10 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.HttpStatus;  /**
-   * Deletes all licences from the database and imports the predefined ones from the
+import org.springframework.http.HttpStatus;
+
+/**
+   * Deletes all vehicles from the database and imports the predefined ones from the
    * JSON file.
    */
 import org.springframework.http.ResponseEntity;
