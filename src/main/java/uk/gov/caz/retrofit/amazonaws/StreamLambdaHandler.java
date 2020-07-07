@@ -10,7 +10,6 @@ import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.serverless.proxy.spring.SpringBootProxyHandlerBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,14 +17,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.util.StreamUtils;
-
 import uk.gov.caz.retrofit.Application;
 import uk.gov.caz.retrofit.dto.LambdaContainerStats;
 
@@ -44,6 +41,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     long startTime = Instant.now().toEpochMilli();
     try {
       // For applications that take longer than 10 seconds to start, use the async builder:
+      setDefaultContentCharset();
       String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
       LambdaContainerHandler.getContainerConfig().setInitializationTimeout(50_000);
       if (listOfActiveSpringProfiles != null) {
@@ -81,6 +79,15 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
       handler.proxyStream(new ByteArrayInputStream(input.getBytes()), outputStream, context);
     }
+  }
+
+  /**
+   * Sets default character set to UTF-8.
+   * https://github.com/awslabs/aws-serverless-java-container/issues/352
+   */
+  private static void setDefaultContentCharset() {
+    LambdaContainerHandler.getContainerConfig()
+        .setDefaultContentCharset(StandardCharsets.UTF_8.name());
   }
 
   /**
