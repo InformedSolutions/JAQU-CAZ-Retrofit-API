@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.caz.retrofit.service.TestFixturesLoader;
 
-@Profile("dev | sit | st | integration-tests")
+@Profile("dev | st | integration-tests")
 @RestController
 @AllArgsConstructor
 public class TestFixturesController implements TestFixturesControllerApiSpec {

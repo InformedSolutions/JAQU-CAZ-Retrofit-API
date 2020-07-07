@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 
-@Profile("dev | sit | st | integration-tests")
+@Profile("dev | st | integration-tests")
 @Service
 public class TestFixturesLoader {
 
