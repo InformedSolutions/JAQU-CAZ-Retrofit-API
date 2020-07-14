@@ -13,6 +13,7 @@ spring:
 application:
   validation:
     max-errors-count: 10
+  test-fixtures-location: /data/json/vehicle-testit-fixtures.json
 
 aws:
   s3:

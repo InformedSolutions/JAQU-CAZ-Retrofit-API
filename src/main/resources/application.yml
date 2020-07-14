@@ -2,6 +2,7 @@ application:
   title: Retrofit Register API
   validation:
     max-errors-count: 5
+  test-fixtures-location: /db/fixtures/vehicle-fixtures.json
 
 management:
   endpoints:
@@ -19,6 +20,9 @@ swagger:
     title: Retrofit Register API
     description: This service allows uploading CSV files with retroffited vehicles. Uploaded CSV files are processed asynchronously. Data saved by Retrofit service is read by Vehicle Compliance Checker service directly from database.
     version: 0.1
+  operations:
+    test-fixture-load:
+      description: Imports a predefined data into the database. Available only in DEV, SIT and ST environments.
 
 registerjob:
   db:

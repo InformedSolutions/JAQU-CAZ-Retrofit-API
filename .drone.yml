@@ -282,7 +282,25 @@ steps:
       event:
         - push
         
-        
+  # Loads test fixtures data
+  - name: load test fixtures
+    image: alpine:3.11.6
+    commands:
+      - apk add --update bash python python-dev py-pip jq
+      - pip install awscli
+      - >
+        aws lambda invoke --invocation-type RequestResponse --function-name retrofit-jaqu-caz-lambda-dev --payload "{\"requestContext\": {\"identity\": {}},\"httpMethod\": \"POST\",\"path\": \"/v1/load-test-data\", \"multiValueHeaders\":{\"x-correlation-id\":[\"fecbc670-c767-4c63-930d-c3d0fe188ea8\"]}}" output.json
+      - status_code=$(cat output.json | jq '.statusCode')
+      - if [ $status_code == "204" ]; then exit 0; else exit 1; fi
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+    when:
+      event:
+        - push
   ################################################# End Development Only #######################################################
 
 ---
@@ -562,7 +580,27 @@ steps:
     when:
       event:
         - push
-        
+
+  # Loads test fixtures data
+  - name: load test fixtures
+    image: alpine:3.11.6
+    commands:
+      - apk add --update bash python python-dev py-pip jq
+      - pip install awscli
+      - >
+        aws lambda invoke --invocation-type RequestResponse --function-name retrofit-jaqu-caz-lambda-st --payload "{\"requestContext\": {\"identity\": {}},\"httpMethod\": \"POST\",\"path\": \"/v1/load-test-data\", \"multiValueHeaders\":{\"x-correlation-id\":[\"5a9014bf-3561-4ba4-95f5-bb822cb71dc1\"]}}" output.json
+      - status_code=$(cat output.json | jq '.statusCode')
+      - if [ $status_code == "204" ]; then exit 0; else exit 1; fi
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+    when:
+      event:
+        - push
+
   ################################################# End ST Steps #######################################################
 ---
 
@@ -841,7 +879,7 @@ steps:
     when:
       event:
         - push
-        
+
   ################################################# End SIT Steps #######################################################
 ---
 
