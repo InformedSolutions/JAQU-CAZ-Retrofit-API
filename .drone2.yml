@@ -284,7 +284,28 @@ steps:
       event:
         - push
 
-
+  # Loads test fixtures data
+  - name: load test fixtures
+    image: alpine:3.11.6
+    commands:
+      - apk add --update bash python python-dev py-pip jq
+      - pip install awscli
+      - mkdir ~/.aws
+      - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
+      - >
+        aws lambda invoke --invocation-type RequestResponse --function-name retrofit-jaqu-caz-lambda-dev --payload "{\"requestContext\": {\"identity\": {}},\"httpMethod\": \"POST\",\"path\": \"/v1/load-test-data\", \"multiValueHeaders\":{\"x-correlation-id\":[\"fecbc670-c767-4c63-930d-c3d0fe188ea8\"]}}" --profile target_acc output.json
+      - status_code=$(cat output.json | jq '.statusCode')
+      - if [ $status_code == "204" ]; then exit 0; else exit 1; fi
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: jaqu_lower_aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: jaqu_lower_aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_ROLE: arn:aws:iam::311075478274:role/jaqu-lowerServiceRole
+    when:
+      event:
+        - push
   ################################################# End Development Only #######################################################
 ---
 ################################################### ST Environment Steps ########################################################
@@ -555,7 +576,27 @@ steps:
       event:
         - push
 
-
+# Loads test fixtures data
+  - name: load test fixtures
+    image: alpine:3.11.6
+    commands:
+      - apk add --update bash python python-dev py-pip jq
+      - pip install awscli
+      - mkdir ~/.aws
+      - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
+      - >
+        aws lambda invoke --invocation-type RequestResponse --function-name retrofit-jaqu-caz-lambda-st --payload "{\"requestContext\": {\"identity\": {}},\"httpMethod\": \"POST\",\"path\": \"/v1/load-test-data\", \"multiValueHeaders\":{\"x-correlation-id\":[\"fecbc670-c767-4c63-930d-c3d0fe188ea8\"]}}" --profile target_acc output.json
+      - status_code=$(cat output.json | jq '.statusCode')
+      - if [ $status_code == "204" ]; then exit 0; else exit 1; fi
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: jaqu_controlled_aws_access_key_id
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: jaqu_controlled_aws_secret_access_key
+      AWS_DEFAULT_REGION: eu-west-2
+      AWS_ACCOUNT_ROLE: arn:aws:iam::072187228077:role/jaqu-controlledServiceRole
+    when:
+      event:
   ################################################# End ST Environment Steps #######################################################
 ---
 
