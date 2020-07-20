@@ -204,7 +204,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_baseline
+      - git checkout lower_dev
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -443,7 +443,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_controlled
+      - git checkout controlled_st
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -496,7 +496,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_controlled
+      - git checkout controlled_st
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -746,7 +746,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_controlled
+      - git checkout controlled_sit
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -799,7 +799,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_controlled
+      - git checkout controlled_sit
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -927,7 +927,7 @@ steps:
       - export TF_VAR_lambda_file=/opt/package/$LAMBDA_FUNCTION-$VERSION.zip
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_prepro
+      - git checkout staging_preprod
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -990,7 +990,7 @@ steps:
       - export TF_VAR_lambda_file=/opt/package/$LAMBDA_FUNCTION-$VERSION.zip
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_staging
+      - git checkout staging_preprod
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -1213,7 +1213,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_staging
+      - git checkout staging_uat
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -1266,7 +1266,7 @@ steps:
       - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_staging
+      - git checkout staging_uat
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -1392,7 +1392,7 @@ steps:
       - export TF_VAR_lambda_file=/opt/package/$LAMBDA_FUNCTION-$VERSION.zip
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_prepro
+      - git checkout live_prod
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
@@ -1455,7 +1455,7 @@ steps:
       - export TF_VAR_lambda_file=/opt/package/$LAMBDA_FUNCTION-$VERSION.zip
       - git clone git@github.com:InformedSolutions/JAQU-CAZ-IAC.git
       - cd JAQU-CAZ-IAC
-      - git checkout iac_restructure_prod
+      - git checkout live_prod
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
       - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
