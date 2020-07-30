@@ -1,6 +1,7 @@
 package uk.gov.caz.retrofit.service;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -77,18 +78,10 @@ public abstract class AbstractRegisterCommand {
 
       beforeExecute();
 
-      // assertion: conversionMaxErrorCount >= 0
-      int conversionMaxErrorCount = maxValidationErrorCount - parseValidationErrorCount();
-
-      ConversionResults conversionResults = vehiclesConverter.convert(
-          getVehiclesToRegister(), conversionMaxErrorCount
-      );
+      ConversionResults conversionResults = vehiclesConverter.convert(getVehiclesToRegister());
 
       if (conversionResults.hasValidationErrors() || hasParseValidationErrors()) {
-        List<ValidationError> errors = merge(conversionResults.getValidationErrors(),
-            getParseValidationErrors());
-        markJobFailed(RegisterJobStatus.FINISHED_FAILURE_VALIDATION_ERRORS, errors);
-        return RegisterResult.failure(errors);
+        return prepareFailureResult(conversionResults);
       }
 
       RegisterResult result = registerService.register(
@@ -109,16 +102,38 @@ public abstract class AbstractRegisterCommand {
     }
   }
 
+  /**
+   * Prepares a failure result for the registration process.
+   * @param conversionResults business conversion results.
+   * @return failure register result.
+   */
+  private RegisterResult prepareFailureResult(ConversionResults conversionResults) {
+    List<ValidationError> businessErrors = conversionResults.getValidationErrors();
+    List<ValidationError> parseErrors = getParseValidationErrors();
+    log.info("There was total of {} business and {} parse errors",
+        businessErrors.size(), parseErrors.size());
+
+    List<ValidationError> initialErrorList = mergeBusinessAndParseErrors(
+        businessErrors, parseErrors
+    );
+    List<ValidationError> errors = initialErrorList.stream()
+        .sorted(Comparator.comparing(
+            validationError -> validationError.getLineNumber().orElse(0)))
+        .limit(maxValidationErrorCount)
+        .collect(Collectors.toList());
+    markJobFailed(RegisterJobStatus.FINISHED_FAILURE_VALIDATION_ERRORS, errors);
+
+    return RegisterResult.failure(errors);
+  }
+
   private boolean hasParseValidationErrors() {
     return !getParseValidationErrors().isEmpty();
   }
 
-  private int parseValidationErrorCount() {
-    return getParseValidationErrors().size();
-  }
-
-  private List<ValidationError> merge(List<ValidationError> a, List<ValidationError> b) {
-    return Stream.of(a, b).flatMap(Collection::stream).collect(Collectors.toList());
+  private List<ValidationError> mergeBusinessAndParseErrors(
+      List<ValidationError> businessErrors, List<ValidationError> parseErrors) {
+    return Stream.of(businessErrors, parseErrors).flatMap(Collection::stream)
+        .collect(Collectors.toList());
   }
 
   private void postProcessRegistrationResult(RegisterResult result) {
