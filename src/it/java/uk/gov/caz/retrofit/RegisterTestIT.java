@@ -149,6 +149,7 @@ public class RegisterTestIT {
   private void andJobContainsMixedParseAndBusinessValidationErrors() {
     List<String> errors = getJobErrorsByJobName(jobHandle.getJobName());
     assertThat(errors).containsExactly(
+        "There are multiple entries with the same VRN",
         "Line 1: VRN should have from 1 to 7 characters instead of 11. Please make sure you have not included a header row.",
         "Line 2: VRN should have from 1 to 7 characters instead of 11.",
         "Line 3: Line contains invalid character(s), is empty or has trailing comma character.",
@@ -156,9 +157,8 @@ public class RegisterTestIT {
         "Line 5: VRN should have from 1 to 7 characters instead of 11.",
         "Line 6: VRN should have from 1 to 7 characters instead of 11.",
         "Line 7: VRN should have from 1 to 7 characters instead of 11.",
-        "Line 8: VRN should have from 1 to 7 characters instead of 11.",
-        "Line 9: Line contains invalid character(s), is empty or has trailing comma character.",
-        "Line 10: Invalid format of VRN."
+        "Line 8: Line contains invalid character(s), is empty or has trailing comma character.",
+        "Line 9: VRN should have from 1 to 7 characters instead of 11."
     );
   }
 

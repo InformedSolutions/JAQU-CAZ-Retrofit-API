@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-1.0-add-uniqueness-constraint-to-vrn
+      author: informed
+      changes:
+        - addUniqueConstraint:
+            schemaName: public
+            tableName: T_VEHICLE_RETROFIT
+            columnNames: vrn
+            constraintName: vrn_unique
