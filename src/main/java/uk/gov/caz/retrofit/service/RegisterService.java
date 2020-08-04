@@ -1,8 +1,10 @@
 package uk.gov.caz.retrofit.service;
 
 import com.google.common.base.Preconditions;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,10 +43,25 @@ public class RegisterService {
     auditingRepository.tagModificationsInCurrentTransactionBy(uploaderId);
     log.info("Transaction associated with {} in the audit table.", uploaderId);
 
-    retrofittedVehiclePostgresRepository.deleteAll();
+    retrofittedVehiclePostgresRepository.delete(vehiclesToDelete(retrofittedVehicles));
     retrofittedVehiclePostgresRepository.insert(retrofittedVehicles);
 
     log.info("Registering {} vehicle(s) : finish", retrofittedVehicles.size());
     return RegisterResult.success();
+  }
+
+  /**
+   * Method that caluclates which VRNs should be deleted from DB.
+   */
+  public Set<String> vehiclesToDelete(Set<RetrofittedVehicle> retrofittedVehicles) {
+    Set<String> uploadedVrns = retrofittedVehicles.stream().map(RetrofittedVehicle::getVrn)
+        .collect(Collectors.toSet());
+
+    HashSet<String> existingVrns =
+        new HashSet<>(retrofittedVehiclePostgresRepository.findAllVrns());
+
+    return existingVrns.stream()
+        .filter(existingVrn -> !uploadedVrns.contains(existingVrn))
+        .collect(Collectors.toSet());
   }
 }

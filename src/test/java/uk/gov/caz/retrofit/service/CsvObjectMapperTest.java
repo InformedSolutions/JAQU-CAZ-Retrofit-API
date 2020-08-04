@@ -1,5 +1,6 @@
 package uk.gov.caz.retrofit.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import com.google.common.base.Charsets;
@@ -77,6 +78,21 @@ class CsvObjectMapperTest {
         return "ZC" + index + "62OMB,category-1,model-1,2019-04-27";
       }
     }
+  }
+
+  @Test
+  public void shouldReturnErrorIfThereIsDuplicatedVrn() throws IOException {
+    //given
+    String csvLine = "ND84VSX,cat-2,model-2,2019-05-17\n"
+        + "ND84VSX,cat-3,model-3,2019-04-14";
+
+    // when
+    CsvParseResult result = csvObjectMapper.read(toInputStream(csvLine));
+
+    //then
+    assertThat(result.getValidationErrors()).containsExactly(ValidationError.valueError(
+        "There are multiple entries with the same VRN"
+    ));
   }
 
   @Test
