@@ -70,7 +70,7 @@ public class TestFixturesLoaderTestIT {
 
   private void insertTwoRandomVehiclesAndCheckIt() {
     Set vehiclesToInsert = Sets.newHashSet(someRandomVehicle(), someRandomVehicle());
-    vehicleRepository.insert(vehiclesToInsert);
+    vehicleRepository.insertOrUpdate(vehiclesToInsert);
     List<RetrofittedVehicle> vehiclesInDatabase = vehicleRepository.findAll();
     assertThat(vehiclesInDatabase).hasSize(2);
   }

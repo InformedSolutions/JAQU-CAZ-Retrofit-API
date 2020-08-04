@@ -47,7 +47,7 @@ public class TestFixturesLoader {
 
     repository.deleteAll();
 
-    repository.insert(vehicleSet);
+    repository.insertOrUpdate(vehicleSet);
 
   }
 

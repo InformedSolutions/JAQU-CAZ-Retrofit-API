@@ -45,7 +45,7 @@ class RetrofitVehicleControllerTestIT {
   public void shouldGetRetrofitStatusForExistingVehicle() throws Exception {
     //given
     String existingVrn = "CAS222";
-    retrofittedVehiclePostgresRepository.insert(
+    retrofittedVehiclePostgresRepository.insertOrUpdate(
         Collections.singleton(
             RetrofittedVehicle.builder()
                 .vrn(existingVrn)

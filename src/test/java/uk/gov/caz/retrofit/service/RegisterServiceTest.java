@@ -111,7 +111,7 @@ class RegisterServiceTest {
     }
 
     @Override
-    public void insert(Set<RetrofittedVehicle> retrofittedVehicles) {
+    public void insertOrUpdate(Set<RetrofittedVehicle> retrofittedVehicles) {
       this.retrofittedVehicles.addAll(retrofittedVehicles);
     }
 

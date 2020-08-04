@@ -39,8 +39,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.BucketCannedACL;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -66,6 +68,7 @@ import uk.gov.caz.retrofit.service.CsvFileOnS3MetadataExtractor;
  */
 @FullyRunningServerIntegrationTest
 @Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+@Sql(scripts = "classpath:data/sql/clear.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 @Slf4j
 public class RegisterTestIT {
 
@@ -84,7 +87,10 @@ public class RegisterTestIT {
   );
 
   private static final Map<String, String[]> UPLOADER_TO_FILES = ImmutableMap.of(
-      FIRST_UPLOADER_ID.toString(), new String[]{"first-uploader-records-all.csv"},
+      FIRST_UPLOADER_ID.toString(), new String[]{
+          "first-uploader-records-all.csv",
+          "first-uploader-records-all-three-modified.csv", // ZC62OMB, NO03KNT and DS98UDG
+      },
       SECOND_UPLOADER_ID.toString(),
       new String[]{"second-uploader-max-validation-errors-exceeded.csv"},
       THIRD_UPLOADER_ID.toString(), new String[]{"second-uploader-mixed-business-parse-errors.csv"}
@@ -112,14 +118,17 @@ public class RegisterTestIT {
   @Autowired
   private RegisterJobRepository registerJobRepository;
 
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
+
   @BeforeEach
-  private void setUp() {
+  public void setUp() {
     createBucketAndFilesInS3();
     setUpRestAssured();
   }
 
   @AfterEach
-  private void tearDown() {
+  public void tearDown() {
     deleteBucketAndFilesFromS3();
   }
 
@@ -130,6 +139,14 @@ public class RegisterTestIT {
     whenVehiclesAreRegisteredAgainstEmptyDatabaseByFirstUploader();
     thenAllShouldBeInserted();
     andThereShouldBeNoErrors();
+
+    whenVehiclesAreRegisteredOnceAgainByFirstUploader();
+    thenNoNewVehiclesShouldBeRegisteredByFirstUploader();
+    andAuditLogContainsNoNewData();
+
+    whenModifiedVehiclesAreRegisteredByFirstUploader();
+    thenNoNewVehiclesShouldBeRegisteredByFirstUploader();
+    andThreeVehiclesShouldBeModified();
 
     whenVehiclesAreRegisteredBySecondUploader("second-uploader-max-validation-errors-exceeded.csv");
     thenNoVehiclesShouldBeRegisteredBySecondUploader();
@@ -144,6 +161,59 @@ public class RegisterTestIT {
     andJobShouldFinishWithFailureStatus();
     andThereShouldBeMaxValidationErrors();
 
+  }
+
+  private void andThreeVehiclesShouldBeModified() {
+    assertThat(getRetrofittedUpdateVehiclesAuditLogCount()).isEqualTo(3);
+
+    verifyThatOneVehicleCategoryGotUpdated();
+    verifyThatOneVehicleDateOfRetrofitGotUpdated();
+    verifyThatOneVehicleModelGotUpdated();
+  }
+
+  private void verifyThatOneVehicleModelGotUpdated() {
+    int updatedModelCount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "audit.logged_actions",
+        "table_name = 't_vehicle_retrofit'"
+            + " and original_data::json ->> 'vrn' = 'NO03KNT'"
+            + " and original_data::json ->> 'model' = 'model-1'"
+            + " and new_data::json ->> 'model' = 'model-2'");
+    assertThat(updatedModelCount).isOne();
+  }
+
+  private void verifyThatOneVehicleDateOfRetrofitGotUpdated() {
+    int updatedDateOfRetrofitCount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "audit.logged_actions",
+        "table_name = 't_vehicle_retrofit'"
+            + " and original_data::json ->> 'vrn' = 'DS98UDG'"
+            + " and original_data::json ->> 'date_of_retrofit' = '2019-03-11'"
+            + " and new_data::json ->> 'date_of_retrofit' = '2020-01-01'");
+    assertThat(updatedDateOfRetrofitCount).isOne();
+  }
+
+  private void verifyThatOneVehicleCategoryGotUpdated() {
+    int updatedCategoryCount = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "audit.logged_actions",
+        "table_name = 't_vehicle_retrofit'"
+            + " and original_data::json ->> 'vrn' = 'ZC62OMB'"
+            + " and original_data::json ->> 'vehicle_category' = 'category-1'"
+            + " and new_data::json ->> 'vehicle_category' = 'category-2'");
+    assertThat(updatedCategoryCount).isOne();
+  }
+
+  private void andAuditLogContainsNoNewData() {
+    assertThat(getRetrofittedVehiclesAuditLogCount()).isEqualTo(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
+  }
+
+  private int getRetrofittedVehiclesAuditLogCount() {
+    return JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "audit.logged_actions",
+        "table_name = 't_vehicle_retrofit'");
+  }
+
+  private int getRetrofittedUpdateVehiclesAuditLogCount() {
+    return JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "audit.logged_actions",
+        "table_name = 't_vehicle_retrofit' and action = 'U'");
+  }
+
+  private void thenNoNewVehiclesShouldBeRegisteredByFirstUploader() {
+    assertThat(getAllVehicles()).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
   }
 
   private void andJobContainsMixedParseAndBusinessValidationErrors() {
@@ -217,13 +287,24 @@ public class RegisterTestIT {
     registerVehiclesFrom("first-uploader-records-all.csv");
   }
 
+  private void whenVehiclesAreRegisteredOnceAgainByFirstUploader() {
+    registerVehiclesFrom("first-uploader-records-all.csv");
+  }
+
+  private void whenModifiedVehiclesAreRegisteredByFirstUploader() {
+    registerVehiclesFrom("first-uploader-records-all-three-modified.csv");
+  }
+
   private void thenAllShouldBeInserted() {
     allVehiclesInDatabaseAreInsertedByFirstUploader();
   }
 
   private void allVehiclesInDatabaseAreInsertedByFirstUploader() {
-    List<RetrofittedVehicle> vehicles = retrofittedVehiclePostgresRepository.findAll();
-    assertThat(vehicles).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
+    assertThat(getAllVehicles()).hasSize(FIRST_UPLOADER_TOTAL_VEHICLES_COUNT);
+  }
+
+  private List<RetrofittedVehicle> getAllVehicles() {
+    return retrofittedVehiclePostgresRepository.findAll();
   }
 
   private RegisterCsvFromS3JobHandle registerVehiclesFrom(String filename) {

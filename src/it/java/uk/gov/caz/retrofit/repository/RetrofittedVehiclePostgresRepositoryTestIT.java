@@ -34,7 +34,7 @@ class RetrofittedVehiclePostgresRepositoryTestIT {
 
   @BeforeEach
   public void setup() {
-    retrofittedVehiclePostgresRepository.insert(
+    retrofittedVehiclePostgresRepository.insertOrUpdate(
         Sets.newHashSet(MILITARY_VEHICLE_1, NORMAL_VEHICLE_1)
     );
   }
