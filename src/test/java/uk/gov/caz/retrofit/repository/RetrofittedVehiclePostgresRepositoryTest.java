@@ -63,7 +63,7 @@ class RetrofittedVehiclePostgresRepositoryTest {
     Set<RetrofittedVehicle> retrofittedVehicles = RETROFITTED_VEHICLES;
 
     //when
-    retrofittedVehiclePostgresRepository.insert(retrofittedVehicles);
+    retrofittedVehiclePostgresRepository.insertOrUpdate(retrofittedVehicles);
 
     //then
     verify(jdbcTemplate, times(2))

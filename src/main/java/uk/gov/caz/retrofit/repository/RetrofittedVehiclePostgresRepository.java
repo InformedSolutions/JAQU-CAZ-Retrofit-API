@@ -33,7 +33,7 @@ public class RetrofittedVehiclePostgresRepository {
   static final String DELETE_BY_VRNS_SQL = "DELETE FROM t_vehicle_retrofit where vrn IN (:vrns)";
 
   @VisibleForTesting
-  static final String INSERT_SQL = "INSERT INTO t_vehicle_retrofit("
+  static final String INSERT_SQL = "INSERT INTO t_vehicle_retrofit as d ("
       + "vrn, "
       + "vehicle_category, "
       + "model, "
@@ -44,7 +44,10 @@ public class RetrofittedVehiclePostgresRepository {
       + "DO UPDATE SET "
       + "vehicle_category = excluded.vehicle_category, "
       + "model = excluded.model, "
-      + "date_of_retrofit = excluded.date_of_retrofit ";
+      + "date_of_retrofit = excluded.date_of_retrofit "
+      + "where d.vehicle_category != excluded.vehicle_category "
+      + "or d.model != excluded.model "
+      + "or d.date_of_retrofit != excluded.date_of_retrofit";
 
   private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -67,7 +70,7 @@ public class RetrofittedVehiclePostgresRepository {
    *
    * @param retrofittedVehicles A set of vehicles that will be inserted in the database.
    */
-  public void insert(Set<RetrofittedVehicle> retrofittedVehicles) {
+  public void insertOrUpdate(Set<RetrofittedVehicle> retrofittedVehicles) {
     Iterable<List<RetrofittedVehicle>> batches = Iterables
         .partition(retrofittedVehicles, updateBatchSize);
     for (List<RetrofittedVehicle> batch : batches) {

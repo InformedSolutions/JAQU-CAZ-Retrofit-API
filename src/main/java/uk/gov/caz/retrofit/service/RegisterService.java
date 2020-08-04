@@ -35,7 +35,6 @@ public class RegisterService {
   @Transactional
   public RegisterResult register(Set<RetrofittedVehicle> retrofittedVehicles, UUID uploaderId) {
     Preconditions.checkNotNull(retrofittedVehicles, "retrofittedVehicles cannot be null");
-
     Preconditions.checkNotNull(uploaderId, "uploaderId cannot be null");
 
     log.info("Registering {} vehicle(s) : start", retrofittedVehicles.size());
@@ -44,7 +43,7 @@ public class RegisterService {
     log.info("Transaction associated with {} in the audit table.", uploaderId);
 
     retrofittedVehiclePostgresRepository.delete(vehiclesToDelete(retrofittedVehicles));
-    retrofittedVehiclePostgresRepository.insert(retrofittedVehicles);
+    retrofittedVehiclePostgresRepository.insertOrUpdate(retrofittedVehicles);
 
     log.info("Registering {} vehicle(s) : finish", retrofittedVehicles.size());
     return RegisterResult.success();
