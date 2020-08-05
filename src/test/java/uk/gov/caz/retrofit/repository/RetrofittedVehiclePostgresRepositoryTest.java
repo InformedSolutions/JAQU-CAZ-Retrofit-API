@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,10 +47,13 @@ class RetrofittedVehiclePostgresRepositoryTest {
   @Mock
   private JdbcTemplate jdbcTemplate;
 
+  @Mock
+  private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
   @BeforeEach
   void setup() {
     retrofittedVehiclePostgresRepository = new RetrofittedVehiclePostgresRepository(
-        jdbcTemplate, ANY_BATCH_SIZE
+        jdbcTemplate, namedParameterJdbcTemplate, ANY_BATCH_SIZE
     );
   }
 
@@ -59,7 +63,7 @@ class RetrofittedVehiclePostgresRepositoryTest {
     Set<RetrofittedVehicle> retrofittedVehicles = RETROFITTED_VEHICLES;
 
     //when
-    retrofittedVehiclePostgresRepository.insert(retrofittedVehicles);
+    retrofittedVehiclePostgresRepository.insertOrUpdate(retrofittedVehicles);
 
     //then
     verify(jdbcTemplate, times(2))

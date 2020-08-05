@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
-import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 import uk.gov.caz.retrofit.repository.AuditingRepository;
+import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterServiceTest {
@@ -106,11 +107,11 @@ class RegisterServiceTest {
     private Set<RetrofittedVehicle> retrofittedVehicles = new HashSet<>();
 
     public InMemoryRetrofittedRepository() {
-      super(null, 2);
+      super(null, null, 2);
     }
 
     @Override
-    public void insert(Set<RetrofittedVehicle> retrofittedVehicles) {
+    public void insertOrUpdate(Set<RetrofittedVehicle> retrofittedVehicles) {
       this.retrofittedVehicles.addAll(retrofittedVehicles);
     }
 
@@ -122,6 +123,23 @@ class RegisterServiceTest {
     @Override
     public List<RetrofittedVehicle> findAll() {
       return Lists.newArrayList(retrofittedVehicles);
+    }
+
+    @Override
+    public void delete(Set<String> vrns) {
+      retrofittedVehicles = retrofittedVehicles.stream()
+          .filter(vehicle -> !vrns.contains(vehicle.getVrn()))
+          .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean existsByVrn(String vrn) {
+      return retrofittedVehicles.stream().anyMatch(e -> vrn.equals(e.getVrn()));
+    }
+
+    @Override
+    public List<String> findAllVrns() {
+      return retrofittedVehicles.stream().map(e -> e.getVrn()).collect(Collectors.toList());
     }
   }
 }
