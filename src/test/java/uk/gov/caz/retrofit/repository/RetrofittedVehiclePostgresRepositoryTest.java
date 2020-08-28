@@ -1,12 +1,16 @@
 package uk.gov.caz.retrofit.repository;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Sets;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,5 +83,17 @@ class RetrofittedVehiclePostgresRepositoryTest {
     //then
     verify(jdbcTemplate)
         .update(eq(RetrofittedVehiclePostgresRepository.DELETE_ALL_SQL));
+  }
+
+  @Test
+  void shouldReturnWhenDeletingEmptySet() {
+    // given
+    Set<String> vrns = Collections.emptySet();
+
+    // when
+    retrofittedVehiclePostgresRepository.delete(vrns);
+
+    // then
+    verify(namedParameterJdbcTemplate, never()).update(anyString(), anyMap());
   }
 }

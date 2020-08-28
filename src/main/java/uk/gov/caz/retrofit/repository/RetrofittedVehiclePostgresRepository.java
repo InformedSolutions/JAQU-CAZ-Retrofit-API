@@ -94,7 +94,7 @@ public class RetrofittedVehiclePostgresRepository {
       return;
     }
 
-    log.info("Deleting retroffited vehicle for vrns [{}]", vrns);
+    log.info("Deleting retroffited vehicles");
     MapSqlParameterSource mapSqlParameterSource = new MapSqlParameterSource();
     mapSqlParameterSource.addValue("vrns", vrns);
 
