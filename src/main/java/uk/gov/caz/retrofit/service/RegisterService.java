@@ -1,10 +1,7 @@
 package uk.gov.caz.retrofit.service;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,8 +21,6 @@ import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 @AllArgsConstructor
 @Slf4j
 public class RegisterService {
-
-  private static final int DELETE_BATCH_SIZE = 10_000;
 
   private final RetrofittedVehiclePostgresRepository retrofittedVehiclePostgresRepository;
 
@@ -47,7 +42,7 @@ public class RegisterService {
     auditingRepository.tagModificationsInCurrentTransactionBy(uploaderId);
     log.info("Transaction associated with {} in the audit table.", uploaderId);
 
-    deleteVehiclesInBatches(vehiclesToDelete(retrofittedVehicles));
+    retrofittedVehiclePostgresRepository.delete(vehiclesToDelete(retrofittedVehicles));
     retrofittedVehiclePostgresRepository.insertOrUpdate(retrofittedVehicles);
 
     log.info("Registering {} vehicle(s) : finish", retrofittedVehicles.size());
@@ -55,7 +50,7 @@ public class RegisterService {
   }
 
   /**
-   * Method that caluclates which VRNs should be deleted from DB.
+   * Method that calculates which VRNs should be deleted from DB.
    */
   public Set<String> vehiclesToDelete(Set<RetrofittedVehicle> retrofittedVehicles) {
     Set<String> uploadedVrns = retrofittedVehicles.stream().map(RetrofittedVehicle::getVrn)
@@ -67,15 +62,5 @@ public class RegisterService {
     return existingVrns.stream()
         .filter(existingVrn -> !uploadedVrns.contains(existingVrn))
         .collect(Collectors.toSet());
-  }
-
-  /**
-   * Method responsible for deleting VRNs in batches.
-   *
-   * @param vehiclesToDelete set with all vehicles to delete.
-   */
-  private void deleteVehiclesInBatches(Set<String> vehiclesToDelete) {
-    Iterable<List<String>> batches = Iterables.partition(vehiclesToDelete, DELETE_BATCH_SIZE);
-    batches.forEach(batch -> retrofittedVehiclePostgresRepository.delete(Sets.newHashSet(batch)));
   }
 }

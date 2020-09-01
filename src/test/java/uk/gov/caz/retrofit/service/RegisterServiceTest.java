@@ -107,7 +107,7 @@ class RegisterServiceTest {
     private Set<RetrofittedVehicle> retrofittedVehicles = new HashSet<>();
 
     public InMemoryRetrofittedRepository() {
-      super(null, null, 2);
+      super(null, 2);
     }
 
     @Override
