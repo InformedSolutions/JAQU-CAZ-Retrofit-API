@@ -7,12 +7,11 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
@@ -29,8 +28,6 @@ public class RetrofittedVehiclePostgresRepository {
 
   @VisibleForTesting
   static final String DELETE_ALL_SQL = "DELETE FROM t_vehicle_retrofit";
-
-  static final String DELETE_BY_VRNS_SQL = "DELETE FROM t_vehicle_retrofit where vrn IN (:vrns)";
 
   @VisibleForTesting
   static final String INSERT_SQL = "INSERT INTO t_vehicle_retrofit as d ("
@@ -49,18 +46,22 @@ public class RetrofittedVehiclePostgresRepository {
       + "or d.model != excluded.model "
       + "or d.date_of_retrofit != excluded.date_of_retrofit";
 
+  static final String CREATE_TEMP_TABLE =
+      "CREATE TEMP TABLE IF NOT EXISTS vrns_to_delete_tmp (id varchar(15))";
+  static final String INSERT_VRNS_INTO_TEMP_TABLE = "INSERT INTO vrns_to_delete_tmp VALUES(?)";
+  static final String DELETE_TEMP_TABLE_VRNS =
+      "DELETE FROM t_vehicle_retrofit WHERE vrn IN (SELECT id FROM vrns_to_delete_tmp)";
+  static final String DROP_TEMP_TABLE = "DROP TABLE vrns_to_delete_tmp";
+
   private final JdbcTemplate jdbcTemplate;
-  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
   private final int updateBatchSize;
 
   /**
    * Public constructor that is used by Spring to initialize this class.
    */
   public RetrofittedVehiclePostgresRepository(JdbcTemplate jdbcTemplate,
-      NamedParameterJdbcTemplate namedParameterJdbcTemplate,
       @Value("${application.jdbc.updateBatchSize:100}") int updateBatchSize) {
     this.jdbcTemplate = jdbcTemplate;
-    this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     this.updateBatchSize = updateBatchSize;
   }
 
@@ -95,17 +96,21 @@ public class RetrofittedVehiclePostgresRepository {
     }
 
     log.info("Deleting retroffited vehicles");
-    MapSqlParameterSource mapSqlParameterSource = new MapSqlParameterSource();
-    mapSqlParameterSource.addValue("vrns", vrns);
 
-    namedParameterJdbcTemplate.update(DELETE_BY_VRNS_SQL, mapSqlParameterSource);
+    List<Object[]> vrnsList = vrns.stream().map(vrn -> new Object[]{vrn})
+        .collect(Collectors.toList());
+
+    jdbcTemplate.execute(CREATE_TEMP_TABLE);
+    jdbcTemplate.batchUpdate(INSERT_VRNS_INTO_TEMP_TABLE, vrnsList);
+    jdbcTemplate.update(DELETE_TEMP_TABLE_VRNS);
+    jdbcTemplate.execute(DROP_TEMP_TABLE);
   }
 
   /**
    * Finds whether vehicle for given vrn exists in DB.
    */
   public boolean existsByVrn(String vrn) {
-    return jdbcTemplate.queryForObject(COUNT_BY_VRN, new Object[] {vrn}, Integer.class) > 0;
+    return jdbcTemplate.queryForObject(COUNT_BY_VRN, new Object[]{vrn}, Integer.class) > 0;
   }
 
   /**

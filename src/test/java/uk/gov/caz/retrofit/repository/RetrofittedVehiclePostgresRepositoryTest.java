@@ -51,13 +51,10 @@ class RetrofittedVehiclePostgresRepositoryTest {
   @Mock
   private JdbcTemplate jdbcTemplate;
 
-  @Mock
-  private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
   @BeforeEach
   void setup() {
     retrofittedVehiclePostgresRepository = new RetrofittedVehiclePostgresRepository(
-        jdbcTemplate, namedParameterJdbcTemplate, ANY_BATCH_SIZE
+        jdbcTemplate, ANY_BATCH_SIZE
     );
   }
 
@@ -94,6 +91,7 @@ class RetrofittedVehiclePostgresRepositoryTest {
     retrofittedVehiclePostgresRepository.delete(vrns);
 
     // then
-    verify(namedParameterJdbcTemplate, never()).update(anyString(), anyMap());
+    verify(jdbcTemplate, never()).execute(anyString());
+    verify(jdbcTemplate, never()).update(anyString());
   }
 }
