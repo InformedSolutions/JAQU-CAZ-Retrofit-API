@@ -7,7 +7,7 @@ import subprocess
 
 
 def run_aws_command(args):
-    cmd = ['aws'] + args
+    cmd = ['aws'] + args + ['--profile', 'target_acc']
     print(' '.join(cmd))
     try:
         result = subprocess.run(cmd, stdout=subprocess.PIPE)
@@ -40,7 +40,7 @@ def get_subscribed_topics(topics, email, ignore_pending):
         arn = sub['SubscriptionArn']
         topic_arn = sub['TopicArn']
         if (
-                topic_arn in topics and 
+                topic_arn in topics and
                 sub['Protocol'].lower() == 'email' and
                 sub['Endpoint'].lower() == email.lower() and (
                     arn.startswith('arn:aws:sns') or (
@@ -56,7 +56,7 @@ def get_topics(includes, excludes):
         is_included = True
         for include in includes or []:
             if include not in arn:
-                is_included = False 
+                is_included = False
         for exclude in excludes or []:
             if exclude in arn:
                 is_included = False
