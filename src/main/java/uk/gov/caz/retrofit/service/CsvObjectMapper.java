@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -74,10 +75,28 @@ public class CsvObjectMapper {
       }
       lineNo += 1;
     }
+    ImmutableList<RetrofittedVehicleDto> retrofittedVehicles = vehiclesBuilder.build();
+
     logParsingEndReason(errors);
     addTrailingRowErrorInfoIfApplicable(reader, errors, lineNo - 1);
+    addDuplicatedVrnsErrorIfApplicable(retrofittedVehicles, errors);
 
-    return new CsvParseResult(vehiclesBuilder.build(), Collections.unmodifiableList(errors));
+    return new CsvParseResult(retrofittedVehicles, Collections.unmodifiableList(errors));
+  }
+
+  private void addDuplicatedVrnsErrorIfApplicable(List<RetrofittedVehicleDto> vehicles,
+      List<ValidationError> errors) {
+    long numberOfUniqueVrns = vehicles
+        .stream()
+        .map(RetrofittedVehicleDto::getVrn)
+        .distinct()
+        .count();
+
+    if (vehicles.size() != numberOfUniqueVrns) {
+      errors.add(
+          ValidationError.valueError("There are multiple entries with the same VRN")
+      );
+    }
   }
 
   private void logParsingEndReason(LinkedList<ValidationError> errors) {

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005.1-retrofit-1.0
+      author: jaroslaw.piotrowski
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0005-retrofit-1.0-use-jsonb-in-retrofit-audit-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
