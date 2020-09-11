@@ -65,6 +65,10 @@ public class ValidationError {
     return new ValidationError(null, VALUE_ERROR_TITLE, detail, lineNumber);
   }
 
+  public static ValidationError valueError(String detail) {
+    return new ValidationError(null, VALUE_ERROR_TITLE, detail, EMPTY_LINE_NUMBER);
+  }
+
   public static ValidationError s3Error(String detail) {
     return new ValidationError(null, S3_ERROR_TITLE, detail, EMPTY_LINE_NUMBER);
   }

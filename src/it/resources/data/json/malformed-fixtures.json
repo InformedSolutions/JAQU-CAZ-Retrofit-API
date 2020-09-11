@@ -1,0 +1,22 @@
+[
+    {
+        "dateOfRetrofitInstallation": "1999-01-01",
+        "model": "model-1",
+        "vehicleCategory": "category-1",
+        "vrn": "IS05YBD"
+
+    },
+    {
+        "dateOfRetrofitInstallation": "1992-01-01",
+        "model": "model-2",
+        "vehicleCategory": "category-2",
+        "vrn": "IS14DBD"
+
+    },
+    {
+        "dateOfRetrofitInstallation": "2000-01-01",
+        "model": "model-3",
+        "vehicleCategory": "category-3",
+        "vrn": "IS05YHD"
+
+]

@@ -24,7 +24,7 @@ public class RetrofittedVehicleDtoToModelConverter {
    */
   public ConversionResults convert(List<RetrofittedVehicleDto> vehicles) {
     List<ConversionResult> conversionResults = vehicles.stream()
-        .map(vehicle -> toRetrofittedVehicle(vehicle))
+        .map(this::toRetrofittedVehicle)
         .collect(Collectors.toList());
     return ConversionResults.from(conversionResults);
   }

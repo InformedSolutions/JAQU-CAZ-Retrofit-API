@@ -1,12 +1,16 @@
 package uk.gov.caz.retrofit.repository;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.Sets;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +64,7 @@ class RetrofittedVehiclePostgresRepositoryTest {
     Set<RetrofittedVehicle> retrofittedVehicles = RETROFITTED_VEHICLES;
 
     //when
-    retrofittedVehiclePostgresRepository.insert(retrofittedVehicles);
+    retrofittedVehiclePostgresRepository.insertOrUpdate(retrofittedVehicles);
 
     //then
     verify(jdbcTemplate, times(2))
@@ -75,5 +80,18 @@ class RetrofittedVehiclePostgresRepositoryTest {
     //then
     verify(jdbcTemplate)
         .update(eq(RetrofittedVehiclePostgresRepository.DELETE_ALL_SQL));
+  }
+
+  @Test
+  void shouldReturnWhenDeletingEmptySet() {
+    // given
+    Set<String> vrns = Collections.emptySet();
+
+    // when
+    retrofittedVehiclePostgresRepository.delete(vrns);
+
+    // then
+    verify(jdbcTemplate, never()).execute(anyString());
+    verify(jdbcTemplate, never()).update(anyString());
   }
 }
