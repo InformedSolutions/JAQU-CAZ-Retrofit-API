@@ -15,6 +15,13 @@ management:
     diskspace:
       enabled: false
 
+logging:
+  level:
+    uk:
+      gov:
+        caz:
+          correlationid: INFO
+
 swagger:
   api:
     title: Retrofit Register API
