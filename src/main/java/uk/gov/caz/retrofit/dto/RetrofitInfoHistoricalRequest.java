@@ -3,9 +3,9 @@ package uk.gov.caz.retrofit.dto;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -69,19 +69,19 @@ public class RetrofitInfoHistoricalRequest {
   /**
    * Helper method to convert dates.
    *
-   * @return {@link OffsetDateTime}
+   * @return {@link LocalDateTime}
    */
-  public OffsetDateTime getOffsetStartDate() {
-    return toOffsetDateTime(this.getStartDate(), LocalTime.MIDNIGHT);
+  public LocalDateTime getLocalStartDate() {
+    return toLocalDateTime(this.getStartDate(), LocalTime.MIDNIGHT);
   }
 
   /**
    * Helper method to convert dates.
    *
-   * @return {@link OffsetDateTime}
+   * @return {@link LocalDateTime}
    */
-  public OffsetDateTime getOffsetEndDate() {
-    return toOffsetDateTime(this.getEndDate(), LocalTime.MIDNIGHT.minusNanos(1));
+  public LocalDateTime getLocalEndDate() {
+    return toLocalDateTime(this.getEndDate(), LocalTime.MIDNIGHT.minusNanos(1));
   }
 
   /**
@@ -102,7 +102,7 @@ public class RetrofitInfoHistoricalRequest {
    * Returns a lambda that verifies if 'start date' is before 'end date.
    */
   private static Function<RetrofitInfoHistoricalRequest, Boolean> startNotAfterEndDate() {
-    return request -> request.getStartDate().isBefore(request.getEndDate()) 
+    return request -> request.getStartDate().isBefore(request.getEndDate())
         || request.getStartDate().equals(request.getEndDate());
   }
 
@@ -121,10 +121,10 @@ public class RetrofitInfoHistoricalRequest {
   }
 
   /**
-   * Convert string to {@link OffsetDateTime}.
+   * Convert date and time to {@link LocalDateTime}.
    */
-  private static OffsetDateTime toOffsetDateTime(LocalDate date, LocalTime localTime) {
-    return OffsetDateTime.of(date, localTime, ZoneOffset.UTC);
+  private static LocalDateTime toLocalDateTime(LocalDate date, LocalTime localTime) {
+    return LocalDateTime.of(date, localTime).atZone(ZoneId.of("Europe/London"))
+        .withZoneSameInstant(ZoneId.of("GMT")).toLocalDateTime();
   }
-
 }

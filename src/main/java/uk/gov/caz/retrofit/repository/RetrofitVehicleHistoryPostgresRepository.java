@@ -4,7 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,8 @@ import uk.gov.caz.retrofit.dto.RetrofitVehicleHistory;
 @Repository
 @RequiredArgsConstructor
 public class RetrofitVehicleHistoryPostgresRepository {
+
+  private static final ZoneId LONDON_ZONE_ID = ZoneId.of("Europe/London");
   private static final VehicleHistoryRowMapper MAPPER = new VehicleHistoryRowMapper();
 
   @VisibleForTesting
@@ -64,13 +68,13 @@ public class RetrofitVehicleHistoryPostgresRepository {
   private final JdbcTemplate jdbcTemplate;
 
   /**
-  * Finds all {@link RetrofitVehicleHistoricalInfo} entities for a given vrn and date range.
-  *
-  * @param vrn for which all matching licences are returned
-  * @return {@link List} of all {@link RetrofitVehicleHistory}.
-  */
-  public List<RetrofitVehicleHistory> findByVrnInRange(String vrn, OffsetDateTime startDate,
-      OffsetDateTime endDate, long pageSize, long pageNumber) {
+   * Finds all {@link RetrofitVehicleHistoricalInfo} entities for a given vrn and date range.
+   *
+   * @param vrn for which all matching licences are returned
+   * @return {@link List} of all {@link RetrofitVehicleHistory}.
+   */
+  public List<RetrofitVehicleHistory> findByVrnInRange(String vrn, LocalDateTime startDate,
+      LocalDateTime endDate, long pageSize, long pageNumber) {
     return jdbcTemplate.query(
         SELECT_BY_VRN_HISTORY,
         preparedStatement -> {
@@ -92,7 +96,7 @@ public class RetrofitVehicleHistoryPostgresRepository {
    * @param vrn for which all matching licences are returned
    * @return {@link Long} of all histories which matches passed vrn and date range.
    */
-  public Long count(String vrn, OffsetDateTime startDate, OffsetDateTime endDate) {
+  public Long count(String vrn, LocalDateTime startDate, LocalDateTime endDate) {
     List<Object> ts = Arrays.asList(vrn, vrn, startDate, endDate);
     return jdbcTemplate.queryForObject(
         SELECT_BY_VRN_HISTORY_IN_RANGE_COUNT,
@@ -112,7 +116,8 @@ public class RetrofitVehicleHistoryPostgresRepository {
       boolean isRemoved = DELETE_ACTION.equals(action);
       return RetrofitVehicleHistory.builder()
           .modifyDate(Optional.ofNullable(rs.getObject("action_tstamp", OffsetDateTime.class))
-              .map(OffsetDateTime::toLocalDate).orElse(null))
+              .map(offsetDateTime -> offsetDateTime.atZoneSameInstant(LONDON_ZONE_ID).toLocalDate())
+              .orElse(null))
           .action(mapAction(action))
           .vehicleCategory(
               rs.getString(isRemoved ? "original_category" : "new_vehicle_category"))
