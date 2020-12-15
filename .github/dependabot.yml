@@ -9,6 +9,10 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      timezone: "UTC" # set time zone
+      time: "19:00" # set time
+    open-pull-requests-limit: 0 
+
 
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/developer-resources/scripts/" # Location of package manifests
