@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
+import uk.gov.caz.retrofit.model.RetrofitVrnInfo;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
 @IntegrationTest
@@ -66,5 +67,15 @@ class RetrofittedVehiclePostgresRepositoryTestIT {
     //then
     assertThat(allVrns)
         .containsExactlyInAnyOrder(NORMAL_VEHICLE_1.getVrn(), MILITARY_VEHICLE_1.getVrn());
+  }
+
+  @Test
+  public void shouldFetchVrnInfo() {
+    //when
+    RetrofitVrnInfo retrofitVrnInfo = retrofittedVehiclePostgresRepository
+        .infoByVrn(NORMAL_VEHICLE_1.getVrn());
+
+    // then
+    assertThat(retrofitVrnInfo.getRowCount()).isEqualTo(1);
   }
 }

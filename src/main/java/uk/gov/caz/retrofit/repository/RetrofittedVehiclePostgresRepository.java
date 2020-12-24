@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import uk.gov.caz.retrofit.model.RetrofitVrnInfo;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
 @Slf4j
@@ -25,6 +26,10 @@ public class RetrofittedVehiclePostgresRepository {
 
   private static final String COUNT_BY_VRN =
       "SELECT count(*) FROM t_vehicle_retrofit WHERE vrn = ?";
+
+  private static final String VRN_INFO_SQL =
+      "SELECT count(*) rowcount, MAX(insert_timestmp) timestamp "
+          + "FROM t_vehicle_retrofit WHERE vrn = ?";
 
   @VisibleForTesting
   static final String DELETE_ALL_SQL = "DELETE FROM t_vehicle_retrofit";
@@ -111,6 +116,14 @@ public class RetrofittedVehiclePostgresRepository {
    */
   public boolean existsByVrn(String vrn) {
     return jdbcTemplate.queryForObject(COUNT_BY_VRN, new Object[]{vrn}, Integer.class) > 0;
+  }
+
+  public RetrofitVrnInfo infoByVrn(String vrn) {
+    return jdbcTemplate
+        .queryForObject(FIND_ALL_SQL, (rs, rowNum) -> RetrofitVrnInfo.builder()
+            .rowCount(rs.getInt("rowcount"))
+            .insertTimestamp(rs.getDate("timestamp").toLocalDate().atStartOfDay())
+            .build());
   }
 
   /**

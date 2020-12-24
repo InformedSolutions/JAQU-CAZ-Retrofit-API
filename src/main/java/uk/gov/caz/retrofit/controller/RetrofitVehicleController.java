@@ -1,5 +1,6 @@
 package uk.gov.caz.retrofit.controller;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +19,9 @@ public class RetrofitVehicleController implements RetrofitVehicleControllerApiSp
   @Override
   public ResponseEntity<RetrofitStatusResponse> fetchRetrofitStatus(String correlationId,
       String vrn) {
+//    retrofitVehicleService.
     if (retrofitVehicleService.existsByVrn(vrn)) {
-      return ResponseEntity.ok(new RetrofitStatusResponse(true));
+      return ResponseEntity.ok(new RetrofitStatusResponse(true, LocalDateTime.MAX));
     }
 
     return ResponseEntity.notFound().build();
