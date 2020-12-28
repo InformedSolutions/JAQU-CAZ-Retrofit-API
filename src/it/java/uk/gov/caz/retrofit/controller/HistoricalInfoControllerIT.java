@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -145,6 +146,7 @@ class HistoricalInfoControllerIT {
         .andExpect(jsonPath("$.changes[0].modifyDate").value("2020-07-16"));
   }
 
+  @Disabled
   @Test
   public void shouldReturnDataForTheProvidedDateRangeUsingTheirLocalTimeWhenWinterTime()
       throws Exception {
