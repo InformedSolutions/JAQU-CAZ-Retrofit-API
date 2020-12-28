@@ -4,13 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Sets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.caz.retrofit.annotation.IntegrationTest;
-import uk.gov.caz.retrofit.model.RetrofitVrnInfo;
+import uk.gov.caz.retrofit.model.RetrofitStatus;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
 @IntegrationTest
@@ -70,12 +72,24 @@ class RetrofittedVehiclePostgresRepositoryTestIT {
   }
 
   @Test
-  public void shouldFetchVrnInfo() {
+  public void shouldFetchVrnInfoForExisting() {
     //when
-    RetrofitVrnInfo retrofitVrnInfo = retrofittedVehiclePostgresRepository
+    RetrofitStatus retrofitStatus = retrofittedVehiclePostgresRepository
         .infoByVrn(NORMAL_VEHICLE_1.getVrn());
 
     // then
-    assertThat(retrofitVrnInfo.getRowCount()).isEqualTo(1);
+    assertThat(retrofitStatus.exists()).isEqualTo(true);
+    assertThat(retrofitStatus.getInsertTimestamp()).isBefore(LocalDateTime.now());
+  }
+
+  @Test
+  public void shouldFetchVrnInfoForMissing() {
+    //when
+    RetrofitStatus retrofitStatus = retrofittedVehiclePostgresRepository
+        .infoByVrn(NORMAL_VEHICLE_1.getVrn()+ RandomStringUtils.randomAlphabetic(2));
+
+    // then
+    assertThat(retrofitStatus.exists()).isEqualTo(false);
+    assertThat(retrofitStatus.getInsertTimestamp()).isNull();
   }
 }

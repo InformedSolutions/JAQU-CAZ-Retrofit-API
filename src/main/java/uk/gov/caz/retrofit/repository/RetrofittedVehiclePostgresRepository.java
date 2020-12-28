@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.caz.retrofit.model.RetrofitVrnInfo;
+import uk.gov.caz.retrofit.model.RetrofitStatus;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 
 @Slf4j
@@ -24,11 +24,8 @@ public class RetrofittedVehiclePostgresRepository {
 
   private static final String FIND_ALL_VRNS_SQL = "SELECT vrn FROM t_vehicle_retrofit";
 
-  private static final String COUNT_BY_VRN =
-      "SELECT count(*) FROM t_vehicle_retrofit WHERE vrn = ?";
-
   private static final String VRN_INFO_SQL =
-      "SELECT count(*) rowcount, MAX(insert_timestmp) timestamp "
+      "SELECT count(*) rowcount, MAX(insert_timestmp) insert_timestamp "
           + "FROM t_vehicle_retrofit WHERE vrn = ?";
 
   @VisibleForTesting
@@ -112,17 +109,13 @@ public class RetrofittedVehiclePostgresRepository {
   }
 
   /**
-   * Finds whether vehicle for given vrn exists in DB.
+   * Finds info about VRN.
    */
-  public boolean existsByVrn(String vrn) {
-    return jdbcTemplate.queryForObject(COUNT_BY_VRN, new Object[]{vrn}, Integer.class) > 0;
-  }
-
-  public RetrofitVrnInfo infoByVrn(String vrn) {
+  public RetrofitStatus infoByVrn(String vrn) {
     return jdbcTemplate
-        .queryForObject(FIND_ALL_SQL, (rs, rowNum) -> RetrofitVrnInfo.builder()
+        .queryForObject(VRN_INFO_SQL, new Object[] {vrn}, (rs, rowNum) -> RetrofitStatus.builder()
             .rowCount(rs.getInt("rowcount"))
-            .insertTimestamp(rs.getDate("timestamp").toLocalDate().atStartOfDay())
+            .insertTimestamp(rs.getTimestamp("insert_timestamp"))
             .build());
   }
 
