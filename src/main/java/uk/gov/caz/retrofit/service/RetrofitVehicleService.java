@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import uk.gov.caz.retrofit.model.RetrofitStatus;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
 
 /**
@@ -15,8 +16,8 @@ public class RetrofitVehicleService {
 
   private RetrofittedVehiclePostgresRepository retrofittedVehiclePostgresRepository;
 
-  public boolean existsByVrn(String vrn) {
+  public RetrofitStatus infoByVrn(String vrn) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(vrn), "VRN cannot be empty");
-    return retrofittedVehiclePostgresRepository.existsByVrn(vrn);
+    return retrofittedVehiclePostgresRepository.infoByVrn(vrn);
   }
 }
