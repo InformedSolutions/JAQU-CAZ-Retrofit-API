@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.google.common.collect.Sets;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.caz.retrofit.model.RetrofitStatus;
 import uk.gov.caz.retrofit.model.RetrofittedVehicle;
 import uk.gov.caz.retrofit.repository.AuditingRepository;
 import uk.gov.caz.retrofit.repository.RetrofittedVehiclePostgresRepository;
@@ -133,8 +136,13 @@ class RegisterServiceTest {
     }
 
     @Override
-    public boolean existsByVrn(String vrn) {
-      return retrofittedVehicles.stream().anyMatch(e -> vrn.equals(e.getVrn()));
+    public RetrofitStatus infoByVrn(String vrn) {
+      return RetrofitStatus.builder()
+          .rowCount(Long.valueOf(retrofittedVehicles.stream()
+              .filter(e -> vrn.equals(e.getVrn()))
+              .count()).intValue())
+          .insertTimestamp(Timestamp.from(Instant.MIN))
+          .build();
     }
 
     @Override

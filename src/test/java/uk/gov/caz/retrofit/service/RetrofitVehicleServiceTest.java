@@ -32,7 +32,7 @@ class RetrofitVehicleServiceTest {
   private ThrowableAssertAlternative<IllegalArgumentException> assertExceptionThrownForVrn(
       String o) {
     return assertThatExceptionOfType(IllegalArgumentException.class)
-        .isThrownBy(() -> retrofitVehicleService.existsByVrn(o))
+        .isThrownBy(() -> retrofitVehicleService.infoByVrn(o))
         .withMessage("VRN cannot be empty");
   }
 }
