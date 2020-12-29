@@ -21,16 +21,17 @@ public class RetrofitStatus {
     return rowCount > 0;
   }
 
-  private RetrofitStatus() {}
+  private RetrofitStatus() {
+  }
 
   public static Builder builder() {
     return new Builder();
   }
 
   public static class Builder {
+
     int rowCount;
     LocalDateTime insertTimestamp;
-
 
     /**
      * Sets rowcount for a builder object.
@@ -50,7 +51,6 @@ public class RetrofitStatus {
       return this;
     }
 
-
     /**
      * Builds an object.
      */
@@ -60,8 +60,5 @@ public class RetrofitStatus {
       info.setInsertTimestamp(this.insertTimestamp);
       return info;
     }
-
-
   }
-
 }
