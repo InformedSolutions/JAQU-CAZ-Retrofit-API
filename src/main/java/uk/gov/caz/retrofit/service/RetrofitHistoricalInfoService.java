@@ -29,7 +29,7 @@ public class RetrofitHistoricalInfoService {
   public RetrofitVehicleHistoricalInfo findByVrnInRange(String vrn,
       RetrofitInfoHistoricalRequest request) {
     List<RetrofitVehicleHistory> changes = retrofitVehicleHistoryPostgresRepository
-        .findByVrnInRange(vrn, request.getOffsetStartDate(), request.getOffsetEndDate(),
+        .findByVrnInRange(vrn, request.getLocalStartDate(), request.getLocalEndDate(),
             request.getPageSize(), request.getPageNumber());
     return RetrofitVehicleHistoricalInfo.builder()
         .changes(changes)
@@ -45,6 +45,6 @@ public class RetrofitHistoricalInfoService {
     return request.getPageNumber() == 0 && changes.size() < request.getPageSize()
         ? changes.size()
         : retrofitVehicleHistoryPostgresRepository
-            .count(vrn, request.getOffsetStartDate(), request.getOffsetEndDate()).intValue();
+            .count(vrn, request.getLocalStartDate(), request.getLocalEndDate()).intValue();
   }
 }

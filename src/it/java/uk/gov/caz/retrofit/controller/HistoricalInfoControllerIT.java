@@ -118,6 +118,61 @@ class HistoricalInfoControllerIT {
         .andExpect(jsonPath("$.pageCount").value(0));
   }
 
+  @Test
+  public void shouldReturnDataForTheProvidedDateRangeUsingTheirLocalTimeWhenBST() throws Exception {
+    String vrn = "BST1235";
+
+    // given
+    MockHttpServletRequestBuilder accept = get(HistoricalInfoController.BASE_PATH, vrn)
+        .header(CORRELATION_ID_HEADER, UUID.randomUUID().toString())
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
+        .param("startDate", "2020-07-16") // 2020-07-15 in UTC
+        .param("endDate", "2020-07-16")
+        .param("pageNumber", "0")
+        .param("pageSize", PAGE_SIZE);
+
+    // when
+    ResultActions perform = mockMvc.perform(accept);
+
+    // then
+    perform.andExpect(status().isOk())
+        .andExpect(jsonPath("$.changes", hasSize(1)))
+        .andExpect(jsonPath("$.page").value(0))
+        .andExpect(jsonPath("$.totalChangesCount").value(1))
+        .andExpect(jsonPath("$.perPage").value(3))
+        .andExpect(jsonPath("$.pageCount").value(1))
+        .andExpect(jsonPath("$.changes[0].modifyDate").value("2020-07-16"));
+  }
+
+  @Test
+  public void shouldReturnDataForTheProvidedDateRangeUsingTheirLocalTimeWhenWinterTime()
+      throws Exception {
+    String vrn = "WNTR123";
+
+    // given
+    MockHttpServletRequestBuilder accept = get(HistoricalInfoController.BASE_PATH, vrn)
+        .header(CORRELATION_ID_HEADER, UUID.randomUUID().toString())
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
+        .param("startDate", "2020-12-15")
+        .param("endDate", "2020-12-15")
+        .param("pageNumber", "0")
+        .param("pageSize", PAGE_SIZE);
+
+    // when
+    ResultActions perform = mockMvc.perform(accept);
+
+    // then
+    perform.andExpect(status().isOk())
+        .andExpect(jsonPath("$.changes", hasSize(1)))
+        .andExpect(jsonPath("$.page").value(0))
+        .andExpect(jsonPath("$.totalChangesCount").value(1))
+        .andExpect(jsonPath("$.perPage").value(3))
+        .andExpect(jsonPath("$.pageCount").value(1))
+        .andExpect(jsonPath("$.changes[0].modifyDate").value("2020-12-15"));
+  }
+
   @Nested
   class BadRequest {
 

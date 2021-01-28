@@ -1,6 +1,7 @@
 package uk.gov.caz.retrofit.controller;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -9,6 +10,7 @@ import static uk.gov.caz.retrofit.controller.RetrofitVehicleController.BASE_PATH
 
 import java.time.LocalDate;
 import java.util.Collections;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,16 +47,7 @@ class RetrofitVehicleControllerTestIT {
   public void shouldGetRetrofitStatusForExistingVehicle() throws Exception {
     //given
     String existingVrn = "CAS222";
-    retrofittedVehiclePostgresRepository.insertOrUpdate(
-        Collections.singleton(
-            RetrofittedVehicle.builder()
-                .vrn(existingVrn)
-                .vehicleCategory("Category")
-                .model("Model")
-                .dateOfRetrofitInstallation(LocalDate.now())
-                .build()
-        )
-    );
+    insertVehicle(existingVrn);
 
     //then
     mockMvc.perform(get(BASE_PATH + "/" + existingVrn)
@@ -62,5 +55,32 @@ class RetrofitVehicleControllerTestIT {
         .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.retrofitStatus", is(true)));
+  }
+
+  @Test
+  public void shouldGetRetrofitInsertedTimestampForExistingVehicle() throws Exception {
+    //given
+    String existingVrn = "CAS222";
+    insertVehicle(existingVrn);
+
+    //then
+    mockMvc.perform(get(BASE_PATH + "/" + existingVrn)
+        .accept(MediaType.APPLICATION_JSON)
+        .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.addedTimestamp", notNullValue()));
+  }
+
+  private void insertVehicle(String vrn) {
+    retrofittedVehiclePostgresRepository.insertOrUpdate(
+        Collections.singleton(
+            RetrofittedVehicle.builder()
+                .vrn(vrn)
+                .vehicleCategory("Category")
+                .model("Model")
+                .dateOfRetrofitInstallation(LocalDate.now())
+                .build()
+        )
+    );
   }
 }
