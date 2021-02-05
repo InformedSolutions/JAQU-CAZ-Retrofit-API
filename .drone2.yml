@@ -1,4 +1,3 @@
-
   #################################################### Nightly Steps ############################################################
 kind: pipeline
 type: docker
@@ -193,7 +192,7 @@ steps:
 
   # Invoke terraform apply for dev
   - name: deploy to dev
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -432,7 +431,7 @@ steps:
       - mvn package -DskipUnitTests --no-transfer-progress
 
   - name: plan updates in st
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -485,7 +484,7 @@ steps:
 
   # Invoke terraform apply for dev
   - name: deploy to st
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -735,7 +734,7 @@ steps:
       - mvn package -DskipUnitTests --no-transfer-progress
 
   - name: plan terraform updates into sit
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -788,7 +787,7 @@ steps:
 
   # Invoke terraform apply for dev
   - name: deploy to sit
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -907,7 +906,7 @@ volumes:
 steps:
 
   - name: plan terraform updates into preprod
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
@@ -970,7 +969,7 @@ steps:
 
   # Invoke terraform apply for dev
   - name: deploy to preprod
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
@@ -1202,7 +1201,7 @@ steps:
       - mvn package -DskipUnitTests --no-transfer-progress
 
   - name: plan updates in uat
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -1255,7 +1254,7 @@ steps:
 
   # Invoke terraform apply for dev
   - name: deploy to uat
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk update && apk add bash
       - mkdir ~/.ssh
@@ -1372,7 +1371,7 @@ volumes:
 steps:
 
   - name: plan terraform updates into prod
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
@@ -1435,7 +1434,7 @@ steps:
 
   # Invoke terraform apply for dev
   - name: deploy to prod
-    image: hashicorp/terraform:0.12.3
+    image: hashicorp/terraform:0.12.23
     commands:
       - apk add --update bash python python-dev py-pip build-base jq wget
       - pip install awscli
