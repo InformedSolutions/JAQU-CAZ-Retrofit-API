@@ -312,7 +312,7 @@ class RegisterJobRepositoryTest {
 
   private void mockInputOutputExceptionWhenParsingJson() throws IOException {
     ObjectMapper om = mock(ObjectMapper.class);
-    given(om.readValue(anyString(), any(TypeReference.class))).willThrow(new IOException());
+    given(om.readValue(anyString(), any(TypeReference.class))).willThrow(new RuntimeException());
     registerJobRepository = new RegisterJobRepository(jdbcTemplate, objectMapper, MAX_ERRORS_COUNT);
   }
 }
