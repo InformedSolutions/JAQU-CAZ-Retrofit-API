@@ -19,7 +19,7 @@
 
 		<artifactFinalName>${project.artifactId}-${project.version}</artifactFinalName>
 
-		<internal.libraries.version>2.12.9-SNAPSHOT</internal.libraries.version>
+		<internal.libraries.version>2.16.1-SNAPSHOT</internal.libraries.version>
 
 		<codeCoverage.minCoveredRatio>1.0</codeCoverage.minCoveredRatio>
 		<codeCoverage.classMaxMissedCount>0</codeCoverage.classMaxMissedCount>
@@ -179,7 +179,7 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-joda</artifactId>
-			<version>2.9.9</version>
+			<version>2.12.3</version>
 		</dependency>
 
 		<!-- aws-related : end -->
