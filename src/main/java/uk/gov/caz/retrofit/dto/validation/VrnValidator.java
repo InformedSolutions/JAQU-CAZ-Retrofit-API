@@ -23,17 +23,18 @@ public class VrnValidator implements RetrofittedVehicleValidator {
   @VisibleForTesting
   static final String INVALID_VRN_FORMAT_MESSAGE = "Invalid format of VRN.";
 
-  public static final String REGEX = "^"
-      + "([A-Za-z]{3}[0-9]{1,4})"
-      + "|([A-Za-z][0-9]{1,3}[A-Za-z]{3})"
+  public static final String PLATE_REGEX = "^"
+      + "([A-Za-z]{1,2}[0-9]{1,4})"
+      + "|([A-Za-z]{3}[0-9]{1,3})"
+      + "|([1-9][0-9]{0,2}[A-Za-z]{3})"
+      + "|([1-9][0-9]{0,3}[A-Za-z]{1,2})"
       + "|([A-Za-z]{3}[0-9]{1,3}[A-Za-z])"
+      + "|([A-Za-z][0-9]{1,3}[A-Za-z]{3})"
       + "|([A-Za-z]{2}[0-9]{2}[A-Za-z]{3})"
-      + "|([A-Za-z]{1,3}[0-9]{1,3})"
-      + "|([1-9][0-9]{0,3}[A-Za-z]{1,3})"
-      + "|([A-Za-z]{1,2}[0-9]{1,4})"
+      + "|([A-Za-z]{3}[0-9]{4})"
       + "$";
 
-  private static final Pattern vrnPattern = Pattern.compile(REGEX);
+  private static final Pattern vrnPattern = Pattern.compile(PLATE_REGEX);
 
   @Override
   public List<ValidationError> validate(RetrofittedVehicleDto retrofittedVehicleDto) {
