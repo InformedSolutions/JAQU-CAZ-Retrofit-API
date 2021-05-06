@@ -22,6 +22,9 @@ build:
 build-yolo:
 	./mvnw verify -DskipTests
 
+build-local:
+	./mvnw verify -P jacoco,localbuild
+
 compile:
 	./mvnw compile
   
