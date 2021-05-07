@@ -83,6 +83,7 @@
 		<skipUnitTests>${skipTests}</skipUnitTests>
 		<skipITs>${skipTests}</skipITs>
 		<skipLocalContainersSetup>${skipTests}</skipLocalContainersSetup>
+		<excludeLocal></excludeLocal>
 	</properties>
 
 	<repositories>
@@ -376,6 +377,7 @@
 					</includes>
 					<excludes>
 						<exclude>**/*IT.java</exclude>
+						<exclude>${excludeLocal}</exclude>
 					</excludes>
 					<skipTests>${skipUnitTests}</skipTests>
 				</configuration>
@@ -401,6 +403,7 @@
 					</includes>
 					<excludes>
 						<exclude>**/*Test.java</exclude>
+						<exclude>${excludeLocal}</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -742,5 +745,13 @@
 				</plugins>
 			</build>
 		</profile>
+
+		<profile>
+			<id>localbuild</id>
+			<properties>
+				<excludeLocal>**/*DroneOnly*.java</excludeLocal>
+			</properties>
+		</profile>
+
 	</profiles>
 </project>
