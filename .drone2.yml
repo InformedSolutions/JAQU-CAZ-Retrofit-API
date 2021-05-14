@@ -84,15 +84,6 @@ services:
 
 steps:
 
-  # Clean agent images and containers to prevent disk space overuse
-  - name: clean agent
-    image: docker:19.03.11-git
-    commands:
-      - docker system prune -f
-    volumes:
-      - name: docker_sock
-        path: /var/run/docker.sock
-
   # Build docker images
   - name: build docker maven base
     image: docker:19.03.11-git
