@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.12.RELEASE</version> <!-- lookup parent from repository -->
+		<version>2.4.6</version> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>uk.gov.caz</groupId>
 	<artifactId>retrofit-register-api</artifactId>
@@ -197,6 +197,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 		<!-- Spring-related : end -->
 
