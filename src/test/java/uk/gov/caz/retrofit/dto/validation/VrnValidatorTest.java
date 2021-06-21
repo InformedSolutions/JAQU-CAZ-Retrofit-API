@@ -192,10 +192,18 @@ class VrnValidatorTest {
         "A9", "A99", "A999", "A9999", "AA9", "AA99", "AA999", "AA9999", "AAA9", "AAA99", "AAA999",
         "AAA9999", "AAA9A", "AAA99A", "AAA999A", "9A", "9AA", "9AAA", "99A", "99AA", "99AAA",
         "999A", "999AA", "999AAA", "9999A", "9999AA", "A9AAA", "A99AAA", "A999AAA", "AA99AAA",
-        "9999AAA", "ABC123", "A123BCD", "GAD975C", "ZEA1436", "SK12JKL", "7429HER", "G5", "6W",
+        "ABC123", "A123BCD", "GAD975C", "ZEA1436", "SK12JKL", "G5", "6W",
         "JK4", "P91", "9RA", "81U", "KAT7", "Y478", "LK31", "8RAD", "87KJ", "111Z", "A7CUD",
         "VAR7A", "FES23", "PG227", "30JFA", "868BO", "1289J", "B8659", "K97LUK", "MAN07U", "546BAR",
-        "JU0043", "8839GF"
+        "JU0043", "8839GF",
+        "UI1", "UI12", "UI123", "UI1234",
+        "ABC9", "ABC98", "ABC987",
+        "1AGH", "10AGH", "100AGH",
+        "1B", "1BZ", "10Z", "10BZ",
+        "IAM000A","IAM00A", "IAM0A",
+        "A0MOB", "A01MOB", "A012MOB",
+        "XY09BMW",
+        "XYZ2021"
     })
     public void shouldAcceptValidVrn(String validVrn) {
       // given
