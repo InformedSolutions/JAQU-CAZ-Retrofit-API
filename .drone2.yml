@@ -779,7 +779,6 @@ steps:
         from_secret: jaqu_controlled_aws_secret_access_key
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCOUNT_NAME: jaqu-controlled
-
     volumes:
       - name: package_directory
         path: /opt/package
