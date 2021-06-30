@@ -958,7 +958,7 @@ steps:
       event:
         - push
     depends_on:
-      - apply db schema migrations (sit)
+      - deploy to sit
 
     # Invokes lambda function with $LATEST alias to deploy schema migrations prior to code deploy rollover
   - name: codedeploy api sit2
@@ -988,7 +988,7 @@ steps:
       event:
         - push
     depends_on:
-      - apply db schema migrations (sit2)
+      - deploy to sit2
 
   # subscribe to operational monitoring alert in api sit
   - name: subscribe to operational monitoring alert in api sit
@@ -1022,7 +1022,7 @@ steps:
       - pip3 install awscli
       - mkdir ~/.aws
       - echo -e "[profile target_acc]\nrole_arn = $AWS_ACCOUNT_ROLE\ncredential_source = Environment\nrole_session_name = AWSACCOUNT" > ~/.aws/config
-      - python3 ./ci-cd-resources/subscribe_to_alert_topic_iac_restructure.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i sit -i mod ISSupport-CAZ@informed.com
+      - python3 ./ci-cd-resources/subscribe_to_alert_topic_iac_restructure.py -e freeable-memory -e 4xx -e usage -e evictions -e csv -i sit2 -i mod ISSupport-CAZ@informed.com
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: jaqu_controlled_aws_access_key_id
