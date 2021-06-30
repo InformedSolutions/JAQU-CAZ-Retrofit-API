@@ -79,6 +79,9 @@ create-archetype: clean
 sonar:
 	./mvnw sonar:sonar
 
+local-api:
+	docker-compose -f docker/docker-compose-local-api.yml up -d
+
 local-up:
 	docker-compose -f docker/docker-compose.yml -p postgres_docker up -d
 
