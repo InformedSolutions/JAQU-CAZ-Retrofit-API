@@ -795,19 +795,11 @@ steps:
       - apk update && apk add bash
       - cd JAQU-CAZ-IAC
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
-      - cd terraform-iac/projects/retrofit/layers/01.networking
+      - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
       - chmod +x ../../../../bin/tf
       - tf init
-      - tf workspace select sit2 || tf workspace new sit2
-      - tf plan
-      - cd ../02.backends
-      - tf init
-      - tf workspace select sit2 || tf workspace new sit2
-      - tf plan
-      - cd ../03.api
-      - tf init
-      - tf workspace select sit2 || tf workspace new sit2
+      - tf workspace select sit2  || tf workspace new sit2
       - tf plan
     environment:
       TF_VAR_access_key:
@@ -856,7 +848,7 @@ steps:
       - PATH=$PATH:../../../../bin/
       - chmod +x ../../../../bin/tf
       - tf init
-      - tf workspace select sit  || tf workspace new sit
+      - tf workspace select sit || tf workspace new sit
       - tf apply -auto-approve
     environment:
       TF_VAR_access_key:
@@ -889,17 +881,9 @@ steps:
       - apk update && apk add bash
       - cd JAQU-CAZ-IAC
       - export TF_VAR_lambda_file=$(ls /opt/package/*.zip | tail -1)
-      - cd terraform-iac/projects/retrofit/layers/01.networking
+      - cd terraform-iac/projects/retrofit/layers/01.api
       - PATH=$PATH:../../../../bin/
       - chmod +x ../../../../bin/tf
-      - tf init
-      - tf workspace select sit2 || tf workspace new sit2
-      - tf apply -auto-approve
-      - cd ../02.backends
-      - tf init
-      - tf workspace select sit2 || tf workspace new sit2
-      - tf apply -auto-approve
-      - cd ../03.api
       - tf init
       - tf workspace select sit2 || tf workspace new sit2
       - tf apply -auto-approve
