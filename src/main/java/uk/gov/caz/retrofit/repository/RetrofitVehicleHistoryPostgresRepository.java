@@ -50,20 +50,33 @@ public class RetrofitVehicleHistoryPostgresRepository {
       + "a.original_data::json ->> 'model' as original_model, "
       + "a.original_data::json ->> 'date_of_retrofit' as original_date_of_retrofit ";
 
-  private static final String QUERY_SUFFIX = "FROM audit.logged_actions a "
-      + "WHERE (a.new_data::json ->> 'vrn' = ? OR a.original_data::json ->> 'vrn' = ?) "
+  private static final String NEW_DATA_QUERY_SUFFIX = "FROM audit.logged_actions a "
+      + "WHERE (a.new_data::json ->> 'vrn' = ?) "
       + "AND a.action_tstamp >= ? "
-      + "AND a.action_tstamp <= ? ";
+      + "AND a.action_tstamp <= ? "
+      + "AND table_name = 't_vehicle_retrofit' ";
 
-  private static final String PAGING_SUFFIX = "ORDER BY a.action_tstamp DESC "
+  private static final String ORIGINAL_DATA_QUERY_SUFFIX = "FROM audit.logged_actions a "
+      + "WHERE (a.original_data::json ->> 'vrn' = ?) "
+      + "AND a.action_tstamp >= ? "
+      + "AND a.action_tstamp <= ? "
+      + "AND table_name = 't_vehicle_retrofit' ";
+
+  private static final String PAGING_SUFFIX = "ORDER BY action_tstamp DESC "
       + "LIMIT ? "
       + "OFFSET ? ";
 
-  static final String SELECT_BY_VRN_HISTORY =
-      SELECT_FIELDS + QUERY_SUFFIX + PAGING_SUFFIX;
+  private static final String SELECT_BY_VRN_HISTORY_UNION_QUERY =
+      "(" + SELECT_FIELDS + NEW_DATA_QUERY_SUFFIX + ")"
+          + " UNION ALL "
+          + "(" + SELECT_FIELDS + ORIGINAL_DATA_QUERY_SUFFIX + ") "
+          + PAGING_SUFFIX;
 
-  static final String SELECT_BY_VRN_HISTORY_IN_RANGE_COUNT = "SELECT COUNT(a.action_tstamp) "
-      + QUERY_SUFFIX;
+  static final String SELECT_BY_VRN_HISTORY_IN_RANGE_COUNT = "SELECT COUNT(action_tstamp) FROM ( "
+      + "(SELECT a.action_tstamp " + NEW_DATA_QUERY_SUFFIX + ")"
+      + " UNION ALL "
+      + "(SELECT a.action_tstamp " + ORIGINAL_DATA_QUERY_SUFFIX + ") "
+      + ") as compound_result";
 
   private final JdbcTemplate jdbcTemplate;
 
@@ -76,10 +89,12 @@ public class RetrofitVehicleHistoryPostgresRepository {
   public List<RetrofitVehicleHistory> findByVrnInRange(String vrn, LocalDateTime startDate,
       LocalDateTime endDate, long pageSize, long pageNumber) {
     return jdbcTemplate.query(
-        SELECT_BY_VRN_HISTORY,
+        SELECT_BY_VRN_HISTORY_UNION_QUERY,
         preparedStatement -> {
           int i = 0;
           preparedStatement.setString(++i, vrn);
+          preparedStatement.setObject(++i, startDate);
+          preparedStatement.setObject(++i, endDate);
           preparedStatement.setString(++i, vrn);
           preparedStatement.setObject(++i, startDate);
           preparedStatement.setObject(++i, endDate);
@@ -97,7 +112,7 @@ public class RetrofitVehicleHistoryPostgresRepository {
    * @return {@link Long} of all histories which matches passed vrn and date range.
    */
   public Long count(String vrn, LocalDateTime startDate, LocalDateTime endDate) {
-    List<Object> ts = Arrays.asList(vrn, vrn, startDate, endDate);
+    List<Object> ts = Arrays.asList(vrn, startDate, endDate, vrn, startDate, endDate);
     return jdbcTemplate.queryForObject(
         SELECT_BY_VRN_HISTORY_IN_RANGE_COUNT,
         ts.toArray(),
