@@ -1857,18 +1857,18 @@ steps:
       - tf workspace select prod  || tf workspace new prod
       - tf apply -auto-approve
     environment:
-      TF_VAR_access_key:
-        from_secret: jaqu_prod_aws_access_key_id
-      TF_VAR_secret_key:
-        from_secret: jaqu_prod_aws_secret_access_key
-      TF_VAR_master_access_key:
-        from_secret: jaqu_master_aws_access_key_id
-      TF_VAR_master_secret_key:
-        from_secret: jaqu_master_aws_secret_access_key
-      AWS_ACCESS_KEY_ID:
-        from_secret: jaqu_prod_aws_access_key_id
-      AWS_SECRET_ACCESS_KEY:
-        from_secret: jaqu_prod_aws_secret_access_key
+    #  TF_VAR_access_key:
+    #    from_secret: jaqu_prod_aws_access_key_id
+    #  TF_VAR_secret_key:
+    #    from_secret: jaqu_prod_aws_secret_access_key
+    #  TF_VAR_master_access_key:
+    #    from_secret: jaqu_master_aws_access_key_id
+    #  TF_VAR_master_secret_key:
+    #    from_secret: jaqu_master_aws_secret_access_key
+    #  AWS_ACCESS_KEY_ID:
+    #    from_secret: jaqu_prod_aws_access_key_id
+    #  AWS_SECRET_ACCESS_KEY:
+    #    from_secret: jaqu_prod_aws_secret_access_key
       SRC_AWS_ACCOUNT_ROLE: arn:aws:iam::360470905865:role/jaqu-stagingServiceRole
       AWS_DEFAULT_REGION: eu-west-2
       AWS_ACCOUNT_NAME: jaqu-prod
